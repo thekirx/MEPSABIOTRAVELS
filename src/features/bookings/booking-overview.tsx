@@ -137,8 +137,8 @@ export function BookingOverview({ booking: b }: { booking: Booking }) {
           </table>
         </div>
         <p>
-          Markup {money(t.markup)} · Discount {money(q.discountCentavos)} · Profit{" "}
-          {money(t.grossProfit)}
+          Markup {money(t.markup)} · Discount {money(q.discountCentavos)} ·
+          Profit {money(t.grossProfit)}
         </p>
       </div>
     </Sheet>
