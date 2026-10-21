@@ -1,2 +1,1 @@
-import {PageHeader} from "@/components/shared";
-export default function Page(){return <PageHeader title="dashboard"/>}
+import {Dashboard} from '@/features/dashboard/dashboard';export default function Page(){return <Dashboard/>}
