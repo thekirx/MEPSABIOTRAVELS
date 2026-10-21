@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { useTravelStore } from "@/store";
-import { destination, financials } from "@/store/selectors";
+import { destination, financials, kpis } from "@/store/selectors";
 import {
   PageHeader,
   MoneyCell,
@@ -32,6 +32,7 @@ export function BookingList() {
         title="Bookings"
         description="Every journey, every detail. All in one place."
       />
+      <p className="subtle-note">Bookings this month: <strong data-testid="kpi-bookings">{kpis(s).bookingsMonth}</strong></p>
       <div className="toolbar">
         <div className="toolbar-left">
           {[

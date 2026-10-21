@@ -48,7 +48,7 @@ test("1: Andrea lead → quote, live math and print isolation", async ({
 test("2: conversion creates consistent booking and increments KPI", async ({
   page,
 }) => {
-  await page.goto("/dashboard");
+  await page.goto("/bookings");
   const before = Number(await page.getByTestId("kpi-bookings").innerText());
   await accept(page);
   await expect(page.getByTestId("traveler-row")).toHaveCount(4);
@@ -61,20 +61,20 @@ test("2: conversion creates consistent booking and increments KPI", async ({
       .filter({ hasText: "Andrea Reyes" })
       .getByLabel("Lead stage"),
   ).toHaveValue("Won");
-  await page.goto("/dashboard");
+  await page.goto("/bookings");
   await expect(page.getByTestId("kpi-bookings")).toHaveText(String(before + 1));
 });
 test("3: deposit updates balance, receivables, ledger and customer", async ({
   page,
 }) => {
   await accept(page);
-  await page.goto("/dashboard");
+  await page.goto("/payments");
   const before = await page
     .getByTestId("kpi-receivables")
     .getAttribute("data-centavos");
   await page.goto("/bookings/view?id=b8");
   await deposit(page);
-  await page.goto("/dashboard");
+  await page.goto("/payments");
   expect(
     Number(
       await page.getByTestId("kpi-receivables").getAttribute("data-centavos"),
@@ -107,25 +107,17 @@ test("4: visa creation, checklist and stage counts", async ({ page }) => {
     page.getByRole("button", { name: "Complete (1)", exact: true }),
   ).toBeVisible();
 });
-test("5: tomorrow ticketing alert removed only after reference and issuance", async ({
-  page,
-}) => {
-  await page.goto("/dashboard");
-  await expect(
-    page.getByText("Airfare deadline", { exact: true }),
-  ).toBeVisible();
-  await page.getByRole("link").filter({ hasText: "Airfare deadline" }).click();
-  const row = page.getByTestId("service-row").first();
-  await row.getByLabel("Service status").selectOption("Issued");
-  await expect(
-    page.getByText("Enter a simulated ticket / confirmation number first."),
-  ).toBeVisible();
-  await row.getByLabel("Supplier reference").fill("SIM-TKT-7788");
-  await row.getByLabel("Service status").selectOption("Issued");
-  await page.goto("/dashboard");
-  await expect(page.getByText("Airfare deadline", { exact: true })).toHaveCount(
-    0,
-  );
+test("5: home ticket job requires reference, clears, and persists",async({page})=>{
+ await page.goto('/dashboard');
+ await page.getByRole('button',{name:'Record ticket',exact:true}).click();
+ await page.getByRole('button',{name:'Mark ticket issued',exact:true}).click();
+ await expect(page.getByRole('alert')).toContainText("Type the airline's reference first");
+ await page.getByLabel('Airline reference').fill('SIM-TKT-7788');
+ await page.getByRole('button',{name:'Mark ticket issued',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Record ticket',exact:true})).toHaveCount(0);
+ await expect(page.getByText('Ticket issued · recorded manually')).toBeVisible();
+ await page.reload();
+ await expect(page.getByRole('button',{name:'Record ticket',exact:true})).toHaveCount(0);
 });
 test("6: refresh persists; reset restores all seed records", async ({
   page,

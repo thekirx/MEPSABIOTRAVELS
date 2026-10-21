@@ -151,3 +151,22 @@ export function attention(s: DemoData) {
     });
   return rows;
 }
+
+export type HomeJob=Attention&{type:'service'|'payment'|'quote'|'visa';bookingId?:string;serviceId?:string;customerName:string;place:string;amountCentavos?:number;missing?:number;deadline?:string};
+export function homeJobs(s:DemoData):HomeJob[]{
+ const jobs:HomeJob[]=attention(s).map(row=>{
+  const booking=s.bookings.find(b=>b.id===row.id||b.services.some(s=>s.id===row.id)||s.visas.some(v=>v.id===row.id&&v.bookingId===b.id));
+  const service=booking?.services.find(x=>x.id===row.id),quote=s.quotations.find(q=>q.id===row.id),visa=s.visas.find(v=>v.id===row.id);
+  const customer=s.customers.find(c=>c.id===(booking?.customerId??quote?.customerId));
+  return {...row,type:service?'service':quote?'quote':visa?'visa':'payment',bookingId:booking?.id,serviceId:service?.id,deadline:service?.deadline,customerName:customer?.name??'Traveler',place:booking?destination(s,booking.quotationSnapshot):quote?destination(s,quote):visa?.country??'',amountCentavos:booking?financials(s,booking).balance:undefined,missing:visa?.checklist.filter(c=>!c.done).length};
+ });
+ const rank=(j:HomeJob)=>j.type==='payment'||(j.type==='service'&&j.deadline&&differenceInHours(new Date(j.deadline),new Date())<=24)?0:j.type==='service'?1:j.type==='quote'?2:3;
+ return jobs.sort((a,b)=>rank(a)-rank(b)||(a.deadline??'').localeCompare(b.deadline??'')||a.id.localeCompare(b.id));
+}
+export function tripStatus(s:DemoData,b:Booking):{label:string;tone:'late'|'ok'|'wait'}{
+ if(financials(s,b).status==='Overdue')return {label:'Payment late',tone:'late'};
+ if(b.services.some(x=>x.status==='On Hold'||(x.deadline&&!['Issued','Cancelled'].includes(x.status))))return {label:'Needs supplier confirmation',tone:'late'};
+ if(b.travelers.some(t=>t.visaRequired&&!s.visas.some(v=>v.bookingId===b.id&&v.travelerId===t.id&&['Approved','Released'].includes(v.stage))))return {label:'Waiting on visa papers',tone:'wait'};
+ if(b.services.some(x=>!['Confirmed','Issued','Cancelled'].includes(x.status)))return {label:'Waiting on suppliers',tone:'wait'};
+ return {label:'On track',tone:'ok'};
+}
