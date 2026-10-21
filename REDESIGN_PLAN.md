@@ -39,19 +39,19 @@ Files: `src/app/globals.css`, `src/app/layout.tsx`, `src/components/shell/shell.
 
 Create `src/components/blocks/` (or extend `src/components/shared`):
 
-| Component | From mock | Notes |
-|---|---|---|
-| `Block` (`variant: char \| lime \| red \| white \| done`) | `.block` | Tag, title, body, actions slot |
-| `BigNumber` | `.big` | Barlow Condensed, tabular numbers, formatted from centavos |
-| `StatusChip` (`late \| next \| ok \| wait \| dark`) | `.chip` | Always text |
-| `LuggageTag` | `.lug` | Code, city, date, people, status strip |
-| `StageBlock` | `.stage` | Count, label, helper text, `aria-pressed` |
-| `HeadBlock` | `.head-block` | Detail-page header with facts and actions |
-| `DetailLayout` + `SectionMenu` | `.detail` / `.subnav` | Sticky menu that highlights the section in view (IntersectionObserver) |
-| `Sheet`, `KeyValues`, `DataTable` styles | `.sheet`, `.kv`, `.t` | Tables scroll inside the sheet on narrow screens |
-| `FormDialog` | `app.js` `dialog()` | shadcn Dialog plus react-hook-form + zod. Visible labels, inline errors with `role="alert"`, focus on first error |
-| `PaymentDialog` | Home/Trip payment | Refactor `features/payments/payment-dialog.tsx` onto `FormDialog`. Keep labels "Amount (PHP)" and "Save payment" and all existing validation |
-| Toasts | `.toast` | Keep sonner. Restyle as charcoal with a lime edge |
+| Component                                                 | From mock             | Notes                                                                                                                                        |
+| --------------------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Block` (`variant: char \| lime \| red \| white \| done`) | `.block`              | Tag, title, body, actions slot                                                                                                               |
+| `BigNumber`                                               | `.big`                | Barlow Condensed, tabular numbers, formatted from centavos                                                                                   |
+| `StatusChip` (`late \| next \| ok \| wait \| dark`)       | `.chip`               | Always text                                                                                                                                  |
+| `LuggageTag`                                              | `.lug`                | Code, city, date, people, status strip                                                                                                       |
+| `StageBlock`                                              | `.stage`              | Count, label, helper text, `aria-pressed`                                                                                                    |
+| `HeadBlock`                                               | `.head-block`         | Detail-page header with facts and actions                                                                                                    |
+| `DetailLayout` + `SectionMenu`                            | `.detail` / `.subnav` | Sticky menu that highlights the section in view (IntersectionObserver)                                                                       |
+| `Sheet`, `KeyValues`, `DataTable` styles                  | `.sheet`, `.kv`, `.t` | Tables scroll inside the sheet on narrow screens                                                                                             |
+| `FormDialog`                                              | `app.js` `dialog()`   | shadcn Dialog plus react-hook-form + zod. Visible labels, inline errors with `role="alert"`, focus on first error                            |
+| `PaymentDialog`                                           | Home/Trip payment     | Refactor `features/payments/payment-dialog.tsx` onto `FormDialog`. Keep labels "Amount (PHP)" and "Save payment" and all existing validation |
+| Toasts                                                    | `.toast`              | Keep sonner. Restyle as charcoal with a lime edge                                                                                            |
 
 Add `src/domain/labels.ts` (plain-language stage, booking and service labels, from the handoff §4) and `src/domain/places.ts` (`destinationCode`). Unit test both.
 
@@ -209,17 +209,17 @@ Files: `src/features/bookings/booking-list.tsx`, `src/features/payments/payments
 
 ## Effort guide
 
-| Phase | Size |
-|---|---|
-| 0 Baseline | S |
-| 1 Brand, tokens, top bar | M |
-| 2 Building blocks | M |
-| 3 Home | M |
-| 4 People asking + Customer | M |
-| 5 Quote + Quote details + print | L |
-| 6 Trip + Trip details + `tripSteps` | L |
-| 7 R1–R4 review fixes, then Trips, Payments, Visas, Quotes, Settings | L+ |
-| 8 Seed fix, docs, QA | M |
+| Phase                                                               | Size |
+| ------------------------------------------------------------------- | ---- |
+| 0 Baseline                                                          | S    |
+| 1 Brand, tokens, top bar                                            | M    |
+| 2 Building blocks                                                   | M    |
+| 3 Home                                                              | M    |
+| 4 People asking + Customer                                          | M    |
+| 5 Quote + Quote details + print                                     | L    |
+| 6 Trip + Trip details + `tripSteps`                                 | L    |
+| 7 R1–R4 review fixes, then Trips, Payments, Visas, Quotes, Settings | L+   |
+| 8 Seed fix, docs, QA                                                | M    |
 
 ## Ask the user before you
 

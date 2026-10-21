@@ -25,24 +25,24 @@ Do not push, deploy, add a backend or auth, or connect external services. Commit
 - **Platform: web app.** Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, shadcn/Base UI primitives, Zustand + localStorage, `output: "export"` static build deployable to Vercel or any static host. No native app.
   - **Desktop (1440 px):** the primary target. Must look exactly like the mocks.
   - **Tablet (1024 px):** required. No page-level sideways scrolling.
-  - **Phone browser (390 px):** must be *usable*: single column, no sideways scrolling, tap targets ≥ 44 px. It doesn't have to be beautiful.
+  - **Phone browser (390 px):** must be _usable_: single column, no sideways scrolling, tap targets ≥ 44 px. It doesn't have to be beautiful.
 - **Users:** agency staff (owner, sales, ticketing, visa) who aren't technical. The client asked that it be **"simple enough for a grade schooler"**.
 
 ## 2. How we got to this design (read this; it prevents rework)
 
 The client reviewed several rounds and rejected **both extremes**:
 
-| Round | Verdict | Lesson |
-|---|---|---|
-| Grey admin dashboard, 8–11 px text | "Too plain, too much information" | Must be readable and warm |
-| Sky-blue "aurora" glow, gradients, icon bubbles | — | — |
-| Brand swoosh, italic caps, tilted stamps, glows | **"Looks like AI slop"** | No decorative effects |
-| Flat, hairline, data-dense, very restrained | **"Too plain / too much information"** again | Restraint alone isn't enough |
-| **Bold flat colour blocks in MEP's colours, big type, 3–4 things per screen** | **Approved** as the front dashboard | ← build this |
-| Detail pages behind the front | **Approved**: "this is when it is expounded" | Two layers |
-| Front screens actually clickable | **Approved** | Every button does something |
+| Round                                                                         | Verdict                                      | Lesson                       |
+| ----------------------------------------------------------------------------- | -------------------------------------------- | ---------------------------- |
+| Grey admin dashboard, 8–11 px text                                            | "Too plain, too much information"            | Must be readable and warm    |
+| Sky-blue "aurora" glow, gradients, icon bubbles                               | —                                            | —                            |
+| Brand swoosh, italic caps, tilted stamps, glows                               | **"Looks like AI slop"**                     | No decorative effects        |
+| Flat, hairline, data-dense, very restrained                                   | **"Too plain / too much information"** again | Restraint alone isn't enough |
+| **Bold flat colour blocks in MEP's colours, big type, 3–4 things per screen** | **Approved** as the front dashboard          | ← build this                 |
+| Detail pages behind the front                                                 | **Approved**: "this is when it is expounded" | Two layers                   |
+| Front screens actually clickable                                              | **Approved**                                 | Every button does something  |
 
-**The rule:** the *front* screens are bold and almost empty. Each has one job per block and one button per block. All the detail lives **one click deeper** on dense, calm detail pages.
+**The rule:** the _front_ screens are bold and almost empty. Each has one job per block and one button per block. All the detail lives **one click deeper** on dense, calm detail pages.
 
 ### Never do (the client called these "AI slop")
 
@@ -60,7 +60,7 @@ The client reviewed several rounds and rejected **both extremes**:
 - **Big type:** Barlow Condensed for titles and numbers (36–110 px), Barlow 17 px body.
 - **Plain words:** "Collect Camille's payment", not "Overdue balance HTT-B-2026-0082".
 - **One main button per block.** At most one lime primary button per screen region.
-- **Status = coloured dot or chip *plus words*.** Never colour alone.
+- **Status = coloured dot or chip _plus words_.** Never colour alone.
 - **Real numbers only,** all derived from the store.
 
 ## 3. Brand
@@ -76,20 +76,20 @@ The client is **MEP Sabio Travel**. Tagline: "Quality travel for less". The clie
 
 ### Tokens (from `design/mocks/mock.css`)
 
-| Token | Value | Use |
-|---|---|---|
-| `--char` | `#292b2f` | Top bar, dark blocks, primary text buttons. Exactly the logo's background colour. |
-| `--lime` | `#c8e63c` | **Main action** buttons (charcoal text), active nav pill, "do this next" block |
-| `--red` | `#c62828` | Late, overdue, needs you now (white text). From MEP's team polos. |
-| `--white` | `#ffffff` | Blocks and sheets |
-| `--cream` | `#f2f1ea` | Page background |
-| `--ink` | `#1d1f22` | Text |
-| `--muted` | `#5f636a` | Secondary text (5.6:1 on white) |
-| `--ok` | `#2e7d32` | "Done", "on track" |
-| `--line` | `#e2e1d8` | Table rules |
-| Radius | 18 px blocks, 999 px buttons and pills, 10–12 px inputs | |
-| Fonts | `Barlow Condensed` 500/600/700 (titles, numbers), `Barlow` 400–700 (body 17 px) | Load with `next/font/google`. Replace Geist. |
-| Buttons | 54 px tall (46 px small), pill, flat, bold 18 px | |
+| Token     | Value                                                                           | Use                                                                               |
+| --------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `--char`  | `#292b2f`                                                                       | Top bar, dark blocks, primary text buttons. Exactly the logo's background colour. |
+| `--lime`  | `#c8e63c`                                                                       | **Main action** buttons (charcoal text), active nav pill, "do this next" block    |
+| `--red`   | `#c62828`                                                                       | Late, overdue, needs you now (white text). From MEP's team polos.                 |
+| `--white` | `#ffffff`                                                                       | Blocks and sheets                                                                 |
+| `--cream` | `#f2f1ea`                                                                       | Page background                                                                   |
+| `--ink`   | `#1d1f22`                                                                       | Text                                                                              |
+| `--muted` | `#5f636a`                                                                       | Secondary text (5.6:1 on white)                                                   |
+| `--ok`    | `#2e7d32`                                                                       | "Done", "on track"                                                                |
+| `--line`  | `#e2e1d8`                                                                       | Table rules                                                                       |
+| Radius    | 18 px blocks, 999 px buttons and pills, 10–12 px inputs                         |                                                                                   |
+| Fonts     | `Barlow Condensed` 500/600/700 (titles, numbers), `Barlow` 400–700 (body 17 px) | Load with `next/font/google`. Replace Geist.                                      |
+| Buttons   | 54 px tall (46 px small), pill, flat, bold 18 px                                |                                                                                   |
 
 Contrast pairs that are verified: white on `--red`, `--ink` on `--lime`, white on `--char`, `--muted` on white.
 
@@ -99,25 +99,25 @@ Contrast pairs that are verified: white on `--red`, `--ink` on `--lime`, white o
 
 **Two layers:**
 
-| Front (simple, working) | Detail (one click deeper) |
-|---|---|
-| Home `/dashboard` | All trips `/bookings` (from "See all trips") |
-| People asking `/inquiries` | Customer `/customers/view?id=` **(new route)** |
-| Quote `/quotations/view?id=` | Quote details `/quotations/edit?id=` **(new route)** |
-| Trip `/bookings/view?id=` | Trip details `/bookings/details?id=` **(new route)** |
-| — | Payments `/payments`, Visas `/visas`, Quotes list `/quotations`, Settings `/settings` |
+| Front (simple, working)      | Detail (one click deeper)                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------------- |
+| Home `/dashboard`            | All trips `/bookings` (from "See all trips")                                          |
+| People asking `/inquiries`   | Customer `/customers/view?id=` **(new route)**                                        |
+| Quote `/quotations/view?id=` | Quote details `/quotations/edit?id=` **(new route)**                                  |
+| Trip `/bookings/view?id=`    | Trip details `/bookings/details?id=` **(new route)**                                  |
+| —                            | Payments `/payments`, Visas `/visas`, Quotes list `/quotations`, Settings `/settings` |
 
 Use query-string routes for new pages (`?id=`), the same as the existing pattern, so runtime-created IDs work on the static host. `trailingSlash: true` stays.
 
 ### Plain-language labels (UI only; keep the data enums unchanged)
 
-| Data value | UI label |
-|---|---|
-| Lead `New Inquiry` / `Contacted` / `Quoted` / `Negotiating` | **New** / **Talking** / **Quote sent** / **Almost booked** |
-| Lead `Won` / `Lost` | **Finished: booked** / **Finished: said no** |
-| Stage helper text | "Say hello" / "Make a quote" / "Check in after 3 days" / "Ask if they're ready" |
-| Service `Requested` / `On Hold` / `Confirmed` / `Issued` | Requested / On hold / Confirmed / Issued (unchanged) |
-| Booking `Pending Confirmation` | **Waiting on suppliers** |
+| Data value                                                  | UI label                                                                        |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Lead `New Inquiry` / `Contacted` / `Quoted` / `Negotiating` | **New** / **Talking** / **Quote sent** / **Almost booked**                      |
+| Lead `Won` / `Lost`                                         | **Finished: booked** / **Finished: said no**                                    |
+| Stage helper text                                           | "Say hello" / "Make a quote" / "Check in after 3 days" / "Ask if they're ready" |
+| Service `Requested` / `On Hold` / `Confirmed` / `Issued`    | Requested / On hold / Confirmed / Issued (unchanged)                            |
+| Booking `Pending Confirmation`                              | **Waiting on suppliers**                                                        |
 
 ## 5. Screen specs
 
@@ -131,7 +131,7 @@ Mocks are the visual source of truth. This section says **where each number come
   - **Overdue balance:** red block, big outstanding amount, "Collect from {name} for their {destination} trip", button **Record payment**. Reuse the payment dialog with validation.
   - **Quotation expiring:** lime block, "Call {first name} about their {destination} quote", button **Open quote**.
   - **Visa documents:** white block, "{N} visa papers missing for {name}", button **Open visas**.
-  - A finished item disappears from `attention()`, so show a white **✓ Done** block for items finished *this session* (keep a session-only list of IDs in component state), then let the next item fill the slot.
+  - A finished item disappears from `attention()`, so show a white **✓ Done** block for items finished _this session_ (keep a session-only list of IDs in component state), then let the next item fill the slot.
   - If there are more than 3 items, add a "See all N jobs →" link. It can open a dialog with the full `attention()` list.
 - **Leaving soon:** 4 "luggage tag" cards from `upcoming(s)`: large IATA-style code, city, weekday date + "in N days", "{lead traveller} + N", and a bottom strip with a single status. Status order: late payment → service on hold/deadline → visa missing → waiting on suppliers → "On track". Add a `destinationCode(destination)` map in `src/domain`: Japan → NRT, South Korea → ICN, Hong Kong → HKG, Singapore → SIN, El Nido → ENI, Boracay → MPH.
 - **"See all trips →"** links to `/bookings`.
@@ -239,7 +239,7 @@ No mock. Restyle them in the same system:
 
 Current suites: unit tests in `tests/unit/domain.test.ts`, browser tests in `tests/e2e/workflows.spec.ts` (Chromium against the static `out/` export on port 4173; see `playwright.config.ts`).
 
-- **Keep these accessible names working** (or update the test to the new UI *with the same assertion strength*): "Reset demo data", "Reset demo", "Accept & convert to booking", "Record payment", "Amount (PHP)", "Save payment", "Markup (%)", "Save", "Lead stage", "Create visa case", "Visa stage", "Close", "Service status", "Supplier reference", "Global search", "Agency name", "Add traveler", "Full name", "Date of birth", "Passport expiry". Also keep `.print-document`, `.staff-only` and the "hide nav in print" rule (today `.sidebar`; update the selector to the new top bar).
+- **Keep these accessible names working** (or update the test to the new UI _with the same assertion strength_): "Reset demo data", "Reset demo", "Accept & convert to booking", "Record payment", "Amount (PHP)", "Save payment", "Markup (%)", "Save", "Lead stage", "Create visa case", "Visa stage", "Close", "Service status", "Supplier reference", "Global search", "Agency name", "Add traveler", "Full name", "Date of birth", "Passport expiry". Also keep `.print-document`, `.staff-only` and the "hide nav in print" rule (today `.sidebar`; update the selector to the new top bar).
 - **Add unit tests:** `tripSteps`, home job ordering, `destinationCode`, plain-language label maps.
 - **Add e2e tests:** Home "Record ticket" refuses a blank reference and then clears the job; inquiry stage move via the card button; Trip "Do this next" advances after paying ₱6,000 on Andrea's new booking.
 - Never weaken an assertion to make it pass.

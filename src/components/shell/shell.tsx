@@ -1,22 +1,261 @@
-'use client';
-import {useState,useEffect} from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import {usePathname} from 'next/navigation';
-import {Search,ArrowUpRight} from 'lucide-react';
-import {useTravelStore} from '@/store';
-import {financials} from '@/store/selectors';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Skeleton} from '@/components/ui/skeleton';
-import {Toaster} from '@/components/ui/sonner';
-import {Modal,notify,Field} from '@/components/shared';
-const nav=[['/dashboard','Home'],['/inquiries','People asking'],['/quotations','Quotes'],['/payments','Payments'],['/visas','Visas']] as const;
-const pageNames:Record<string,string>={dashboard:'Home',inquiries:'People asking',quotations:'Quotes',bookings:'Trips',payments:'Payments',visas:'Visas',settings:'Settings',customers:'Customer'};
-export function Shell({children}:{children:React.ReactNode}){
-const s=useTravelStore(),path=usePathname();const [searchOpen,setSearchOpen]=useState(false),[menu,setMenu]=useState(false),[search,setSearch]=useState(''),[reset,setReset]=useState(false);
-useEffect(()=>{void useTravelStore.persist.rehydrate();const handler=(e:KeyboardEvent)=>{const t=e.target;if(e.shiftKey&&e.key.toLowerCase()==='r'&&!(t instanceof HTMLInputElement)&&!(t instanceof HTMLTextAreaElement)&&!(t instanceof HTMLSelectElement)&&!(t instanceof HTMLElement&&t.isContentEditable)){e.preventDefault();setReset(true)}};window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler)},[]);
-useEffect(()=>{document.title=`${pageNames[path.split('/')[1]]??'TravelOS'} · ${s.settings.agencyName}`},[path,s.settings.agencyName]);
-const q=search.toLowerCase().trim();const results=q?[...s.customers.filter(c=>c.name.toLowerCase().includes(q)).map(c=>({label:c.name,sub:'Customer',href:`/customers/view?id=${c.id}`})),...s.bookings.filter(b=>`${b.ref} ${s.customers.find(c=>c.id===b.customerId)?.name}`.toLowerCase().includes(q)).map(b=>({label:b.ref,sub:'Trip',href:`/bookings/view?id=${b.id}`})),...s.quotations.filter(x=>`${x.ref} ${s.customers.find(c=>c.id===x.customerId)?.name}`.toLowerCase().includes(q)).map(x=>({label:x.ref,sub:'Quote',href:`/quotations/view?id=${x.id}`}))].slice(0,9):[];
-return <div className="app-shell"><header className="appbar no-print"><div className="appbar-in"><Link className="brand" href="/dashboard" aria-label={s.settings.agencyName}>{s.settings.agencyName==='MEP Sabio Travel'?<Image src="/brand/mep-mark.png" alt="MEP Sabio Travel" width="90" height="44"/>:<strong className="custom-brand">{s.settings.logoText} · {s.settings.agencyName}</strong>}</Link><nav className="topnav" aria-label="Main">{nav.map(([href,label])=><Link key={href} href={href} className={(path.startsWith(href)||(href==='/dashboard'&&path.startsWith('/bookings')))?'active':''} aria-current={path===href?'page':undefined}>{label}{label==='Payments'&&s.hydrated&&s.bookings.some(b=>b.status!=='Cancelled'&&financials(s,b).status==='Overdue')&&<span className="dot" aria-label="has late payments"/>}</Link>)}</nav><div className="appbar-right"><Button variant="ghost" size="icon" aria-label="Search" onClick={()=>setSearchOpen(true)}><Search/></Button><span className="demo">DEMO <span>— simulated data</span></span><div className="account-menu"><button className="me" aria-label="Account menu" aria-expanded={menu} onClick={()=>setMenu(!menu)}>IS</button>{menu&&<div className="account-dropdown"><Link href="/settings" onClick={()=>setMenu(false)}>Settings</Link><button onClick={()=>{setReset(true);setMenu(false)}}>Reset demo data</button><button onClick={()=>setMenu(false)}>Close menu</button></div>}</div></div></div></header><main className="page main-content">{s.hydrated?children:<div className="section-stack" aria-label="Loading demo"><Skeleton className="h-16 w-64"/><Skeleton className="h-80 w-full"/></div>}</main><footer className="footer no-print"><span><b>{s.hydrated?s.settings.agencyName:'MEP Sabio Travel'}</b> · Quality travel for less</span><span>reservations@meptravel.com</span><span>mepsabiotravel.com</span><span>DEMO — simulated data. No real customers or payments.</span></footer><Toaster position="bottom-right"/><Modal open={searchOpen} onOpenChange={setSearchOpen} title="Find a person or trip" description="Search customers, trip references or quotations."><Field label="Global search"><Input aria-label="Global search" autoFocus value={search} onChange={e=>setSearch(e.target.value)} placeholder="Name or reference…"/></Field><div className="search-results">{results.map(r=><Link key={r.href} href={r.href} onClick={()=>{setSearchOpen(false);setSearch('')}}><div><strong>{r.label}</strong><small>{r.sub}</small></div><ArrowUpRight size={18}/></Link>)}{q&&!results.length&&<p>No matching records.</p>}</div></Modal><Modal open={reset} onOpenChange={setReset} title="Reset demo data?" description="This restores all seed records and MEP branding. Your demo changes will be removed."><div className="dialog-actions"><Button variant="outline" onClick={()=>setReset(false)}>Keep changes</Button><Button onClick={()=>{notify(()=>s.resetDemo(),'Demo restored to its starting state');setReset(false)}}>Reset demo</Button></div></Modal></div>
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { Search, ArrowUpRight } from "lucide-react";
+import { useTravelStore } from "@/store";
+import { financials } from "@/store/selectors";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Toaster } from "@/components/ui/sonner";
+import { Modal, notify, Field } from "@/components/shared";
+const nav = [
+  ["/dashboard", "Home"],
+  ["/inquiries", "People asking"],
+  ["/quotations", "Quotes"],
+  ["/payments", "Payments"],
+  ["/visas", "Visas"],
+] as const;
+const pageNames: Record<string, string> = {
+  dashboard: "Home",
+  inquiries: "People asking",
+  quotations: "Quotes",
+  bookings: "Trips",
+  payments: "Payments",
+  visas: "Visas",
+  settings: "Settings",
+  customers: "Customer",
+};
+export function Shell({ children }: { children: React.ReactNode }) {
+  const s = useTravelStore(),
+    path = usePathname();
+  const [searchOpen, setSearchOpen] = useState(false),
+    [menu, setMenu] = useState(false),
+    [search, setSearch] = useState(""),
+    [reset, setReset] = useState(false);
+  useEffect(() => {
+    void useTravelStore.persist.rehydrate();
+    const handler = (e: KeyboardEvent) => {
+      const t = e.target;
+      if (
+        e.shiftKey &&
+        e.key.toLowerCase() === "r" &&
+        !(t instanceof HTMLInputElement) &&
+        !(t instanceof HTMLTextAreaElement) &&
+        !(t instanceof HTMLSelectElement) &&
+        !(t instanceof HTMLElement && t.isContentEditable)
+      ) {
+        e.preventDefault();
+        setReset(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+  useEffect(() => {
+    document.title = `${pageNames[path.split("/")[1]] ?? "TravelOS"} · ${s.settings.agencyName}`;
+  }, [path, s.settings.agencyName]);
+  const q = search.toLowerCase().trim();
+  const results = q
+    ? [
+        ...s.customers
+          .filter((c) => c.name.toLowerCase().includes(q))
+          .map((c) => ({
+            label: c.name,
+            sub: "Customer",
+            href: `/customers/view?id=${c.id}`,
+          })),
+        ...s.bookings
+          .filter((b) =>
+            `${b.ref} ${s.customers.find((c) => c.id === b.customerId)?.name}`
+              .toLowerCase()
+              .includes(q),
+          )
+          .map((b) => ({
+            label: b.ref,
+            sub: "Trip",
+            href: `/bookings/view?id=${b.id}`,
+          })),
+        ...s.quotations
+          .filter((x) =>
+            `${x.ref} ${s.customers.find((c) => c.id === x.customerId)?.name}`
+              .toLowerCase()
+              .includes(q),
+          )
+          .map((x) => ({
+            label: x.ref,
+            sub: "Quote",
+            href: `/quotations/view?id=${x.id}`,
+          })),
+      ].slice(0, 9)
+    : [];
+  return (
+    <div className="app-shell">
+      <header className="appbar no-print">
+        <div className="appbar-in">
+          <Link
+            className="brand"
+            href="/dashboard"
+            aria-label={s.settings.agencyName}
+          >
+            {s.settings.agencyName === "MEP Sabio Travel" ? (
+              <Image
+                src="/brand/mep-mark.png"
+                alt="MEP Sabio Travel"
+                width="90"
+                height="44"
+              />
+            ) : (
+              <strong className="custom-brand">
+                {s.settings.logoText} · {s.settings.agencyName}
+              </strong>
+            )}
+          </Link>
+          <nav className="topnav" aria-label="Main">
+            {nav.map(([href, label]) => (
+              <Link
+                key={href}
+                href={href}
+                className={
+                  path.startsWith(href) ||
+                  (href === "/dashboard" && path.startsWith("/bookings"))
+                    ? "active"
+                    : ""
+                }
+                aria-current={path === href ? "page" : undefined}
+              >
+                {label}
+                {label === "Payments" &&
+                  s.hydrated &&
+                  s.bookings.some(
+                    (b) =>
+                      b.status !== "Cancelled" &&
+                      financials(s, b).status === "Overdue",
+                  ) && <span className="dot" aria-label="has late payments" />}
+              </Link>
+            ))}
+          </nav>
+          <div className="appbar-right">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Search"
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search />
+            </Button>
+            <span className="demo">
+              DEMO <span>— simulated data</span>
+            </span>
+            <div className="account-menu">
+              <button
+                className="me"
+                aria-label="Account menu"
+                aria-expanded={menu}
+                onClick={() => setMenu(!menu)}
+              >
+                IS
+              </button>
+              {menu && (
+                <div className="account-dropdown">
+                  <Link href="/settings" onClick={() => setMenu(false)}>
+                    Settings
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setReset(true);
+                      setMenu(false);
+                    }}
+                  >
+                    Reset demo data
+                  </button>
+                  <button onClick={() => setMenu(false)}>Close menu</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+      <main className="page main-content">
+        {s.hydrated ? (
+          children
+        ) : (
+          <div className="section-stack" aria-label="Loading demo">
+            <Skeleton className="h-16 w-64" />
+            <Skeleton className="h-80 w-full" />
+          </div>
+        )}
+      </main>
+      <footer className="footer no-print">
+        <span>
+          <b>{s.hydrated ? s.settings.agencyName : "MEP Sabio Travel"}</b> ·
+          Quality travel for less
+        </span>
+        <span>reservations@meptravel.com</span>
+        <span>mepsabiotravel.com</span>
+        <span>DEMO — simulated data. No real customers or payments.</span>
+      </footer>
+      <Toaster position="bottom-right" />
+      <Modal
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        title="Find a person or trip"
+        description="Search customers, trip references or quotations."
+      >
+        <Field label="Global search">
+          <Input
+            aria-label="Global search"
+            autoFocus
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Name or reference…"
+          />
+        </Field>
+        <div className="search-results">
+          {results.map((r) => (
+            <Link
+              key={r.href}
+              href={r.href}
+              onClick={() => {
+                setSearchOpen(false);
+                setSearch("");
+              }}
+            >
+              <div>
+                <strong>{r.label}</strong>
+                <small>{r.sub}</small>
+              </div>
+              <ArrowUpRight size={18} />
+            </Link>
+          ))}
+          {q && !results.length && <p>No matching records.</p>}
+        </div>
+      </Modal>
+      <Modal
+        open={reset}
+        onOpenChange={setReset}
+        title="Reset demo data?"
+        description="This restores all seed records and MEP branding. Your demo changes will be removed."
+      >
+        <div className="dialog-actions">
+          <Button variant="outline" onClick={() => setReset(false)}>
+            Keep changes
+          </Button>
+          <Button
+            onClick={() => {
+              notify(
+                () => s.resetDemo(),
+                "Demo restored to its starting state",
+              );
+              setReset(false);
+            }}
+          >
+            Reset demo
+          </Button>
+        </div>
+      </Modal>
+    </div>
+  );
 }

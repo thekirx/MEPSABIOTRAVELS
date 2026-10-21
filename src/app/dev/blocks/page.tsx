@@ -1,7 +1,71 @@
-'use client';
-import {useState} from 'react';
-import {Block,BigNumber,HeadBlock,StageBlock,LuggageTag,DetailLayout,Sheet,KeyValues,StatusChip} from '@/components/blocks';
-import {Button} from '@/components/ui/button';
-import {FormDialog} from '@/components/blocks/form-dialog';
-import {toast} from 'sonner';
-export default function Blocks(){const [open,setOpen]=useState(false);return <><HeadBlock tag="Design system" title="MEP building blocks"/><div className="g3"><Block variant="char" tag="Today" title="One clear job" action={<Button onClick={()=>setOpen(true)}>Open a form</Button>}><p>Flat blocks, plain words.</p></Block><Block variant="lime" tag="The price"><BigNumber value={22000000}/></Block><Block variant="red" tag="Payment late"><BigNumber value={6000000}/></Block></div><div className="g4"><StageBlock count={4} label="Almost booked" helper="Ask if they're ready" active onClick={()=>toast.success('Stage selected')}/><LuggageTag destination="Japan" date="2026-12-05" name="Andrea Reyes" people={4} status="On track" tone="ok" href="/quotations/view?id=q1"/></div><DetailLayout sections={[{id:'detail',label:'Details'}]}><Sheet id="detail" title="A calm detail page"><KeyValues items={[{label:'Customer',value:'Andrea Reyes'}]}/><StatusChip tone="next">Do this next</StatusChip></Sheet></DetailLayout><FormDialog open={open} onOpenChange={setOpen} title="Test form" fields={[{name:'name',label:'Full name'}]} onSubmit={()=>toast.success('Saved')}/></>}
+"use client";
+import { useState } from "react";
+import {
+  Block,
+  BigNumber,
+  HeadBlock,
+  StageBlock,
+  LuggageTag,
+  DetailLayout,
+  Sheet,
+  KeyValues,
+  StatusChip,
+} from "@/components/blocks";
+import { Button } from "@/components/ui/button";
+import { FormDialog } from "@/components/blocks/form-dialog";
+import { toast } from "sonner";
+export default function Blocks() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <HeadBlock tag="Design system" title="MEP building blocks" />
+      <div className="g3">
+        <Block
+          variant="char"
+          tag="Today"
+          title="One clear job"
+          action={<Button onClick={() => setOpen(true)}>Open a form</Button>}
+        >
+          <p>Flat blocks, plain words.</p>
+        </Block>
+        <Block variant="lime" tag="The price">
+          <BigNumber value={22000000} />
+        </Block>
+        <Block variant="red" tag="Payment late">
+          <BigNumber value={6000000} />
+        </Block>
+      </div>
+      <div className="g4">
+        <StageBlock
+          count={4}
+          label="Almost booked"
+          helper="Ask if they're ready"
+          active
+          onClick={() => toast.success("Stage selected")}
+        />
+        <LuggageTag
+          destination="Japan"
+          date="2026-12-05"
+          name="Andrea Reyes"
+          people={4}
+          status="On track"
+          tone="ok"
+          href="/quotations/view?id=q1"
+        />
+      </div>
+      <DetailLayout sections={[{ id: "detail", label: "Details" }]}>
+        <Sheet id="detail" title="A calm detail page">
+          <KeyValues items={[{ label: "Customer", value: "Andrea Reyes" }]} />
+          <StatusChip tone="next">Do this next</StatusChip>
+        </Sheet>
+      </DetailLayout>
+      <FormDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Test form"
+        fields={[{ name: "name", label: "Full name" }]}
+        onSubmit={() => toast.success("Saved")}
+      />
+    </>
+  );
+}

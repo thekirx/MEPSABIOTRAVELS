@@ -1,14 +1,208 @@
-'use client';
-import {useState} from 'react';
-import {useSearchParams,useRouter} from 'next/navigation';
-import Link from 'next/link';
-import {differenceInCalendarDays,format,parseISO} from 'date-fns';
-import {useTravelStore} from '@/store';
-import {tripSteps,financials,destination,type TripStep} from '@/store/selectors';
-import {destinationCity} from '@/domain/places';
-import {money} from '@/domain/money';
-import {Block,BigNumber,Meter} from '@/components/blocks';
-import {EmptyState,notify} from '@/components/shared';
-import {PaymentDialog} from '@/features/payments/payment-dialog';
-import {AllTravelersDialog,SupplierReferencesDialog} from './booking-dialogs';
-export function BookingDetail(){const s=useTravelStore(),params=useSearchParams(),router=useRouter();const [action,setAction]=useState<TripStep['id']|null>(null);const b=s.bookings.find(b=>b.id===params.get('id'));if(!b)return <EmptyState text="Trip not found."/>;const q=b.quotationSnapshot,f=financials(s,b),steps=tripSteps(s,b),next=steps.find(x=>!x.done),customer=s.customers.find(c=>c.id===b.customerId);const perform=(id:TripStep['id'])=>{if(id==='visa'){const t=b.travelers.find(t=>t.visaRequired&&!s.visas.some(v=>v.bookingId===b.id&&v.travelerId===t.id&&['Approved','Released'].includes(v.stage)));if(t)notify(()=>{const caseId=s.createVisaCase(b.id,t.id);router.push(`/visas?case=${caseId}`)},'Visa case opened (demo)');return}setAction(id)};return <><Link className="back" href="/dashboard">← Home</Link><section className="trip-front-top"><header className="block char trip-head"><div><span className="tag">{b.status==='Cancelled'?'Trip cancelled':'Booked · price locked'}</span><h1>{destinationCity(destination(s,q))}</h1><p>{customer?.name} · {b.travelers.length} people · {format(parseISO(q.departDate),'d MMM')} to {format(parseISO(q.returnDate),'d MMM')}</p></div><div className="trip-days"><b>{Math.max(0,differenceInCalendarDays(parseISO(q.departDate),new Date()))}</b><span>days to go</span></div></header>{b.status==='Cancelled'?<Block variant="white" tag="Cancelled" title="This trip is closed"><p>Review the full trip details for its history.</p></Block>:next?<Block variant="lime" className="trip-next" tag={`Do this next${next.dueDate?` · by ${format(parseISO(next.dueDate),'EEE d MMM')}`:''}`} title={next.title} action={<button className="btn" onClick={()=>perform(next.id)}>{next.action}</button>}><p>{next.detail}</p></Block>:<Block variant="done" tag="✓ All done" title="Ready to fly"><p>Every step is finished. Have a great journey!</p></Block>}</section><div className="section-title"><h2>Before they fly</h2><span>{steps.filter(x=>x.done).length} of {steps.length} done</span><Link href={`/bookings/details?id=${b.id}`}>See full trip details →</Link></div><section className="trip-front-split"><div className="trip-checklist">{steps.map(step=>{const current=next?.id===step.id;const content=<><span className="check-box">{step.done?'✓':''}</span><span className="step-text">{step.label}</span>{!step.done&&<span className="step-when">{step.dueDate?`By ${format(parseISO(step.dueDate),'EEE d MMM')}`:step.id==='suppliers'?`${b.services.filter(x=>['Confirmed','Issued'].includes(x.status)).length} of ${b.services.filter(x=>x.status!=='Cancelled').length}`:''}</span>}</>;return step.done?<div key={step.id} className="trip-step done">{content}</div>:<button key={step.id} className={`trip-step ${current?'now':''}`} onClick={()=>perform(step.id)}>{content}</button>})}</div><Block variant="white" className="trip-money" tag="Money"><BigNumber value={f.paid}/><p>paid of {money(f.total)}</p><Meter paid={f.paid} total={f.total}/><p>{f.balance>0?<><span data-testid="booking-balance">{money(f.balance)}</span> still to collect</>:<span data-testid="booking-balance">{money(f.balance)}</span>}{f.balance<=0&&' · Paid in full ✓'}</p><div className="dialog-actions">{f.balance>0&&b.status!=='Cancelled'&&<button className="btn small" onClick={()=>setAction('balance')}>Record payment</button>}<Link className="btn ghost small" href={`/bookings/details?id=${b.id}#payments`}>See payments</Link></div></Block></section><PaymentDialog bookingId={b.id} open={action==='deposit'||action==='balance'} initialAmount={action==='deposit'?steps.find(x=>x.id==='deposit')?.remainingCentavos:f.balance} onClose={()=>setAction(null)}/><AllTravelersDialog booking={b} open={action==='passports'} onClose={()=>setAction(null)}/><SupplierReferencesDialog booking={b} mode={action==='tickets'?'Issued':'Confirmed'} open={action==='suppliers'||action==='tickets'} onClose={()=>setAction(null)}/></>}
+"use client";
+import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { useTravelStore } from "@/store";
+import {
+  tripSteps,
+  financials,
+  destination,
+  type TripStep,
+} from "@/store/selectors";
+import { destinationCity } from "@/domain/places";
+import { money } from "@/domain/money";
+import { Block, BigNumber, Meter } from "@/components/blocks";
+import { EmptyState, notify } from "@/components/shared";
+import { PaymentDialog } from "@/features/payments/payment-dialog";
+import {
+  AllTravelersDialog,
+  SupplierReferencesDialog,
+} from "./booking-dialogs";
+export function BookingDetail() {
+  const s = useTravelStore(),
+    params = useSearchParams(),
+    router = useRouter();
+  const [action, setAction] = useState<TripStep["id"] | null>(null);
+  const b = s.bookings.find((b) => b.id === params.get("id"));
+  if (!b) return <EmptyState text="Trip not found." />;
+  const q = b.quotationSnapshot,
+    f = financials(s, b),
+    steps = tripSteps(s, b),
+    next = steps.find((x) => !x.done),
+    customer = s.customers.find((c) => c.id === b.customerId);
+  const perform = (id: TripStep["id"]) => {
+    if (id === "visa") {
+      const t = b.travelers.find(
+        (t) =>
+          t.visaRequired &&
+          !s.visas.some(
+            (v) =>
+              v.bookingId === b.id &&
+              v.travelerId === t.id &&
+              ["Approved", "Released"].includes(v.stage),
+          ),
+      );
+      if (t)
+        notify(() => {
+          const caseId = s.createVisaCase(b.id, t.id);
+          router.push(`/visas?case=${caseId}`);
+        }, "Visa case opened (demo)");
+      return;
+    }
+    setAction(id);
+  };
+  return (
+    <>
+      <Link className="back" href="/dashboard">
+        ← Home
+      </Link>
+      <section className="trip-front-top">
+        <header className="block char trip-head">
+          <div>
+            <span className="tag">
+              {b.status === "Cancelled"
+                ? "Trip cancelled"
+                : "Booked · price locked"}
+            </span>
+            <h1>{destinationCity(destination(s, q))}</h1>
+            <p>
+              {customer?.name} · {b.travelers.length} people ·{" "}
+              {format(parseISO(q.departDate), "d MMM")} to{" "}
+              {format(parseISO(q.returnDate), "d MMM")}
+            </p>
+          </div>
+          <div className="trip-days">
+            <b>
+              {Math.max(
+                0,
+                differenceInCalendarDays(parseISO(q.departDate), new Date()),
+              )}
+            </b>
+            <span>days to go</span>
+          </div>
+        </header>
+        {b.status === "Cancelled" ? (
+          <Block variant="white" tag="Cancelled" title="This trip is closed">
+            <p>Review the full trip details for its history.</p>
+          </Block>
+        ) : next ? (
+          <Block
+            variant="lime"
+            className="trip-next"
+            tag={`Do this next${next.dueDate ? ` · by ${format(parseISO(next.dueDate), "EEE d MMM")}` : ""}`}
+            title={next.title}
+            action={
+              <button className="btn" onClick={() => perform(next.id)}>
+                {next.action}
+              </button>
+            }
+          >
+            <p>{next.detail}</p>
+          </Block>
+        ) : (
+          <Block variant="done" tag="✓ All done" title="Ready to fly">
+            <p>Every step is finished. Have a great journey!</p>
+          </Block>
+        )}
+      </section>
+      <div className="section-title">
+        <h2>Before they fly</h2>
+        <span>
+          {steps.filter((x) => x.done).length} of {steps.length} done
+        </span>
+        <Link href={`/bookings/details?id=${b.id}`}>
+          See full trip details →
+        </Link>
+      </div>
+      <section className="trip-front-split">
+        <div className="trip-checklist">
+          {steps.map((step) => {
+            const current = next?.id === step.id;
+            const content = (
+              <>
+                <span className="check-box">{step.done ? "✓" : ""}</span>
+                <span className="step-text">{step.label}</span>
+                {!step.done && (
+                  <span className="step-when">
+                    {step.dueDate
+                      ? `By ${format(parseISO(step.dueDate), "EEE d MMM")}`
+                      : step.id === "suppliers"
+                        ? `${b.services.filter((x) => ["Confirmed", "Issued"].includes(x.status)).length} of ${b.services.filter((x) => x.status !== "Cancelled").length}`
+                        : ""}
+                  </span>
+                )}
+              </>
+            );
+            return step.done ? (
+              <div key={step.id} className="trip-step done">
+                {content}
+              </div>
+            ) : (
+              <button
+                key={step.id}
+                className={`trip-step ${current ? "now" : ""}`}
+                onClick={() => perform(step.id)}
+              >
+                {content}
+              </button>
+            );
+          })}
+        </div>
+        <Block variant="white" className="trip-money" tag="Money">
+          <BigNumber value={f.paid} />
+          <p>paid of {money(f.total)}</p>
+          <Meter paid={f.paid} total={f.total} />
+          <p>
+            {f.balance > 0 ? (
+              <>
+                <span data-testid="booking-balance">{money(f.balance)}</span>{" "}
+                still to collect
+              </>
+            ) : (
+              <span data-testid="booking-balance">{money(f.balance)}</span>
+            )}
+            {f.balance <= 0 && " · Paid in full ✓"}
+          </p>
+          <div className="dialog-actions">
+            {f.balance > 0 && b.status !== "Cancelled" && (
+              <button
+                className="btn small"
+                onClick={() => setAction("balance")}
+              >
+                Record payment
+              </button>
+            )}
+            <Link
+              className="btn ghost small"
+              href={`/bookings/details?id=${b.id}#payments`}
+            >
+              See payments
+            </Link>
+          </div>
+        </Block>
+      </section>
+      <PaymentDialog
+        bookingId={b.id}
+        open={action === "deposit" || action === "balance"}
+        initialAmount={
+          action === "deposit"
+            ? steps.find((x) => x.id === "deposit")?.remainingCentavos
+            : f.balance
+        }
+        onClose={() => setAction(null)}
+      />
+      <AllTravelersDialog
+        booking={b}
+        open={action === "passports"}
+        onClose={() => setAction(null)}
+      />
+      <SupplierReferencesDialog
+        booking={b}
+        mode={action === "tickets" ? "Issued" : "Confirmed"}
+        open={action === "suppliers" || action === "tickets"}
+        onClose={() => setAction(null)}
+      />
+    </>
+  );
+}

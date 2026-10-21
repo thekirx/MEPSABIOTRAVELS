@@ -14,7 +14,10 @@ async function accept(page: import("@playwright/test").Page) {
   await page
     .getByRole("button", { name: "Accept & convert to booking" })
     .click();
-  await page.getByRole("dialog").getByRole("button",{name:"Yes, book it",exact:true}).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Yes, book it", exact: true })
+    .click();
   await expect(page).toHaveURL(/bookings\/view\/?\?id=b8/);
 }
 async function deposit(page: import("@playwright/test").Page) {
@@ -37,14 +40,15 @@ test("1: Andrea lead → quote, live math and print isolation", async ({
     .click();
   await page.getByRole("link", { name: "HTT-Q-2026-0142" }).click();
   await expect(page.getByTestId("preview-total")).toHaveText("₱220,000.00");
-  await page.getByRole("button",{name:"Other…",exact:true}).click();
+  await page.getByRole("button", { name: "Other…", exact: true }).click();
   await page.getByLabel("Markup (%)").fill("15");
   await expect(page.getByTestId("preview-total")).toHaveText("₱230,000.00");
   await page.getByLabel("Markup (%)").fill("10");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.emulateMedia({ media: "print" });
   await expect(page.locator(".print-document")).toBeVisible();
-  for(const panel of await page.locator(".staff-only").all()) await expect(panel).toBeHidden();
+  for (const panel of await page.locator(".staff-only").all())
+    await expect(panel).toBeHidden();
   await expect(page.locator(".appbar")).toBeHidden();
 });
 test("2: conversion creates consistent booking and increments KPI", async ({
@@ -53,7 +57,9 @@ test("2: conversion creates consistent booking and increments KPI", async ({
   await page.goto("/bookings");
   const before = Number(await page.getByTestId("kpi-bookings").innerText());
   await accept(page);
-  await page.getByRole("link",{name:"See full trip details →",exact:true}).click();
+  await page
+    .getByRole("link", { name: "See full trip details →", exact: true })
+    .click();
   await expect(page.getByTestId("traveler-row")).toHaveCount(4);
   await expect(page.getByTestId("service-row")).toHaveCount(4);
   await expect(page.getByTestId("installment-row")).toHaveCount(2);
@@ -107,17 +113,33 @@ test("4: visa creation, checklist and stage counts", async ({ page }) => {
     page.getByRole("button", { name: "Complete (1)", exact: true }),
   ).toBeVisible();
 });
-test("5: home ticket job requires reference, clears, and persists",async({page})=>{
- await page.goto('/dashboard');
- await page.getByRole('button',{name:'Record ticket',exact:true}).click();
- await page.getByRole('button',{name:'Mark ticket issued',exact:true}).click();
- await expect(page.getByRole('alert')).toContainText("Type the airline's reference first");
- await page.getByLabel('Airline reference').fill('SIM-TKT-7788');
- await page.getByRole('button',{name:'Mark ticket issued',exact:true}).click();
- await expect(page.getByRole('button',{name:'Record ticket',exact:true})).toHaveCount(0);
- await expect(page.getByText('Ticket issued · recorded manually')).toBeVisible();
- await page.reload();
- await expect(page.getByRole('button',{name:'Record ticket',exact:true})).toHaveCount(0);
+test("5: home ticket job requires reference, clears, and persists", async ({
+  page,
+}) => {
+  await page.goto("/dashboard");
+  await page
+    .getByRole("button", { name: "Record ticket", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Mark ticket issued", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText(
+    "Type the airline's reference first",
+  );
+  await page.getByLabel("Airline reference").fill("SIM-TKT-7788");
+  await page
+    .getByRole("button", { name: "Mark ticket issued", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Record ticket", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText("Ticket issued · recorded manually"),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole("button", { name: "Record ticket", exact: true }),
+  ).toHaveCount(0);
 });
 test("6: refresh persists; reset restores all seed records", async ({
   page,
@@ -140,11 +162,11 @@ test("global search opens the customer page from inquiries", async ({
   page,
 }) => {
   await page.goto("/inquiries");
-  await page.getByRole("button",{name:"Search",exact:true}).click();
+  await page.getByRole("button", { name: "Search", exact: true }).click();
   await page.getByLabel("Global search").fill("Andrea");
   await page
     .getByRole("dialog")
-    .getByRole("link",{name:"Andrea Reyes Customer",exact:true})
+    .getByRole("link", { name: "Andrea Reyes Customer", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Andrea Reyes", exact: true }),
@@ -161,18 +183,14 @@ test("storage schema mismatches reseed safely", async ({ page }) => {
     ),
   );
   await page.reload();
-  await expect(page.getByLabel("Agency name")).toHaveValue(
-    "MEP Sabio Travel",
-  );
+  await expect(page.getByLabel("Agency name")).toHaveValue("MEP Sabio Travel");
 });
 test("corrupt storage recovers to a usable seed", async ({ page }) => {
   await page.evaluate(() =>
     localStorage.setItem("travelos-demo-v1", "{broken json"),
   );
   await page.reload();
-  await expect(page.getByLabel("Agency name")).toHaveValue(
-    "MEP Sabio Travel",
-  );
+  await expect(page.getByLabel("Agency name")).toHaveValue("MEP Sabio Travel");
 });
 test("adding a traveler is reflected consistently in booking list", async ({
   page,
@@ -196,21 +214,47 @@ test("adding a traveler is reflected consistently in booking list", async ({
   ).toContainText("5 pax");
 });
 
-test('inquiry card advances stage and URL filter persists',async({page})=>{
- await page.goto('/inquiries?stage=New%20Inquiry');
- const card=page.getByTestId('person-card').first();const name=await card.locator('h3').innerText();
- await card.getByRole('button',{name:'Log first reply →',exact:true}).click();
- await page.getByRole('button',{name:/Talking Make a quote/}).click();
- await expect(page.getByTestId('person-card').filter({hasText:name})).toBeVisible();
- await page.reload();await expect(page.getByTestId('person-card').filter({hasText:name})).toBeVisible();
+test("inquiry card advances stage and URL filter persists", async ({
+  page,
+}) => {
+  await page.goto("/inquiries?stage=New%20Inquiry");
+  const card = page.getByTestId("person-card").first();
+  const name = await card.locator("h3").innerText();
+  await card
+    .getByRole("button", { name: "Log first reply →", exact: true })
+    .click();
+  await page.getByRole("button", { name: /Talking Make a quote/ }).click();
+  await expect(
+    page.getByTestId("person-card").filter({ hasText: name }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByTestId("person-card").filter({ hasText: name }),
+  ).toBeVisible();
 });
 
-test('trip next step collects remaining deposit then advances to suppliers',async({page})=>{
- await accept(page);await deposit(page);
- await expect(page.getByRole('heading',{name:'Collect ₱6,000.00 more for the deposit',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Record payment',exact:true}).first().click();
- await expect(page.getByLabel('Amount (PHP)')).toHaveValue('6000');
- await page.getByRole('button',{name:'Save payment',exact:true}).click();
- await expect(page.getByRole('heading',{name:'Confirm flight, hotel, tours and car',exact:true})).toBeVisible();
- await expect(page.getByTestId('booking-balance')).toHaveText('₱154,000.00');
+test("trip next step collects remaining deposit then advances to suppliers", async ({
+  page,
+}) => {
+  await accept(page);
+  await deposit(page);
+  await expect(
+    page.getByRole("heading", {
+      name: "Collect ₱6,000.00 more for the deposit",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Record payment", exact: true })
+    .first()
+    .click();
+  await expect(page.getByLabel("Amount (PHP)")).toHaveValue("6000");
+  await page.getByRole("button", { name: "Save payment", exact: true }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Confirm flight, hotel, tours and car",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByTestId("booking-balance")).toHaveText("₱154,000.00");
 });

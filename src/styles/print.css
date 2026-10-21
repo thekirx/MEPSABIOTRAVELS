@@ -67,12 +67,61 @@
   }
 }
 @media print {
- body *:not(:has(.print-document)):not(.print-document):not(.print-document *){display:none!important}
- .main-content{min-height:0!important;display:block!important;width:100%!important}
- .quote-front,.quote-copy,.editor-print-copy{display:block!important;max-width:none!important;margin:0!important}
- .doc{font-size:10px!important;border-radius:0!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
- .doc-top{padding:10px 18px!important}.doc-top img{height:45px!important}
- .doc-body{padding:18px!important}.doc h2{font-size:32px!important}.doc h3{font-size:19px!important}
- .doc .itinerary-day,.doc .doc-terms{font-size:10px!important}.doc ul{font-size:10px!important;margin-bottom:10px!important;line-height:1.5!important}
- .doc-itinerary,.doc-inclusions{margin-top:14px!important}.doc-total b{font-size:32px!important}.doc-foot{font-size:10px!important;padding:10px 18px!important}
+  body
+    *:not(:has(.print-document)):not(.print-document):not(.print-document *) {
+    display: none !important;
+  }
+  .main-content {
+    min-height: 0 !important;
+    display: block !important;
+    width: 100% !important;
+  }
+  .quote-front,
+  .quote-copy,
+  .editor-print-copy {
+    display: block !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .doc {
+    font-size: 10px !important;
+    border-radius: 0 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .doc-top {
+    padding: 10px 18px !important;
+  }
+  .doc-top img {
+    height: 45px !important;
+  }
+  .doc-body {
+    padding: 18px !important;
+  }
+  .doc h2 {
+    font-size: 32px !important;
+  }
+  .doc h3 {
+    font-size: 19px !important;
+  }
+  .doc .itinerary-day,
+  .doc .doc-terms {
+    font-size: 10px !important;
+  }
+  .doc ul {
+    font-size: 10px !important;
+    margin-bottom: 10px !important;
+    line-height: 1.5 !important;
+  }
+  .doc-itinerary,
+  .doc-inclusions {
+    margin-top: 14px !important;
+  }
+  .doc-total b {
+    font-size: 32px !important;
+  }
+  .doc-foot {
+    font-size: 10px !important;
+    padding: 10px 18px !important;
+  }
 }

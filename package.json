@@ -8,7 +8,9 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -38,6 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "^16.4.2",
     "http-server": "^14",
+    "prettier": "3.9.10",
     "shadcn": "^4.22.1",
     "typescript": "^5",
     "vitest": "^5.0.5"

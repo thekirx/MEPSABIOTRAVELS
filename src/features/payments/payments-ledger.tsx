@@ -138,7 +138,12 @@ export function PaymentsLedger() {
         </div>
         <div>
           <p>OUTSTANDING RECEIVABLES</p>
-          <strong data-testid="kpi-receivables" data-centavos={kpis(s).receivables}>{money(kpis(s).receivables)}</strong>
+          <strong
+            data-testid="kpi-receivables"
+            data-centavos={kpis(s).receivables}
+          >
+            {money(kpis(s).receivables)}
+          </strong>
         </div>
         <span>
           Across{" "}

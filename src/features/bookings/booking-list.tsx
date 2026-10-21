@@ -32,7 +32,10 @@ export function BookingList() {
         title="Bookings"
         description="Every journey, every detail. All in one place."
       />
-      <p className="subtle-note">Bookings this month: <strong data-testid="kpi-bookings">{kpis(s).bookingsMonth}</strong></p>
+      <p className="subtle-note">
+        Bookings this month:{" "}
+        <strong data-testid="kpi-bookings">{kpis(s).bookingsMonth}</strong>
+      </p>
       <div className="toolbar">
         <div className="toolbar-left">
           {[

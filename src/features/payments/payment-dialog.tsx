@@ -1,8 +1,75 @@
-'use client';
-import {toast} from 'sonner';
-import {useTravelStore} from '@/store';
-import {financials} from '@/store/selectors';
-import {methods,type Payment} from '@/domain/types';
-import {money} from '@/domain/money';
-import {FormDialog} from '@/components/blocks/form-dialog';
-export function PaymentDialog({bookingId,open,onClose,initialAmount}:{bookingId:string;open:boolean;onClose:()=>void;initialAmount?:number}){const s=useTravelStore(),b=s.bookings.find(b=>b.id===bookingId);if(!b)return null;const f=financials(s,b);return <FormDialog open={open} onOpenChange={v=>{if(!v)onClose()}} title="Record a payment" description={`${b.ref} · Recorded manually. No money moves in this demo.`} submit="Save payment" fields={[{name:'amount',label:'Amount (PHP)',value:initialAmount!==undefined?String(initialAmount/100):'',placeholder:'60000.00',validate:value=>!/^\d+(\.\d{1,2})?$/.test(value)||!Number.isSafeInteger(Math.round(Number(value)*100))?'Use numbers only, with up to 2 decimals.':Number(value)<=0?'The amount must be more than ₱0.':Math.round(Number(value)*100)>f.balance?`That is more than the outstanding balance (${money(f.balance)}).`:undefined},{name:'method',label:'Payment method',options:methods,value:'Bank Transfer'},{name:'note',label:'Internal note (optional)',optional:true}]} onSubmit={v=>{const amount=Math.round(Number(v.amount)*100);s.recordPayment(bookingId,amount,v.method as Payment['method'],v.note);toast.success(`${money(amount)} recorded. No money moves in this demo.`)}}><div className="payment-balance"><span>Outstanding balance</span><strong>{money(f.balance)}</strong></div></FormDialog>}
+"use client";
+import { toast } from "sonner";
+import { useTravelStore } from "@/store";
+import { financials } from "@/store/selectors";
+import { methods, type Payment } from "@/domain/types";
+import { money } from "@/domain/money";
+import { FormDialog } from "@/components/blocks/form-dialog";
+export function PaymentDialog({
+  bookingId,
+  open,
+  onClose,
+  initialAmount,
+}: {
+  bookingId: string;
+  open: boolean;
+  onClose: () => void;
+  initialAmount?: number;
+}) {
+  const s = useTravelStore(),
+    b = s.bookings.find((b) => b.id === bookingId);
+  if (!b) return null;
+  const f = financials(s, b);
+  return (
+    <FormDialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) onClose();
+      }}
+      title="Record a payment"
+      description={`${b.ref} · Recorded manually. No money moves in this demo.`}
+      submit="Save payment"
+      fields={[
+        {
+          name: "amount",
+          label: "Amount (PHP)",
+          value: initialAmount !== undefined ? String(initialAmount / 100) : "",
+          placeholder: "60000.00",
+          validate: (value) =>
+            !/^\d+(\.\d{1,2})?$/.test(value) ||
+            !Number.isSafeInteger(Math.round(Number(value) * 100))
+              ? "Use numbers only, with up to 2 decimals."
+              : Number(value) <= 0
+                ? "The amount must be more than ₱0."
+                : Math.round(Number(value) * 100) > f.balance
+                  ? `That is more than the outstanding balance (${money(f.balance)}).`
+                  : undefined,
+        },
+        {
+          name: "method",
+          label: "Payment method",
+          options: methods,
+          value: "Bank Transfer",
+        },
+        { name: "note", label: "Internal note (optional)", optional: true },
+      ]}
+      onSubmit={(v) => {
+        const amount = Math.round(Number(v.amount) * 100);
+        s.recordPayment(
+          bookingId,
+          amount,
+          v.method as Payment["method"],
+          v.note,
+        );
+        toast.success(
+          `${money(amount)} recorded. No money moves in this demo.`,
+        );
+      }}
+    >
+      <div className="payment-balance">
+        <span>Outstanding balance</span>
+        <strong>{money(f.balance)}</strong>
+      </div>
+    </FormDialog>
+  );
+}
