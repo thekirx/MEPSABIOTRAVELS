@@ -26,3 +26,19 @@ Review focus: repeat acceptance must not duplicate a booking; overpayment and in
 - Final screenshot: /tmp/travelos-dashboard-final.png. Browser plugin absent; Playwright Chromium fallback.
 - Production dependency audit: zero advisories. Development tooling has globbing advisories with no compatible npm fix; no forced downgrade. See DECISIONS.md.
 - All eight phases committed in the requested order. No blocking known issues. No deployment was requested or performed.
+
+# MEP redesign execution
+
+Approved spec: REDESIGN_HANDOFF.md. Plan: REDESIGN_PLAN.md. Active branch: redesign/mep. Existing untracked .claude/ is user-owned and left untouched. Native execution on the user-selected branch; no additional worktree or dependencies.
+
+- Phase 0 — Baseline: npm ci, lint (0 errors, 1 pre-existing unused mock-script variable warning), typecheck, 8 unit tests, static build, 10 Chromium tests PASS. Mock references captured outside the repo at /tmp/mep-mock-*.png. Approved desktop references inspected with view_image; all mock pages loaded. Browser plugin absent, regular Playwright used. Existing mock server on port 4300 verified against repository contents.
+- Phase 1 — Brand/tokens/fonts/top bar: pending.
+- Phase 2 — Shared blocks/labels/places/forms: pending.
+- Phase 3 — Home: pending.
+- Phase 4 — People asking/customer: pending.
+- Phase 5 — Quote/front/details/print: pending.
+- Phase 6 — Trip/front/details/steps: pending.
+- Phase 7 — Tables/payments/visas/settings: pending.
+- Phase 8 — Seed correction/docs/final QA: pending.
+
+Preflight rulings: use approved HTML mocks instead of generating a new image concept; user has already approved this design and asked to execute the supplied plan. Preserve original test assertions while moving their navigation targets where the two-layer design requires it. The historical QA default Horizon branding is superseded by the explicit MEP default in the redesign handoff.
