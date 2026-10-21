@@ -189,7 +189,7 @@ export type VisaCase = {
 };
 export type DemoData = {
   schemaVersion: number;
-  settings: { agencyName: string; logoText: string };
+  settings: { agencyName: string; logoText: string; logoDataUrl?: string };
   agents: Agent[];
   customers: Customer[];
   leads: Lead[];

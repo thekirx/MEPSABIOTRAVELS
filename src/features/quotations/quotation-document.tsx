@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import { AgencyLogo } from "@/components/agency-logo";
 import { format, parseISO } from "date-fns";
 import { useTravelStore } from "@/store";
 import { destination } from "@/store/selectors";
@@ -15,16 +15,7 @@ export function QuotationDocument({ quote: q }: { quote: Quotation }) {
   return (
     <article className="doc print-document">
       <header className="doc-top">
-        {s.settings.agencyName === "MEP Sabio Travel" ? (
-          <Image
-            src="/brand/mep-logo-full.png"
-            alt="MEP Sabio Travel"
-            width={160}
-            height={60}
-          />
-        ) : (
-          <strong>{s.settings.agencyName}</strong>
-        )}
+        <AgencyLogo />
         <span>QUOTATION</span>
       </header>
       <div className="doc-body">

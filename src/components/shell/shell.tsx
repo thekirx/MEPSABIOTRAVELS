@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { AgencyLogo } from "@/components/agency-logo";
 import { usePathname } from "next/navigation";
 import { Search, ArrowUpRight } from "lucide-react";
 import { useTravelStore } from "@/store";
@@ -100,18 +100,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             href="/dashboard"
             aria-label={s.settings.agencyName}
           >
-            {s.settings.agencyName === "MEP Sabio Travel" ? (
-              <Image
-                src="/brand/mep-mark.png"
-                alt="MEP Sabio Travel"
-                width="90"
-                height="44"
-              />
-            ) : (
-              <strong className="custom-brand">
-                {s.settings.logoText} · {s.settings.agencyName}
-              </strong>
-            )}
+            <AgencyLogo compact />
           </Link>
           <nav className="topnav" aria-label="Main">
             {nav.map(([href, label]) => (

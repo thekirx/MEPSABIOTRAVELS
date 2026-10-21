@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { format, isTomorrow, parseISO } from "date-fns";
-import { toast } from "sonner";
+import { dueLabel } from "@/domain/dates";
 import { useTravelStore } from "@/store";
 import {
   homeJobs,
@@ -12,7 +11,7 @@ import {
   type HomeJob,
 } from "@/store/selectors";
 import { Block, BigNumber, LuggageTag } from "@/components/blocks";
-import { FormDialog } from "@/components/blocks/form-dialog";
+import { ServiceReferenceDialog } from "@/features/bookings/service-reference-dialog";
 import { Modal } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { PaymentDialog } from "@/features/payments/payment-dialog";
@@ -41,18 +40,21 @@ function Job({
       </Block>
     );
   if (job.type === "service") {
-    const date = job.deadline ? parseISO(job.deadline) : undefined;
     return (
       <Block
         variant="char"
         className="job"
-        tag={
-          date
-            ? `${isTomorrow(date) ? "Tomorrow" : format(date, "EEE d MMM")}, ${format(date, "h a")}`
-            : "Needs you now"
+        tag={job.deadline ? dueLabel(job.deadline) : "Needs you now"}
+        title={
+          job.category === "Airfare"
+            ? `Issue ${first}'s plane ticket`
+            : `Confirm the ${job.category?.toLowerCase()}`
         }
-        title={`Issue ${first}'s plane ticket`}
-        action={<Button onClick={onTicket}>Record ticket</Button>}
+        action={
+          <Button onClick={onTicket}>
+            {job.category === "Airfare" ? "Record ticket" : "Add reference"}
+          </Button>
+        }
       >
         <p>
           {job.place} trip. Record the airline reference before the hold
@@ -198,41 +200,19 @@ export function Dashboard() {
           ))}
         </div>
       </Modal>
-      <FormDialog
-        open={!!ticket}
-        onOpenChange={(v) => {
-          if (!v) setTicket(null);
-        }}
-        title="Record plane ticket"
-        description="Recorded manually. This demo does not issue a real ticket."
-        submit="Mark ticket issued"
-        fields={[
-          {
-            name: "reference",
-            label: "Airline reference",
-            validate: (v) =>
-              !v.trim()
-                ? "Type the airline's reference first. A ticket can't be marked issued without it."
-                : undefined,
-            optional: true,
-          },
-        ]}
-        onSubmit={(v) => {
-          if (!ticket?.bookingId || !ticket.serviceId) return;
-          s.updateServiceStatus(
-            ticket.bookingId,
-            ticket.serviceId,
-            "Issued",
-            v.reference,
-            ticket.deadline,
-          );
-          setDone([
-            ...done,
-            `${ticket.customerName}'s ticket reference recorded.`,
-          ]);
-          toast.success("Ticket recorded manually (simulated).");
-        }}
-      />
+      {ticket?.bookingId && ticket.serviceId && (
+        <ServiceReferenceDialog
+          bookingId={ticket.bookingId}
+          serviceId={ticket.serviceId}
+          onClose={() => setTicket(null)}
+          onSaved={() =>
+            setDone([
+              ...done,
+              `${ticket.customerName}'s ticket reference recorded.`,
+            ])
+          }
+        />
+      )}
       {payment?.bookingId && (
         <PaymentDialog
           bookingId={payment.bookingId}

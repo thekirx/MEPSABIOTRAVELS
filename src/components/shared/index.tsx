@@ -1,6 +1,7 @@
 "use client";
+import { dueLabel } from "@/domain/dates";
 import Link from "next/link";
-import { differenceInHours, format } from "date-fns";
+import { differenceInHours } from "date-fns";
 import { ArrowUpRight, Inbox } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -81,7 +82,7 @@ export function DeadlineChip({ date }: { date?: string }) {
       className={`status ${h < 0 ? "danger" : h < 72 ? "warning" : "neutral"}`}
     >
       {h < 0 ? "Past deadline · " : h < 48 ? "Due soon · " : ""}
-      {format(new Date(date), "MMM d, h:mm a")}
+      {dueLabel(date)}
     </Badge>
   );
 }

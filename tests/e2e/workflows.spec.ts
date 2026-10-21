@@ -90,7 +90,10 @@ test("3: deposit updates balance, receivables, ledger and customer", async ({
     ),
   ).toBe(Number(before) - 6000000);
   await page.goto("/payments");
-  const row = page.locator("tr").filter({ hasText: "Andrea Reyes" });
+  const row = page
+    .getByTestId("receivables-table")
+    .locator("tbody tr")
+    .filter({ hasText: "Andrea Reyes" });
   await expect(row).toContainText("₱160,000.00");
   await expect(row).toContainText("Partially Paid");
   await page.goto("/customers/view?id=c1");
@@ -257,4 +260,104 @@ test("trip next step collects remaining deposit then advances to suppliers", asy
     }),
   ).toBeVisible();
   await expect(page.getByTestId("booking-balance")).toHaveText("₱154,000.00");
+});
+
+test("urgent trip ticket deadline clears from trip and Home", async ({
+  page,
+}) => {
+  await page.goto("/bookings/view?id=b1");
+  await expect(
+    page.getByRole("heading", { name: "Issue Miguel's plane ticket" }),
+  ).toBeVisible();
+  await expect(page.locator(".trip-next")).toContainText("Tomorrow, 5 PM");
+  await page
+    .getByRole("button", { name: "Record ticket", exact: true })
+    .click();
+  await page.getByLabel("Airline reference").fill("SIM-TKT-7788");
+  await page
+    .getByRole("button", { name: "Mark ticket issued", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Issue Miguel's plane ticket" }),
+  ).toHaveCount(0);
+  await page.goto("/dashboard");
+  await expect(
+    page.getByRole("button", { name: "Record ticket", exact: true }),
+  ).toHaveCount(0);
+});
+
+test("Trip details refuses Issued without a supplier reference", async ({
+  page,
+}) => {
+  await page.goto("/bookings/details?id=b1");
+  const airfare = page
+    .getByTestId("service-row")
+    .filter({ hasText: "Airfare" });
+  await airfare.getByLabel("Service status").selectOption("Issued");
+  await expect(
+    page.getByText("Enter a simulated ticket / confirmation number first.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(airfare.getByLabel("Service status")).toHaveValue("On Hold");
+  await airfare.getByLabel("Supplier reference").fill("SIM-TKT-7788");
+  await airfare.getByLabel("Service status").selectOption("Issued");
+  await expect(airfare.getByLabel("Service status")).toHaveValue("Issued");
+  await page.goto("/dashboard");
+  await expect(
+    page.getByRole("button", { name: "Record ticket", exact: true }),
+  ).toHaveCount(0);
+});
+
+test("trip search and counted filters show the correct records", async ({
+  page,
+}) => {
+  await page.goto("/bookings");
+  await page.getByLabel("Find a name or place").fill("Miguel");
+  await expect(page.locator("tbody tr")).toHaveCount(1);
+  await expect(page.locator("tbody tr")).toContainText("HTT-B-2026-0081");
+  await page.getByLabel("Find a name or place").fill("");
+  await page
+    .getByRole("button", { name: "Payment late 1", exact: true })
+    .click();
+  await expect(page.locator("tbody tr")).toHaveCount(1);
+  await expect(page.locator("tbody tr")).toContainText("Camille Dela Cruz");
+});
+
+test("local logo and identity persist across documents and reset restores MEP", async ({
+  page,
+}) => {
+  await page.goto("/settings");
+  await page
+    .getByLabel("Upload logo")
+    .setInputFiles("public/brand/mep-mark.png");
+  await expect(
+    page.getByText("Logo saved in this browser", { exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Agency name").fill("Demo Island Travel");
+  await page.getByLabel("Logo text", { exact: true }).fill("DIT");
+  await page.getByRole("button", { name: "Save identity" }).click();
+  await page.goto("/quotations/view?id=q1");
+  await expect(page.locator(".doc-top img")).toHaveAttribute(
+    "alt",
+    "Demo Island Travel",
+  );
+  await expect(page.locator(".doc-top img")).toHaveAttribute(
+    "src",
+    /^data:image\/png;base64,/,
+  );
+  await page.goto("/payments?statement=b1");
+  await expect(page.locator(".doc-top img")).toHaveAttribute(
+    "alt",
+    "Demo Island Travel",
+  );
+  await page.reload();
+  await expect(page.locator(".statement-footer")).toContainText(
+    "Demo Island Travel",
+  );
+  await reset(page);
+  await expect(page.getByLabel("Agency name")).toHaveValue("MEP Sabio Travel");
+  await expect(
+    page.getByRole("button", { name: "Remove uploaded logo" }),
+  ).toHaveCount(0);
 });

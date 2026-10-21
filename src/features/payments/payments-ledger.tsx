@@ -2,249 +2,247 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Printer, Plus, ArrowLeft, WalletCards } from "lucide-react";
 import { useTravelStore } from "@/store";
-import { financials, kpis } from "@/store/selectors";
+import { destination } from "@/store/selectors";
+import { paymentSummary } from "@/store/payment-selectors";
 import { money } from "@/domain/money";
-import {
-  PageHeader,
-  MoneyCell,
-  StatusBadge,
-  EmptyState,
-} from "@/components/shared";
-import { Button } from "@/components/ui/button";
+import { displayDate, dueLabel } from "@/domain/dates";
+import { Block, BigNumber, Sheet, StatusChip } from "@/components/blocks";
+import { EmptyState } from "@/components/shared";
 import { PaymentDialog } from "./payment-dialog";
+import { Statement } from "./statement";
+
 export function PaymentsLedger() {
   const s = useTravelStore(),
     params = useSearchParams();
   const [status, setStatus] = useState(params.get("status") ?? "All"),
     [payment, setPayment] = useState("");
   const statement = s.bookings.find((b) => b.id === params.get("statement"));
-  const rows = s.bookings.filter(
-    (b) =>
-      b.status !== "Cancelled" &&
-      (status === "All" || financials(s, b).status === status),
+  const summary = paymentSummary(s),
+    rows = summary.rows.filter((r) => status === "All" || r.status === status);
+  const payments = [...s.payments]
+    .reverse()
+    .sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
+  if (statement) return <Statement booking={statement} />;
+  const totals = rows.reduce(
+    (sum, r) => ({
+      total: sum.total + r.total,
+      paid: sum.paid + r.paid,
+      balance: sum.balance + r.balance,
+    }),
+    { total: 0, paid: 0, balance: 0 },
   );
-  if (statement) {
-    const b = statement,
-      f = financials(s, b);
-    return (
-      <>
-        <Link href="/payments" className="back-link no-print">
-          <ArrowLeft size={14} />
-          Receivables ledger
-        </Link>
-        <PageHeader
-          title="Statement of account"
-          action={
-            <Button onClick={() => window.print()}>
-              <Printer />
-              Print statement
-            </Button>
-          }
-        />
-        <article className="statement print-document">
-          <h2>{s.settings.agencyName}</h2>
-          <p className="subtle-note">DEMO — simulated data</p>
-          <h1>Statement of account</h1>
-          <p>Statement — not an official receipt/invoice.</p>
-          <div className="statement-meta">
-            <strong>
-              {s.customers.find((c) => c.id === b.customerId)?.name}
-            </strong>
-            <span>
-              {b.ref} · {new Date().toLocaleDateString("en-PH")}
-            </span>
-          </div>
-          <table>
+  return (
+    <>
+      <section className="hello">
+        <div>
+          <h1>Payments</h1>
+          <p>Who owes what, and every payment we&apos;ve recorded.</p>
+        </div>
+      </section>
+      <section className="stats">
+        <Block variant="red" tag="Late">
+          <BigNumber value={summary.late} />
+          <p>Outstanding on trips with overdue installments</p>
+        </Block>
+        <Block variant="lime" tag="Due in 7 days">
+          <BigNumber value={summary.dueSoon} />
+          <p>Unpaid installments due this week</p>
+        </Block>
+        <Block tag="Still to collect">
+          <BigNumber
+            value={summary.receivables}
+            data-testid="kpi-receivables"
+            data-centavos={summary.receivables}
+          />
+          <p>Across {summary.rows.length} active trips</p>
+        </Block>
+        <Block variant="char" tag="Received this month">
+          <BigNumber value={summary.receivedMonth} />
+          <p>Payments recorded by hand</p>
+        </Block>
+      </section>
+      <div className="filters" aria-label="Payment filters">
+        {["All", "Unpaid", "Partially Paid", "Fully Paid", "Overdue"].map(
+          (value) => (
+            <button
+              key={value}
+              className={status === value ? "on" : ""}
+              aria-pressed={status === value}
+              onClick={() => setStatus(value)}
+            >
+              {value}{" "}
+              <b>
+                {
+                  summary.rows.filter(
+                    (r) => value === "All" || r.status === value,
+                  ).length
+                }
+              </b>
+            </button>
+          ),
+        )}
+      </div>
+      <Sheet
+        id="receivables"
+        title="Who owes what"
+        note="Sorted by what needs you first"
+      >
+        <div className="table-wrap">
+          <table className="t" data-testid="receivables-table">
             <thead>
               <tr>
-                <th>Trip total</th>
-                <th>Payments recorded</th>
-                <th>Outstanding balance</th>
+                <th>Customer</th>
+                <th>Trip</th>
+                <th className="r">Total</th>
+                <th className="r">Paid</th>
+                <th className="r">Left</th>
+                <th>Next due</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>{money(f.total)}</td>
-                <td>{money(f.paid)}</td>
-                <td>
-                  <strong>{money(f.balance)}</strong>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <h3>Installment schedule</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Installment</th>
-                <th>Due</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {s.installments
-                .filter((i) => i.bookingId === b.id)
-                .map((i) => (
-                  <tr key={i.id}>
-                    <td>{i.label}</td>
-                    <td>{i.dueDate}</td>
-                    <td>{money(i.amountCentavos)}</td>
+              {rows.map((r) => {
+                const b = r.booking;
+                return (
+                  <tr key={b.id}>
+                    <td>
+                      <Link href={`/bookings/view?id=${b.id}`}>
+                        <b>
+                          {s.customers.find((c) => c.id === b.customerId)?.name}
+                        </b>
+                        <small>{b.ref}</small>
+                      </Link>
+                    </td>
+                    <td>{destination(s, b.quotationSnapshot)}</td>
+                    <td className="r num">{money(r.total)}</td>
+                    <td className="r num">{money(r.paid)}</td>
+                    <td className="r num">
+                      <b
+                        className={r.status === "Overdue" ? "danger-text" : ""}
+                      >
+                        {money(r.balance)}
+                      </b>
+                    </td>
+                    <td>
+                      {r.next ? (
+                        <>
+                          <b>
+                            {r.next.label} · {money(r.next.left)}
+                          </b>
+                          <small>{dueLabel(r.next.dueDate)}</small>
+                        </>
+                      ) : (
+                        "Settled"
+                      )}
+                    </td>
+                    <td>
+                      <StatusChip
+                        tone={
+                          r.status === "Overdue"
+                            ? "late"
+                            : r.dueSoon
+                              ? "next"
+                              : r.balance <= 0
+                                ? "ok"
+                                : "wait"
+                        }
+                      >
+                        {r.status}
+                      </StatusChip>
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        <button
+                          className="btn small"
+                          aria-label={`Record payment for ${b.ref}`}
+                          disabled={r.balance <= 0}
+                          onClick={() => setPayment(b.id)}
+                        >
+                          Record
+                        </button>
+                        <Link
+                          className="btn ghost small"
+                          href={`/payments?statement=${b.id}`}
+                          aria-label={`Statement for ${b.ref}`}
+                        >
+                          Statement
+                        </Link>
+                      </div>
+                    </td>
                   </tr>
-                ))}
+                );
+              })}
             </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={2}>{rows.length} trips shown</td>
+                <td className="r num">{money(totals.total)}</td>
+                <td className="r num">{money(totals.paid)}</td>
+                <td className="r num">{money(totals.balance)}</td>
+                <td colSpan={3} />
+              </tr>
+            </tfoot>
           </table>
-          <h3>Payment history</h3>
-          <table>
+        </div>
+        {!rows.length && <EmptyState text="No trips at this payment status." />}
+      </Sheet>
+      <Sheet
+        id="received"
+        title="Payments received"
+        note="Recorded by hand · no money moves in this demo"
+      >
+        <div className="table-wrap">
+          <table className="t">
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Reference</th>
+                <th>Customer</th>
+                <th>Booking</th>
                 <th>Method</th>
-                <th>Amount</th>
+                <th>Receipt no.</th>
+                <th className="r">Amount</th>
               </tr>
             </thead>
             <tbody>
-              {s.payments
-                .filter((p) => p.bookingId === b.id)
-                .map((p) => (
+              {payments.map((p) => {
+                const b = s.bookings.find((b) => b.id === p.bookingId);
+                return (
                   <tr key={p.id}>
-                    <td>{p.receivedAt}</td>
-                    <td>{p.receiptNo}</td>
-                    <td>{p.method}</td>
-                    <td>{money(p.amountCentavos)}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-          <p className="subtle-note">
-            Illustrative amounts. Entries recorded manually. No real payment is
-            processed.
-          </p>
-        </article>
-      </>
-    );
-  }
-  return (
-    <>
-      <PageHeader
-        title="Payments & receivables"
-        description="A clear view of what's paid, what's due, and what needs a follow-up."
-      />
-      <div className="receivables-banner">
-        <div className="receivables-icon">
-          <WalletCards size={25} />
-        </div>
-        <div>
-          <p>OUTSTANDING RECEIVABLES</p>
-          <strong
-            data-testid="kpi-receivables"
-            data-centavos={kpis(s).receivables}
-          >
-            {money(kpis(s).receivables)}
-          </strong>
-        </div>
-        <span>
-          Across{" "}
-          {
-            s.bookings.filter(
-              (b) => b.status !== "Cancelled" && financials(s, b).balance > 0,
-            ).length
-          }{" "}
-          active bookings
-        </span>
-      </div>
-      <div className="toolbar">
-        <div className="toolbar-left">
-          {["All", "Unpaid", "Partially Paid", "Fully Paid", "Overdue"].map(
-            (x) => (
-              <button
-                key={x}
-                className={`chip ${status === x ? "active" : ""}`}
-                onClick={() => setStatus(x)}
-              >
-                {x}
-              </button>
-            ),
-          )}
-        </div>
-        <span className="subtle-note">Manual ledger · PHP</span>
-      </div>
-      <div className="panel table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Booking / customer</th>
-              <th>Total</th>
-              <th>Paid</th>
-              <th>Balance</th>
-              <th>Next due</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((b) => {
-              const f = financials(s, b);
-              return (
-                <tr
-                  key={b.id}
-                  className={f.status === "Overdue" ? "overdue-row" : ""}
-                >
-                  <td>
-                    <Link href={`/bookings/view?id=${b.id}`}>
-                      <strong>
-                        {s.customers.find((c) => c.id === b.customerId)?.name}
-                      </strong>
-                      <p className="subtle-note">{b.ref}</p>
-                    </Link>
-                  </td>
-                  <td>
-                    <MoneyCell value={f.total} />
-                  </td>
-                  <td>
-                    <MoneyCell value={f.paid} />
-                  </td>
-                  <td>
-                    <strong
-                      className={f.status === "Overdue" ? "danger-text" : ""}
-                    >
-                      <MoneyCell value={f.balance} />
-                    </strong>
-                  </td>
-                  <td>{f.nextDue?.dueDate ?? "Settled"}</td>
-                  <td>
-                    <StatusBadge status={f.status} />
-                  </td>
-                  <td>
-                    <div className="row-actions">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        aria-label={`Record payment for ${b.ref}`}
-                        disabled={f.balance <= 0}
-                        onClick={() => setPayment(b.id)}
-                      >
-                        <Plus />
-                      </Button>
-                      <Link
-                        href={`/payments?statement=${b.id}`}
-                        aria-label={`Statement for ${b.ref}`}
-                      >
-                        <Button variant="ghost" size="icon">
-                          <Printer />
-                        </Button>
+                    <td>{displayDate(p.receivedAt, "EEE d MMM")}</td>
+                    <td>
+                      <b>
+                        {s.customers.find((c) => c.id === b?.customerId)?.name}
+                      </b>
+                    </td>
+                    <td>
+                      <Link href={`/payments?statement=${p.bookingId}`}>
+                        {b?.ref}
                       </Link>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {!rows.length && <EmptyState />}
-      </div>
+                    </td>
+                    <td>{p.method}</td>
+                    <td>{p.receiptNo}</td>
+                    <td className="r num">
+                      <b>{money(p.amountCentavos)}</b>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={5}>{payments.length} payments recorded</td>
+                <td className="r num">
+                  {money(
+                    payments.reduce((sum, p) => sum + p.amountCentavos, 0),
+                  )}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </Sheet>
       <p className="list-footnote">
         Statements are not official receipts or invoices. All entries are
         simulated.
@@ -252,7 +250,7 @@ export function PaymentsLedger() {
       {payment && (
         <PaymentDialog
           bookingId={payment}
-          open={!!payment}
+          open
           onClose={() => setPayment("")}
         />
       )}

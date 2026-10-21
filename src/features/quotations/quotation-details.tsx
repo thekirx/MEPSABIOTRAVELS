@@ -1,7 +1,7 @@
 "use client";
+import { displayDate } from "@/domain/dates";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { useTravelStore } from "@/store";
 import { quoteTotals } from "@/domain/quote";
@@ -468,7 +468,7 @@ export function QuotationDetails() {
           </Sheet>
           <Sheet id="versions" title="Versions and history">
             <p>
-              Created {q.createdAt} · Current version {q.version}
+              Created {displayDate(q.createdAt)} · Current version {q.version}
             </p>
             <ul className="timeline">
               {(q.editHistory ?? [])
@@ -476,7 +476,7 @@ export function QuotationDetails() {
                 .reverse()
                 .map((h) => (
                   <li key={h.version}>
-                    <time>{format(parseISO(h.at), "d MMM, h:mm a")}</time>
+                    <time>{displayDate(h.at, "EEE d MMM, h:mm a")}</time>
                     <span>
                       Version {h.version} · {h.summary}
                     </span>

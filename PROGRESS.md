@@ -143,3 +143,25 @@ Resume with **Phase 7 of REDESIGN_PLAN.md**, starting with **review fix R1** (fo
 The full redesign is **not yet complete**. The original README, demo script and QA documents still describe parts of the prior interface until Phase 8 updates them. The visa seed issue described in the redesign handoff has not yet been corrected. Existing persisted branding is intentionally retained until Reset demo is chosen.
 
 Evidence paths under `/tmp` are temporary and may not survive cleanup; the committed code, tests and this log are the durable record.
+
+## Resumed — Phase 7, 21 October 2026
+
+Read the revised handoff/plan and resumed implementation at Phase 7, including the newly required R1–R4 fixes. The paused-phase log above remains a historical record.
+
+### R1 — formatting-only commit `3f73a27`
+
+Installed exact Prettier 3.9.10 as the explicitly authorized dev dependency, added format/format:check and ignores (including the user-owned .claude directory), then formatted tracked source/docs. No behavior changed in this commit. Baseline and formatted gates both passed: lint, typecheck, **14 unit / 12 Chromium e2e**, static build. One formatted-run browser timeout passed on a full rerun without code changes. Remaining >160-character lines are string literals (mainly generated shadcn class lists), the plan's allowed exception.
+
+### R2–R4 and the remaining screens
+
+- R2: an urgent service within 72 hours now moves its matching checklist step ahead of the normal order. Miguel's Trip and matching checklist row show **Tomorrow, 5 PM**, with Record ticket. Home and Trip share the validated reference dialog. Non-airfare deadlines use Confirm / Add reference. The unit and Trip browser regression failed before the fix and passed afterward; recording SIM-TKT-7788 clears the Home job too.
+- R3: added shared pure lastContactLabel/dueLabel/displayDate/daysUntil helpers. Copy uses today/yesterday/plural days and weekday dates; date-only display values no longer expose ISO strings. Storage/date inputs retain their required machine formats. Helper tests initially failed on the missing helper and then passed. Due labels preserve minute precision when needed.
+- R4: restored the Trip details browser path. Blank Issued is rejected with the exact guard message and remains On Hold; reference + Issued clears the Home job. This existing behavior already passed the new coverage before other implementation changes. Kept the separate Home regression.
+- All trips: stat blocks, counted filters, search, paid meters, destination codes, next actions and agent initials. Existing KPI and traveler-count assertions remain equally strong.
+- Payments: four derived summaries, urgency-sorted receivables with row actions/totals, newest-first received history, and a separate MEP statement. New unit coverage checks partial-installment allocation and cancelled-booking exclusion. Ledger assertions now scope to the receivables table because the received table also names customers.
+- Visas: counted stage filters, missing-case callouts, cases table and inline selected case panel with URL state, checklist, dates and notes. Kept Close and all required control names.
+- Quotes list: summary blocks, consistent table and readable validity dates. Settings: white sheets, text identity and validated local logo upload; uploaded branding appears in the bar, quote and statement and resets with the seed.
+- Mock deviations: numbers/dates come from current records rather than hardcoded mock values; every row opens its real trip. Wide tables scroll inside their sheets to keep references readable. Kept all enum filters and data controls even when the mock shows fewer.
+- Browser plugin unavailable; used isolated Playwright Chromium against the static export. Presenter LocalStorage and .claude remain untouched.
+
+Phase 7 final gate: **format:check, lint, typecheck, 18 unit tests, static build and 16 Chromium e2e tests passed**. Captured the five remaining screens and Miguel's Trip at 1440×900, 1024×768 and 390×844 in `/tmp/mep-app--bookings-*.png`, `--payments-*`, `--visas-case-v1-*`, `--quotations-*`, `--settings-*`, and `--bookings-view-id-b1-*`. Reviewed desktop/mobile captures; zero app errors and no page-level overflow across all 18 route/viewport combinations. Formatting line-length check has only permitted string-literal exceptions. Continue with Phase 8.

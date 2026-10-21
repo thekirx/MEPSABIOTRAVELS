@@ -1,4 +1,5 @@
 "use client";
+import { dueLabel } from "@/domain/dates";
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -19,11 +20,13 @@ import {
   AllTravelersDialog,
   SupplierReferencesDialog,
 } from "./booking-dialogs";
+import { ServiceReferenceDialog } from "./service-reference-dialog";
 export function BookingDetail() {
   const s = useTravelStore(),
     params = useSearchParams(),
     router = useRouter();
   const [action, setAction] = useState<TripStep["id"] | null>(null);
+  const [urgentService, setUrgentService] = useState<string | null>(null);
   const b = s.bookings.find((b) => b.id === params.get("id"));
   if (!b) return <EmptyState text="Trip not found." />;
   const q = b.quotationSnapshot,
@@ -32,6 +35,11 @@ export function BookingDetail() {
     next = steps.find((x) => !x.done),
     customer = s.customers.find((c) => c.id === b.customerId);
   const perform = (id: TripStep["id"]) => {
+    const step = steps.find((x) => x.id === id);
+    if (step?.serviceId) {
+      setUrgentService(step.serviceId);
+      return;
+    }
     if (id === "visa") {
       const t = b.travelers.find(
         (t) =>
@@ -90,7 +98,7 @@ export function BookingDetail() {
           <Block
             variant="lime"
             className="trip-next"
-            tag={`Do this next${next.dueDate ? ` · by ${format(parseISO(next.dueDate), "EEE d MMM")}` : ""}`}
+            tag={`Do this next${next.dueDate && !next.deadlineLabel ? ` · ${dueLabel(next.dueDate, new Date(), true)}` : ""}`}
             title={next.title}
             action={
               <button className="btn" onClick={() => perform(next.id)}>
@@ -98,6 +106,9 @@ export function BookingDetail() {
               </button>
             }
           >
+            {next.deadlineLabel && (
+              <span className="urgent-due">{next.deadlineLabel}</span>
+            )}
             <p>{next.detail}</p>
           </Block>
         ) : (
@@ -124,12 +135,15 @@ export function BookingDetail() {
                 <span className="check-box">{step.done ? "✓" : ""}</span>
                 <span className="step-text">{step.label}</span>
                 {!step.done && (
-                  <span className="step-when">
-                    {step.dueDate
-                      ? `By ${format(parseISO(step.dueDate), "EEE d MMM")}`
-                      : step.id === "suppliers"
-                        ? `${b.services.filter((x) => ["Confirmed", "Issued"].includes(x.status)).length} of ${b.services.filter((x) => x.status !== "Cancelled").length}`
-                        : ""}
+                  <span
+                    className={`step-when ${step.deadlineLabel ? "urgent-due" : ""}`}
+                  >
+                    {step.deadlineLabel ??
+                      (step.dueDate
+                        ? dueLabel(step.dueDate, new Date(), true)
+                        : step.id === "suppliers"
+                          ? `${b.services.filter((x) => ["Confirmed", "Issued"].includes(x.status)).length} of ${b.services.filter((x) => x.status !== "Cancelled").length}`
+                          : "")}
                   </span>
                 )}
               </>
@@ -182,6 +196,13 @@ export function BookingDetail() {
           </div>
         </Block>
       </section>
+      {urgentService && (
+        <ServiceReferenceDialog
+          bookingId={b.id}
+          serviceId={urgentService}
+          onClose={() => setUrgentService(null)}
+        />
+      )}
       <PaymentDialog
         bookingId={b.id}
         open={action === "deposit" || action === "balance"}

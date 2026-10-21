@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { Compass, RotateCcw, Check, ExternalLink } from "lucide-react";
+import { RotateCcw, Check, ExternalLink } from "lucide-react";
+import { AgencyLogo } from "@/components/agency-logo";
 import { useTravelStore } from "@/store";
 import { PageHeader, Field, Modal, notify } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 export default function SettingsPage() {
   const s = useTravelStore();
   const [reset, setReset] = useState(false);
+  const [logoError, setLogoError] = useState("");
   return (
     <>
       <PageHeader
@@ -15,10 +17,10 @@ export default function SettingsPage() {
         description="Make this workspace feel like your agency."
       />
       <div className="settings-layout">
-        <section className="panel">
+        <section className="sheet">
           <div className="panel-header">
             <h2>Agency identity</h2>
-            <Compass size={19} className="muted" />
+            <AgencyLogo />
           </div>
           <form
             className="panel-body section-stack"
@@ -28,7 +30,8 @@ export default function SettingsPage() {
               notify(
                 () =>
                   s.updateSettings({
-                    agencyName: String(d.get("agency")),
+                    ...s.settings,
+                    agencyName: String(d.get("agency")).trim(),
                     logoText: String(d.get("logo")),
                   }),
                 "Agency identity updated",
@@ -54,8 +57,68 @@ export default function SettingsPage() {
                 maxLength={4}
               />
             </Field>
+            <Field label="Upload logo (PNG, JPEG or WebP)">
+              <Input
+                aria-label="Upload logo"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (
+                    !["image/png", "image/jpeg", "image/webp"].includes(
+                      file.type,
+                    ) ||
+                    file.size > 500000
+                  ) {
+                    setLogoError("Choose a PNG, JPEG or WebP under 500 KB.");
+                    return;
+                  }
+                  setLogoError("");
+                  const reader = new FileReader();
+                  reader.onerror = () =>
+                    setLogoError(
+                      "The image could not be read. Try another file.",
+                    );
+                  reader.onload = () =>
+                    notify(
+                      () =>
+                        s.updateSettings({
+                          ...s.settings,
+                          logoDataUrl: String(reader.result),
+                        }),
+                      "Logo saved in this browser",
+                    );
+                  reader.readAsDataURL(file);
+                }}
+              />
+              {logoError && (
+                <p role="alert" className="danger-text">
+                  {logoError}
+                </p>
+              )}
+              <small>Saved in this browser only. Maximum 500 KB.</small>
+            </Field>
+            {s.settings.logoDataUrl && (
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() =>
+                  notify(
+                    () =>
+                      s.updateSettings({
+                        ...s.settings,
+                        logoDataUrl: undefined,
+                      }),
+                    "Uploaded logo removed",
+                  )
+                }
+              >
+                Remove uploaded logo
+              </Button>
+            )}
             <p className="subtle-note">
-              Shown in the sidebar, customer quotations, and statements.
+              Shown in the top bar, customer quotations, and statements.
             </p>
             <div>
               <Button type="submit">
@@ -65,7 +128,7 @@ export default function SettingsPage() {
             </div>
           </form>
         </section>
-        <section className="panel">
+        <section className="sheet">
           <div className="panel-header">
             <h2>About this workspace</h2>
           </div>
@@ -100,7 +163,7 @@ export default function SettingsPage() {
             </a>
           </div>
         </section>
-        <section className="panel reset-panel">
+        <section className="sheet reset-panel">
           <div className="panel-header">
             <h2>A fresh start for every presentation</h2>
           </div>

@@ -1,4 +1,6 @@
 "use client";
+import { displayDate } from "@/domain/dates";
+import { Block } from "@/components/blocks";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,7 +30,7 @@ export function QuotationList() {
   return (
     <>
       <PageHeader
-        title="Quotations"
+        title="Quotes"
         description="Thoughtfully priced trips. Ready for your client's next yes."
         action={
           <Button onClick={() => setOpen(true)}>
@@ -37,6 +39,23 @@ export function QuotationList() {
           </Button>
         }
       />
+      <section className="stats">
+        {(["All", "Draft", "Sent", "Accepted"] as const).map((value, i) => (
+          <Block
+            key={value}
+            variant={i === 2 ? "lime" : i === 3 ? "char" : "white"}
+            tag={value === "All" ? "All quotes" : value}
+          >
+            <div className="big num">
+              {
+                s.quotations.filter(
+                  (q) => value === "All" || q.status === value,
+                ).length
+              }
+            </div>
+          </Block>
+        ))}
+      </section>
       <div className="toolbar">
         <div className="toolbar-left">
           {["All", "Draft", "Sent", "Accepted"].map((x) => (
@@ -56,8 +75,8 @@ export function QuotationList() {
         </div>
         <span className="subtle-note">Prices are illustrative, in PHP</span>
       </div>
-      <div className="panel table-wrap">
-        <table>
+      <div className="sheet table-wrap">
+        <table className="t">
           <thead>
             <tr>
               <th>Quotation</th>
@@ -76,7 +95,9 @@ export function QuotationList() {
                   <Link href={`/quotations/view?id=${q.id}`}>
                     <strong>{q.ref}</strong>
                   </Link>
-                  <p className="subtle-note">Valid until {q.validUntil}</p>
+                  <p className="subtle-note">
+                    Valid until {displayDate(q.validUntil, "EEE d MMM")}
+                  </p>
                 </td>
                 <td>{s.customers.find((c) => c.id === q.customerId)?.name}</td>
                 <td>{destination(s, q)}</td>

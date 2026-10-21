@@ -1,4 +1,5 @@
 "use client";
+import { lastContactLabel } from "@/domain/dates";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -337,9 +338,7 @@ export function Inquiries() {
                 <p className={`last ${days >= 5 ? "stale" : ""}`}>
                   {days >= 5
                     ? `No reply in ${days} days`
-                    : days === 0
-                      ? "Talked today"
-                      : `Talked ${days} days ago`}
+                    : lastContactLabel(days)}
                 </p>
                 <div className="acts">
                   {actions(l)}

@@ -1,9 +1,10 @@
 "use client";
+import { displayDate, daysUntil } from "@/domain/dates";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { money } from "@/domain/money";
 import { destinationCode, destinationCity } from "@/domain/places";
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+
 export function Block({
   variant = "white",
   tag,
@@ -75,8 +76,7 @@ export function LuggageTag({
       <span className="code">{destinationCode(destination)}</span>
       <strong className="city">{destinationCity(destination)}</strong>
       <span className="when">
-        {format(parseISO(date), "EEE d MMM")} · in{" "}
-        {differenceInCalendarDays(parseISO(date), new Date())} days
+        {displayDate(date, "EEE d MMM")} · {daysUntil(date)}
       </span>
       <span className="who">
         {name}

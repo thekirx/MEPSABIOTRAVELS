@@ -1,4 +1,5 @@
 "use client";
+import { displayDate } from "@/domain/dates";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -122,8 +123,8 @@ export function CustomerPage() {
                       ? money(l.budgetCentavos)
                       : "To discuss",
                   },
-                  { label: "First contact", value: l.createdAt },
-                  { label: "Last talked", value: l.lastContactAt },
+                  { label: "First contact", value: displayDate(l.createdAt) },
+                  { label: "Last talked", value: displayDate(l.lastContactAt) },
                 ]}
               />
             </div>
@@ -222,7 +223,7 @@ export function CustomerPage() {
               <tbody>
                 {payments.map((p) => (
                   <tr key={p.id}>
-                    <td>{p.receivedAt}</td>
+                    <td>{displayDate(p.receivedAt)}</td>
                     <td>{bookings.find((b) => b.id === p.bookingId)?.ref}</td>
                     <td>{p.method}</td>
                     <td>{p.receiptNo}</td>

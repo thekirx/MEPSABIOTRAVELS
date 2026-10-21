@@ -1,3 +1,4 @@
+import { dueLabel } from "@/domain/dates";
 import { money as moneyForStep } from "@/domain/money";
 import type { DemoData, Booking } from "@/domain/types";
 import { leadStages, visaStages } from "@/domain/types";
@@ -111,7 +112,7 @@ export function attention(s: DemoData) {
           detail: `${b.ref} · ${name}`,
           href: `/bookings/view?id=${b.id}`,
           kind: "warning",
-          tag: format(new Date(svc.deadline), "MMM d, h:mm a"),
+          tag: dueLabel(svc.deadline),
         });
     }
     if (financials(s, b).status === "Overdue")
@@ -148,7 +149,7 @@ export function attention(s: DemoData) {
       detail: `${q.ref} · ${s.customers.find((c) => c.id === q.customerId)?.name}`,
       href: `/quotations/view?id=${q.id}`,
       kind: "warning",
-      tag: format(new Date(q.validUntil + "T12:00:00"), "MMM d"),
+      tag: dueLabel(q.validUntil),
     });
   return rows;
 }
@@ -157,6 +158,7 @@ export type HomeJob = Attention & {
   type: "service" | "payment" | "quote" | "visa";
   bookingId?: string;
   serviceId?: string;
+  category?: string;
   customerName: string;
   place: string;
   amountCentavos?: number;
@@ -182,6 +184,7 @@ export function homeJobs(s: DemoData): HomeJob[] {
       type: service ? "service" : quote ? "quote" : visa ? "visa" : "payment",
       bookingId: booking?.id,
       serviceId: service?.id,
+      category: service?.category,
       deadline: service?.deadline,
       customerName: customer?.name ?? "Traveler",
       place: booking
@@ -263,6 +266,8 @@ export type TripStep = {
   detail: string;
   dueDate?: string;
   remainingCentavos?: number;
+  serviceId?: string;
+  deadlineLabel?: string;
 };
 export function tripSteps(s: DemoData, b: Booking): TripStep[] {
   if (b.status === "Cancelled") return [];
@@ -360,5 +365,34 @@ export function tripSteps(s: DemoData, b: Booking): TripStep[] {
       dueDate: b.quotationSnapshot.departDate,
     },
   );
+  const urgent = active
+    .filter(
+      (x) =>
+        x.deadline &&
+        x.status !== "Issued" &&
+        differenceInHours(new Date(x.deadline), new Date()) <= 72,
+    )
+    .sort((a, b) => a.deadline!.localeCompare(b.deadline!))[0];
+  if (urgent) {
+    const id = urgent.category === "Airfare" ? "tickets" : "suppliers";
+    const index = steps.findIndex((step) => step.id === id);
+    const [step] = steps.splice(index, 1);
+    const name =
+      s.customers.find((c) => c.id === b.customerId)?.name.split(" ")[0] ??
+      "their";
+    steps.splice(1, 0, {
+      ...step,
+      done: false,
+      serviceId: urgent.id,
+      dueDate: urgent.deadline,
+      deadlineLabel: dueLabel(urgent.deadline!),
+      title:
+        urgent.category === "Airfare"
+          ? `Issue ${name}'s plane ticket`
+          : `Confirm the ${urgent.category.toLowerCase()}`,
+      action: urgent.category === "Airfare" ? "Record ticket" : "Add reference",
+      detail: "Record the supplier reference before the hold expires.",
+    });
+  }
   return steps;
 }

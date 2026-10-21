@@ -3083,3 +3083,236 @@ td strong {
     margin-left: 0;
   }
 }
+
+/* Remaining detail screens use the same flat blocks and contained tables. */
+.urgent-due {
+  display: inline-flex;
+  background: var(--red);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.trip-step .step-when.urgent-due {
+  background: var(--red);
+  color: white;
+}
+.filters button {
+  min-height: 46px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: white;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.filters button b {
+  font-size: 14px;
+  color: var(--muted);
+}
+.filters button.on {
+  background: var(--char);
+  color: white;
+}
+.filters button.on b {
+  color: var(--lime);
+}
+.list-search {
+  margin-left: auto;
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+.list-search input {
+  width: 250px;
+  min-height: 46px;
+  border-radius: 24px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid var(--line);
+}
+.trip-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+}
+.trip-code {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: var(--char);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-family: var(--head);
+  font-size: 19px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.trip-table td {
+  min-width: 130px;
+}
+.trip-table td:nth-child(7) {
+  min-width: 230px;
+  max-width: 300px;
+}
+.trip-table .chip {
+  white-space: normal;
+}
+.paidbar {
+  min-width: 170px;
+}
+.paidbar .meter {
+  height: 6px;
+  margin-top: 6px;
+}
+.agent-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ecebe3;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+.visa-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.visa-split.has-case {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+}
+.visa-split .sheet {
+  min-width: 0;
+}
+.selected-row td {
+  background: #f6f9e4;
+}
+.case-body {
+  display: grid;
+  gap: 18px;
+}
+.visa-checklist label {
+  min-height: 48px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.visa-checklist [role="checkbox"] {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.settings-layout .sheet {
+  padding: 24px;
+  min-width: 0;
+}
+.settings-layout .panel-header {
+  padding: 0 0 20px;
+}
+.settings-layout .panel-body {
+  padding: 0;
+}
+.agency-logo {
+  object-fit: contain;
+  max-width: 160px;
+  height: 60px;
+}
+.appbar .agency-logo {
+  height: 44px;
+  width: 90px;
+}
+.statement {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background: white;
+  border-radius: 18px;
+  overflow-wrap: anywhere;
+}
+.statement h2 {
+  margin-top: 28px;
+  font-size: 26px;
+}
+.statement .doc-top {
+  padding: 0 0 20px;
+  margin-bottom: 24px;
+}
+.statement-footer {
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 2px solid var(--char);
+  font-size: 14px;
+}
+#received {
+  margin-top: 22px;
+}
+@media (max-width: 1100px) {
+  .visa-split.has-case {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .list-search {
+    width: 100%;
+    margin-left: 0;
+  }
+  .list-search input {
+    width: 100%;
+  }
+  .statement {
+    padding: 18px;
+  }
+  .statement .doc-top {
+    flex-wrap: wrap;
+  }
+  .statement table {
+    font-size: 14px;
+  }
+  .statement th,
+  .statement td {
+    padding: 10px 5px;
+  }
+}
+.trip-table {
+  min-width: 1320px;
+}
+.trip-table .chip {
+  height: auto;
+  min-height: 28px;
+  line-height: 1.4;
+  padding: 6px 12px;
+}
+.trip-table td small,
+.trip-table td b {
+  white-space: nowrap;
+}
+.trip-table td:nth-child(7) small,
+.trip-table td:nth-child(7) b {
+  white-space: normal;
+}
+#receivables .t {
+  min-width: 1160px;
+}
+#receivables .t td small,
+#receivables .t td b {
+  white-space: nowrap;
+}
+.visa-split .table-wrap .t {
+  min-width: 600px;
+}
+.visa-split .table-wrap .t td {
+  min-width: 120px;
+}
+.visa-split .table-wrap .t td:first-child {
+  min-width: 175px;
+}
+.visa-split .status {
+  height: auto;
+  min-height: 28px;
+  white-space: normal;
+}

@@ -1,4 +1,5 @@
 "use client";
+import { displayDate } from "@/domain/dates";
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -220,7 +221,7 @@ export function BookingDetails() {
               },
               { label: "Came from", value: customer?.source },
               { label: "Package", value: pkg?.name ?? "Custom trip" },
-              { label: "Booked", value: b.createdAt },
+              { label: "Booked", value: displayDate(b.createdAt) },
               {
                 label: "From quote",
                 value: (
@@ -370,9 +371,13 @@ export function BookingDetails() {
                           <small>Name needed</small>
                         )}
                       </td>
-                      <td>{tr.birthDate || "Needed"}</td>
                       <td>
-                        {tr.passportExpiry || "Needed"}
+                        {tr.birthDate ? displayDate(tr.birthDate) : "Needed"}
+                      </td>
+                      <td>
+                        {tr.passportExpiry
+                          ? displayDate(tr.passportExpiry)
+                          : "Needed"}
                         {warning && (
                           <small className="danger-text">
                             {tr.passportExpiry
@@ -526,7 +531,7 @@ export function BookingDetails() {
                   .filter((p) => p.bookingId === b.id)
                   .map((p) => (
                     <tr key={p.id}>
-                      <td>{p.receivedAt}</td>
+                      <td>{displayDate(p.receivedAt)}</td>
                       <td>{p.method}</td>
                       <td>{p.receiptNo}</td>
                       <td>{p.note}</td>
