@@ -107,6 +107,11 @@ export type QuoteLine = {
   currencyNote?: string;
 };
 export type Quotation = {
+  inclusions?: string[];
+  exclusions?: string[];
+  terms?: string;
+  assignedAgentId?: string;
+  editHistory?: {version:number;at:string;summary:string}[];
   id: string;
   ref: string;
   leadId: string;

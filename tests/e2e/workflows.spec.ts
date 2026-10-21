@@ -14,6 +14,7 @@ async function accept(page: import("@playwright/test").Page) {
   await page
     .getByRole("button", { name: "Accept & convert to booking" })
     .click();
+  await page.getByRole("dialog").getByRole("button",{name:"Yes, book it",exact:true}).click();
   await expect(page).toHaveURL(/bookings\/view\/?\?id=b8/);
 }
 async function deposit(page: import("@playwright/test").Page) {
@@ -36,13 +37,14 @@ test("1: Andrea lead → quote, live math and print isolation", async ({
     .click();
   await page.getByRole("link", { name: "HTT-Q-2026-0142" }).click();
   await expect(page.getByTestId("preview-total")).toHaveText("₱220,000.00");
+  await page.getByRole("button",{name:"Other…",exact:true}).click();
   await page.getByLabel("Markup (%)").fill("15");
   await expect(page.getByTestId("preview-total")).toHaveText("₱230,000.00");
   await page.getByLabel("Markup (%)").fill("10");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.emulateMedia({ media: "print" });
   await expect(page.locator(".print-document")).toBeVisible();
-  await expect(page.locator(".staff-only")).toBeHidden();
+  for(const panel of await page.locator(".staff-only").all()) await expect(panel).toBeHidden();
   await expect(page.locator(".appbar")).toBeHidden();
 });
 test("2: conversion creates consistent booking and increments KPI", async ({

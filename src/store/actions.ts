@@ -162,6 +162,7 @@ export const createActions: StateCreator<TravelStore, [], [], Actions> = (
       id: q.id,
       status: q.status,
       version: q.version + 1,
+      editHistory: [...(q.editHistory ?? []), {version:q.version+1,at:new Date().toISOString(),summary:`Updated ${Object.keys(patch).join(", ")}`}].slice(-20),
     };
     if (
       ![next.departDate, next.returnDate, next.validUntil].every((value) =>
@@ -233,8 +234,7 @@ export const createActions: StateCreator<TravelStore, [], [], Actions> = (
         status: "Requested",
       })),
       status: "Pending Confirmation",
-      assignedAgentId: get().leads.find((l) => l.id === q.leadId)!
-        .assignedAgentId,
+      assignedAgentId: q.assignedAgentId ?? get().leads.find((l) => l.id === q.leadId)!.assignedAgentId,
       notes: [
         "Quotation accepted in demo. Services requested; no real booking made.",
       ],
