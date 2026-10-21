@@ -11,7 +11,7 @@ Spec: user-supplied Optrizo TravelOS brief. No extra planning documents per its 
 - Phase 3: editable quotation, print document, read-only acceptance snapshot. Gate typecheck/build/test PASS; Chromium markup 10→15→10 verified 220000→230000→220000; print PDF generated. Complete.
 - Phase 4: booking services/travelers/installments/payments; validation; ledger and statements. Gate typecheck/build/test PASS; Chromium acceptance + 60000 deposit verified 160000 balance in booking and ledger. Customer drawer assertion follows Phase 5, where the brief schedules that component. Complete.
 - Phase 5: inquiry pipeline/customer drawer and derived dashboard. Gate typecheck/build/test PASS (6 unit tests). Complete.
-- Phase 6: visa checklist/stages, branding/reset, keyboard reset, responsive polish. Gate lint/typecheck/build/test.
+- Phase 6: visa checklist/stages, branding/reset, keyboard reset, responsive polish. Gate lint/typecheck/build/test PASS; all six browser workflows passed. Complete. Desktop/tablet screenshots inspected; no console errors or horizontal page overflow at 1024.
 - Phase 7: six end-to-end workflows, documentation, final combined gate, commit.
 
 Review focus: repeat acceptance must not duplicate a booking; overpayment and invalid centavos rejected; accepted quotes immutable; cumulative overdue deadlines correct; storage schema mismatch safely reseeds. Tests will cover these in domain/store and browser suites.
