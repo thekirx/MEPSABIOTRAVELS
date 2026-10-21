@@ -1,2 +1,1 @@
-import {PageHeader} from "@/components/shared";
-export default function Page(){return <PageHeader title="bookings/view"/>}
+import {Suspense} from 'react';import {BookingDetail} from '@/features/bookings/booking-detail';export default function Page(){return <Suspense><BookingDetail/></Suspense>}

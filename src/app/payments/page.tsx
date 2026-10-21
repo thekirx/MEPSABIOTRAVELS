@@ -1,2 +1,1 @@
-import {PageHeader} from "@/components/shared";
-export default function Page(){return <PageHeader title="payments"/>}
+import {Suspense} from 'react';import {PaymentsLedger} from '@/features/payments/payments-ledger';export default function Page(){return <Suspense><PaymentsLedger/></Suspense>}
