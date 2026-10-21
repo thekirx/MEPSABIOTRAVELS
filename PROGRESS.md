@@ -6,7 +6,7 @@ Spec: user-supplied Optrizo TravelOS brief. No extra planning documents per its 
 
 ## Plan / gates
 - Phase 0: scaffold, scripts, shadcn, Vitest, Playwright. Gate lint/typecheck/build PASS, zero errors/warnings. Complete. shadcn primitives installed; concept in design/dashboard-concept.png.
-- Phase 1: types, pure money/quote/payment functions; deterministic relative seed; versioned store/actions/selectors. Test exact quote, mixed basis, overdue, conversion, foreign keys. Gate typecheck/test.
+- Phase 1: types, pure money/quote/payment functions; deterministic relative seed; versioned store/actions/selectors. Test exact quote, mixed basis, overdue, conversion, foreign keys. Gate typecheck/test PASS (6 unit tests). Complete.
 - Phase 2: seven-item shell, search, hydration skeleton, shared badges/KPIs/deadlines, route stubs. Gate lint/typecheck/build.
 - Phase 3: editable quotation, print document, read-only acceptance snapshot. Gate typecheck/build/test + markup browser check.
 - Phase 4: booking services/travelers/installments/payments; validation; ledger and statements. Gate typecheck/build/test + 60000 deposit check.
