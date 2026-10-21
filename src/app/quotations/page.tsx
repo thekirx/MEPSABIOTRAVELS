@@ -1,2 +1,2 @@
-import {PageHeader} from "@/components/shared";
-export default function Page(){return <PageHeader title="quotations"/>}
+import {Suspense} from 'react';import {QuotationList} from '@/features/quotations/quotation-list';
+export default function Page(){return <Suspense><QuotationList/></Suspense>}
