@@ -7,3 +7,5 @@ export default function Page() {
     </Suspense>
   );
 }
+
+export const metadata = { title: "Visas · MEP Sabio Travel" };

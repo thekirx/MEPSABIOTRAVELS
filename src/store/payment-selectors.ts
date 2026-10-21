@@ -2,6 +2,20 @@ import { addDays, format } from "date-fns";
 import type { DemoData } from "@/domain/types";
 import { bookingFinancials } from "@/domain/payments";
 
+export function allocatedInstallments(s: DemoData, bookingId: string) {
+  let remainingPaid = s.payments
+    .filter((p) => p.bookingId === bookingId)
+    .reduce((sum, p) => sum + p.amountCentavos, 0);
+  return s.installments
+    .filter((i) => i.bookingId === bookingId)
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
+    .map((i) => {
+      const paid = Math.min(i.amountCentavos, remainingPaid);
+      remainingPaid -= paid;
+      return { ...i, paid, left: i.amountCentavos - paid };
+    });
+}
+
 export function paymentRows(s: DemoData, now = new Date()) {
   const today = format(now, "yyyy-MM-dd"),
     week = format(addDays(now, 7), "yyyy-MM-dd");
@@ -9,15 +23,7 @@ export function paymentRows(s: DemoData, now = new Date()) {
     .filter((b) => b.status !== "Cancelled")
     .map((booking) => {
       const f = bookingFinancials(booking, s.payments, s.installments, now);
-      let remainingPaid = f.paid;
-      const plan = s.installments
-        .filter((i) => i.bookingId === booking.id)
-        .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
-        .map((i) => {
-          const paid = Math.min(i.amountCentavos, remainingPaid);
-          remainingPaid -= paid;
-          return { ...i, left: i.amountCentavos - paid };
-        });
+      const plan = allocatedInstallments(s, booking.id);
       const dueSoon = plan
         .filter((i) => i.dueDate >= today && i.dueDate <= week)
         .reduce((sum, i) => sum + i.left, 0);

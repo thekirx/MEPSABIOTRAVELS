@@ -1,4 +1,5 @@
 "use client";
+import { displayNote } from "@/domain/dates";
 import { displayDate } from "@/domain/dates";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -245,7 +246,7 @@ export function CustomerPage() {
             <div key={l.id}>
               <ul className="notes-list">
                 {l.notes.map((n, i) => (
-                  <li key={i}>{n}</li>
+                  <li key={i}>{displayNote(n)}</li>
                 ))}
               </ul>
               <NoteForm onAdd={(note) => s.addLeadNote(l.id, note)} />

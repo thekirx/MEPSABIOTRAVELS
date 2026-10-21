@@ -7,3 +7,5 @@ export default function Page() {
     </Suspense>
   );
 }
+
+export const metadata = { title: "People asking · MEP Sabio Travel" };

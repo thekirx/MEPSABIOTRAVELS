@@ -2,69 +2,56 @@
 
 ## Before the meeting
 
-Use Chrome/Chromium at 1440×900 or larger, at 100% browser zoom. Start `npm run dev`, open `/dashboard`, then Settings → Reset demo data → Reset demo. Optionally save the client's chosen agency branding after reset. Return to Overview. Keep all figures at their seed values until prompted. All transactions, applications and confirmations are simulated.
+Use Chromium at 1440×900 and 100% zoom. Open `/dashboard`, then avatar → Settings → Reset demo data → Reset demo. Reset restores **MEP Sabio Travel** branding and dates relative to today. All people, prices, payments and references are synthetic demo records. Source “Facebook Messenger” is entered manually; there is no Facebook integration.
 
-## 0:00–0:40 — The owner's morning view
+## 0:00–0:40 — Home: today's work
 
-Open **Overview**. Say: “This is your morning view: conversations, quotations awaiting reply, this month's bookings, receivables and departures. These figures come from the same records your staff works on.”
+Open **Home**. Show the three jobs: collect Camille's late payment, record Miguel's urgent plane ticket, and call Andrea about her quote. Job order and amounts come from the records. Point to tomorrow's 5 PM deadline and the four Leaving soon luggage tags. Leave the ticket unresolved for now. “See all trips” opens the full list and its monthly booking count.
 
-Point to **Airfare deadline**, **Overdue balance**, missing visa documents and the expiring quote in Needs attention. Scroll that panel if necessary. Do not resolve the deadline yet. Note the booking count; the live conversion will increase it by one.
+## 0:40–2:10 — Andrea's quote
 
-## 0:40–2:10 — Andrea's inquiry and quotation
+Open **People asking → Almost booked → Andrea Reyes**. Her customer page holds contact details, request, quotes, trips, payments and notes. Open **HTT-Q-2026-0142**. Andrea's Tokyo–Osaka trip has four people, leaving 45 days after reset and returning after 50 days.
 
-Open **Inquiries**. Find **Andrea Reyes** in Negotiating and click her name. Her source is Facebook Messenger, recorded manually; the app is not integrated with Facebook. Say: “One customer profile holds the inquiry, notes, quotations, bookings and balance.”
+The customer pays **₱220,000.00**, **₱55,000.00 each**, at 10% markup. Choose **15%** to show **₱230,000.00**, then restore **10%** and Save. Supplier cost is ₱200,000; staff profit at 10% is ₱20,000. “Other…” exposes the custom Markup (%) field. “Edit every detail →” opens package, dates, services, pricing, itinerary, inclusions, terms and versions.
 
-Click **HTT-Q-2026-0142** in the drawer. Andrea has Tokyo–Osaka 6D5N, four travelers, departing 45 days after the reset date. The trip starts at **₱220,000.00**, **₱55,000.00 per traveler**.
+Use **Print / Save as PDF**. Confirm one A4 customer quotation with itinerary, inclusions/exclusions, deposit, terms and availability caveat. Staff figures and navigation stay hidden with Customer view on or off. Cancel printing.
 
-Scroll the editor to Pricing & validity. Set **Markup (%)** from 10 to 15. The live customer preview becomes **₱230,000.00**. Say: “We price from supplier costs while keeping the client document simple.” **Restore markup to 10** so the total returns to **₱220,000.00**, then click Save.
+## 2:10–3:05 — Yes becomes a trip
 
-Click **Print / Save as PDF**. Confirm the one-page A4 seed quotation: itinerary, inclusions/exclusions, validity, deposit terms and availability caveat. Supplier costs and gross profit are absent even with Customer view unchecked. Cancel print to return to the app.
+Click **Yes, book it**, then confirm. The price locks and **HTT-B-2026-0088** opens. Its checklist starts with the **₱66,000 deposit**. “See full trip details →” shows four travelers, four Requested services and two installments: **₱66,000 deposit** due in three days, **₱154,000 balance** due 30 days before departure.
 
-## 2:10–3:05 — Acceptance becomes an organized booking
+People asking → Table shows Andrea's Lead stage **Won**. All trips shows one more monthly booking. The accepted quote is read-only; opening it again cannot create a duplicate booking.
 
-At the bottom of the editor, click **Accept & convert to booking**. The new booking is **HTT-B-2026-0088**. Say: “We freeze the accepted quotation. Staff can track services without accidentally repricing the customer's agreement.”
+## 3:05–4:10 — One payment, matching balances
 
-Show four traveler placeholders, four Requested services, and the default installment plan: **₱66,000 deposit**, **₱154,000 balance**. The 30% deposit is due in three days; final payment is due 30 days before departure. Traveler details remain synthetic placeholders for the demo.
+On Payments, note Still to collect immediately before payment. Open Andrea's Trip and **Record payment**. Enter **60000**, choose Bank Transfer, note “Initial deposit — demo”, and Save payment.
 
-Open Inquiries → Table and show Andrea's lead is **Won**. Return to Overview: bookings this month increased by **1**.
+The balance is **₱160,000.00**. The next step says **Collect ₱6,000 more for the deposit**. Payments → Who owes what shows the same balance and Partially Paid; the customer page agrees. Still to collect has fallen by exactly ₱60,000. The planned deposit is unchanged.
 
-## 3:05–4:10 — One deposit, every balance agrees
+Print her **Statement**, labeled “Statement — not an official receipt/invoice.” No real funds move. To keep the main script's refresh assertion at ₱160,000, leave the extra ₱6,000 for the optional checklist rehearsal below.
 
-With Andrea's booking created, note the receivables total on Overview. Open her booking from Bookings or global search. Click **Record payment**. Enter **60000**, choose Bank Transfer, note “Initial deposit — demo”, then **Save payment**.
+## 4:10–5:05 — Visa checklist
 
-Say: “This records a manual payment entry; it doesn't process funds.” The booking balance is **₱160,000.00** and status **Partially Paid**. The remaining **₱6,000** of the deposit stays due in three days. Partial deposit does not change the agreed installment schedule.
+Open Andrea's full trip details → Travelers → first **Create visa case**. The Visas page selects that case beside the table. Tick all seven requirements; show **All requirements complete**. Choose **Complete** in Visa stage, then Close. The **Complete (1)** filter count updates. Dates and notes persist. Nothing is sent to an embassy.
 
-Open Payments and show Andrea's exact **₱160,000.00** balance. Open her customer drawer in Inquiries and show the same amount. Overview receivables have dropped by **₱60,000.00** from the value noted immediately before payment. A printable statement is available from the booking or ledger and is explicitly not an official receipt/invoice.
+Seed visa cases belong only to the three Japan/Korea trips; their countries match those destinations. The six seed cases preserve the original stage mix.
 
-## 4:10–5:05 — Visa work stays attached to the traveler
+## 5:05–6:00 — Resolve Miguel's ticket deadline
 
-Return to Andrea's booking. Under the first traveler, click **Create visa case**. In the case drawer, tick every requirement. Show “All requirements complete”; select **Complete** in Application stage. Close the drawer. The **Complete (1)** filter count reflects the change.
+Home → Miguel's **Record ticket**, or open `/bookings/view?id=b1`. His Trip shows **Issue Miguel's plane ticket** and **Tomorrow, 5 PM**. Try a blank reference to show validation, then enter **SIM-TKT-7788** and **Mark ticket issued**. Return Home: his ticket job is gone. The departure tag records Ticket issued.
 
-Say: “The team knows which documents are missing and who owns the next step. Stages are recorded manually; the demo submits nothing to an embassy.”
+The full details path also enforces the guard: Suppliers → Service status = Issued is refused while Supplier reference is blank. This is a manually recorded simulated confirmation.
 
-## 5:05–6:00 — Resolve the urgent ticketing item
+## 6:00–7:00 — Refresh, identity, reset
 
-Open Overview → **Airfare deadline** for Miguel Santos' seeded booking. Show the On Hold airfare and tomorrow's cutoff. Enter **SIM-TKT-7788** in Supplier reference, then choose **Issued**. Explain that this is a simulated confirmation number, recorded manually. Issuance requires a reference.
+Refresh Andrea's Trip: **₱160,000.00** remains. Settings supports agency name, logo text and a local PNG/JPEG/WebP upload. Show the saved identity in the bar, quotation and statement.
 
-Return to Overview. The airfare deadline alert is gone because its service is now Issued. Other attention items remain.
+Finish with **Reset demo data → Reset demo**. MEP branding returns; Andrea's quote is Sent at ₱220,000, her booking is gone, seven seed trips remain and Miguel's ticket deadline returns. Shift+R opens the same confirmation outside input fields.
 
-## 6:00–7:00 — Refresh, branding and reset
+## Optional full checklist rehearsal
 
-Open Andrea's booking and refresh the browser. Her **₱160,000.00** balance remains. Say: “This demo saves to this browser. A production system would replace that with secure shared storage and access controls.”
+From Andrea's partially paid trip, record the prefilled **₱6,000** to complete the deposit. Next becomes **Confirm flight, hotel, tours and car**. Enter a simulated reference for every open supplier. Add real-looking synthetic names, birth dates and passport expiries for all four travelers. Open each required visa case and record Approved or Released. Record the remaining **₱154,000** balance, then record the airfare ticket reference. The front shows **Ready to fly** and every step is checked. Reset afterward.
 
-Open Settings and briefly show agency name/logo text. Finish with Reset demo data → Reset demo. Return to Quotations: Andrea's quote is Sent at **₱220,000.00**, no Andrea booking exists, the seven seeded bookings remain and the ticketing alert is restored.
+## Verification
 
-Say: “The demo is ready for the next walkthrough.” Reset also restores the Horizon branding; personalize again if needed.
-
-## Executed acceptance checklist
-
-Automated Chromium checks against the static export cover all six required workflows:
-
-- [x] Andrea lead → quotation → markup updates exact preview totals; print hides staff/shell.
-- [x] Acceptance creates four travelers/four services/two installments, wins the lead and increments monthly booking count.
-- [x] ₱60,000 payment produces ₱160,000 balance in booking, ledger and customer drawer and reduces receivables by ₱60,000.
-- [x] Visa creation/checklist/stage updates update counts.
-- [x] Tomorrow's airfare deadline disappears after manual reference + Issued.
-- [x] Refresh persists changes; reset restores the seed.
-
-A separate Chromium print check generated the default quotation as one A4 page. Rehearse restoring markup to 10, typing the payment amount without thousands separators, and entering the simulated reference before issuance.
+The automated suite covers exact quote math, conversion, payments across surfaces, visa/checklist counts, Home and Trip ticket actions, the details reference guard, persistence/recovery, search, counted trip filters, local branding and the complete checklist. Current command results and browser/print evidence are recorded in `PROGRESS.md`; another AI can independently follow `QA_HANDOFF.md`.

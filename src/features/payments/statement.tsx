@@ -41,66 +41,72 @@ export function Statement({ booking: b }: { booking: Booking }) {
             {b.ref} · {displayDate(new Date().toISOString())}
           </span>
         </div>
-        <table className="t">
-          <thead>
-            <tr>
-              <th>Trip total</th>
-              <th>Payments recorded</th>
-              <th>Outstanding balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{money(f.total)}</td>
-              <td>{money(f.paid)}</td>
-              <td>
-                <b>{money(f.balance)}</b>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="statement-table">
+          <table className="t">
+            <thead>
+              <tr>
+                <th>Trip total</th>
+                <th>Payments recorded</th>
+                <th>Outstanding balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{money(f.total)}</td>
+                <td>{money(f.paid)}</td>
+                <td>
+                  <b>{money(f.balance)}</b>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <h2>Installment schedule</h2>
-        <table className="t">
-          <thead>
-            <tr>
-              <th>Installment</th>
-              <th>Due</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {s.installments
-              .filter((i) => i.bookingId === b.id)
-              .map((i) => (
-                <tr key={i.id}>
-                  <td>{i.label}</td>
-                  <td>{displayDate(i.dueDate)}</td>
-                  <td>{money(i.amountCentavos)}</td>
+        <div className="statement-table">
+          <table className="t">
+            <thead>
+              <tr>
+                <th>Installment</th>
+                <th>Due</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.installments
+                .filter((i) => i.bookingId === b.id)
+                .map((i) => (
+                  <tr key={i.id}>
+                    <td>{i.label}</td>
+                    <td>{displayDate(i.dueDate)}</td>
+                    <td>{money(i.amountCentavos)}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+        <h2>Payment history</h2>
+        <div className="statement-table">
+          <table className="t">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Reference</th>
+                <th>Method</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map((p) => (
+                <tr key={p.id}>
+                  <td>{displayDate(p.receivedAt)}</td>
+                  <td>{p.receiptNo}</td>
+                  <td>{p.method}</td>
+                  <td>{money(p.amountCentavos)}</td>
                 </tr>
               ))}
-          </tbody>
-        </table>
-        <h2>Payment history</h2>
-        <table className="t">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Reference</th>
-              <th>Method</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map((p) => (
-              <tr key={p.id}>
-                <td>{displayDate(p.receivedAt)}</td>
-                <td>{p.receiptNo}</td>
-                <td>{p.method}</td>
-                <td>{money(p.amountCentavos)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
         {!payments.length && <p>No payments recorded yet.</p>}
         <footer className="statement-footer">
           <p>

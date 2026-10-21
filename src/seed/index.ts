@@ -190,7 +190,9 @@ export function buildSeed(today = new Date()): DemoData {
       fullName: j === 0 ? customers[i + 1].name : `Guest ${j + 1}`,
       birthDate: "1992-06-15",
       passportExpiry: date(i === 1 ? 90 : 900),
-      visaRequired: i % 3 === 0,
+      visaRequired: ["Japan", "South Korea"].includes(
+        packages.find((p) => p.id === q.packageId)?.destination ?? "",
+      ),
     })),
     services: q.lines.map((l, j) => ({
       id: `svc${i}-${j}`,
@@ -246,30 +248,37 @@ export function buildSeed(today = new Date()): DemoData {
       receiptNo: `DEMO-P-${101 + i}`,
       note: "Simulated payment recorded manually",
     }));
-  const visas: DemoData["visas"] = Array.from({ length: 6 }, (_, i) => {
-    const b = bookings[i];
-    return {
-      id: `v${i + 1}`,
-      bookingId: b.id,
-      travelerId: b.travelers[0].id,
-      country: i % 2 === 0 ? "Japan" : "South Korea",
-      type: "Tourist · agency-lodged",
-      stage:
-        i < 3
-          ? "Collecting Requirements"
-          : i === 3
-            ? "Under Review"
-            : i === 4
-              ? "Approved"
-              : "Released",
-      checklist: checklistItems.map((item, j) => ({
-        item,
-        done: i >= 3 || j < i + 2,
-      })),
-      assignedAgentId: "a5",
-      notes: ["Simulated visa file. No application is submitted."],
-    };
-  });
+  const visaTravelers = bookings
+    .filter((b) => b.travelers.some((t) => t.visaRequired))
+    .flatMap((b) =>
+      b.travelers.slice(0, 2).map((traveler) => ({ booking: b, traveler })),
+    );
+  const visas: DemoData["visas"] = visaTravelers.map(
+    ({ booking: b, traveler }, i) => {
+      return {
+        id: `v${i + 1}`,
+        bookingId: b.id,
+        travelerId: traveler.id,
+        country: packages.find((p) => p.id === b.quotationSnapshot.packageId)!
+          .destination,
+        type: "Tourist · agency-lodged",
+        stage:
+          i < 3
+            ? "Collecting Requirements"
+            : i === 3
+              ? "Under Review"
+              : i === 4
+                ? "Approved"
+                : "Released",
+        checklist: checklistItems.map((item, j) => ({
+          item,
+          done: i >= 3 || j < i + 2,
+        })),
+        assignedAgentId: "a5",
+        notes: ["Simulated visa file. No application is submitted."],
+      };
+    },
+  );
   return {
     schemaVersion: 1,
     settings: { agencyName: "MEP Sabio Travel", logoText: "MEP" },

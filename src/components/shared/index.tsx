@@ -1,4 +1,5 @@
 "use client";
+import { useRef, useEffect } from "react";
 import { dueLabel } from "@/domain/dates";
 import Link from "next/link";
 import { differenceInHours } from "date-fns";
@@ -113,6 +114,19 @@ export function KpiCard({
     </Link>
   );
 }
+// Client-only focus memory shared by the controlled dialogs. No record data lives here.
+let lastOutsideFocus: HTMLElement | null = null;
+let focusUsers = 0;
+function rememberOutsideFocus(event: FocusEvent) {
+  const target = event.target;
+  if (
+    target instanceof HTMLElement &&
+    target !== document.body &&
+    !target.closest('[role="dialog"], [data-base-ui-focus-guard]')
+  )
+    lastOutsideFocus = target;
+}
+
 export function Modal({
   open,
   onOpenChange,
@@ -126,9 +140,45 @@ export function Modal({
   description?: string;
   children: React.ReactNode;
 }) {
+  const returnFocus = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (focusUsers++ === 0)
+      document.addEventListener("focusin", rememberOutsideFocus);
+    return () => {
+      if (--focusUsers === 0) {
+        document.removeEventListener("focusin", rememberOutsideFocus);
+        lastOutsideFocus = null;
+      }
+    };
+  }, []);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        initialFocus={() => {
+          returnFocus.current = lastOutsideFocus;
+          return true;
+        }}
+        finalFocus={() =>
+          returnFocus.current?.isConnected ? returnFocus.current : true
+        }
+        onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          const controls = Array.from(
+            event.currentTarget.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex="0"]',
+            ),
+          ).filter((el) => el.tabIndex >= 0 && el.getClientRects().length > 0);
+          const first = controls[0],
+            last = controls.at(-1);
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last?.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first?.focus();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>

@@ -130,6 +130,12 @@ export function BookingDetail() {
         <div className="trip-checklist">
           {steps.map((step) => {
             const current = next?.id === step.id;
+            const confirmed = b.services.filter((x) =>
+              ["Confirmed", "Issued"].includes(x.status),
+            ).length;
+            const active = b.services.filter(
+              (x) => x.status !== "Cancelled",
+            ).length;
             const content = (
               <>
                 <span className="check-box">{step.done ? "✓" : ""}</span>
@@ -142,7 +148,7 @@ export function BookingDetail() {
                       (step.dueDate
                         ? dueLabel(step.dueDate, new Date(), true)
                         : step.id === "suppliers"
-                          ? `${b.services.filter((x) => ["Confirmed", "Issued"].includes(x.status)).length} of ${b.services.filter((x) => x.status !== "Cancelled").length}`
+                          ? `${confirmed} of ${active}`
                           : "")}
                   </span>
                 )}

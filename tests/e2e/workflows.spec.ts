@@ -361,3 +361,156 @@ test("local logo and identity persist across documents and reset restores MEP", 
     page.getByRole("button", { name: "Remove uploaded logo" }),
   ).toHaveCount(0);
 });
+
+test("Andrea's complete checklist reaches Ready to fly and survives reload", async ({
+  page,
+}) => {
+  await accept(page);
+  await deposit(page);
+  await page
+    .getByRole("button", { name: "Record payment", exact: true })
+    .first()
+    .click();
+  await expect(page.getByLabel("Amount (PHP)")).toHaveValue("6000");
+  await page.getByRole("button", { name: "Save payment", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Add references", exact: true })
+    .click();
+  for (const [index, field] of (
+    await page.getByRole("dialog").getByRole("textbox").all()
+  ).entries())
+    await field.fill(`SIM-SUP-${index}`);
+  await page
+    .getByRole("button", { name: "Mark all confirmed", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Add travelers", exact: true })
+    .click();
+  for (let i = 1; i <= 4; i++) {
+    await page
+      .getByLabel(`Traveler ${i} full name`, { exact: true })
+      .fill(`Demo Person ${i}`);
+    await page
+      .getByLabel(`Traveler ${i} date of birth`, { exact: true })
+      .fill("1992-06-15");
+    await page
+      .getByLabel(`Traveler ${i} passport expiry`, { exact: true })
+      .fill("2032-06-15");
+  }
+  await page
+    .getByRole("button", { name: "Save travelers", exact: true })
+    .click();
+  for (let i = 0; i < 4; i++) {
+    await page
+      .getByRole("button", { name: "Start / open visa case", exact: true })
+      .click();
+    for (const box of await page.getByRole("checkbox").all()) await box.check();
+    await page.getByLabel("Visa stage").selectOption("Approved");
+    await page.goto("/bookings/view?id=b8");
+  }
+  await expect(
+    page.getByRole("heading", { name: "Collect the ₱154,000.00 balance" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Record payment", exact: true })
+    .first()
+    .click();
+  await expect(page.getByLabel("Amount (PHP)")).toHaveValue("154000");
+  await page.getByRole("button", { name: "Save payment", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Record tickets", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Mark tickets issued", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Ready to fly", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByTestId("booking-balance")).toHaveText("₱0.00");
+  await expect(page.locator(".trip-step.done")).toHaveCount(7);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Ready to fly", exact: true }),
+  ).toBeVisible();
+});
+
+test("front-screen dialogs support keyboard opening, focus trapping and Escape", async ({
+  page,
+}) => {
+  const checkDialog = async (route: string, name: string) => {
+    await page.goto(route);
+    const trigger = page.getByRole("button", { name, exact: true }).first();
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    for (let i = 0; i < 20; i++) {
+      await page.keyboard.press("Tab");
+      expect(
+        await dialog.evaluate((el) => el.contains(document.activeElement)),
+      ).toBe(true);
+    }
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  };
+  await checkDialog("/dashboard", "Search");
+  await checkDialog("/inquiries", "+ Someone new");
+  await checkDialog("/quotations/view?id=q1", "Accept & convert to booking");
+  await checkDialog("/bookings/view?id=b1", "Record ticket");
+  await checkDialog("/bookings/view?id=b1", "Record payment");
+});
+
+test("route titles and mobile statements identify the page without overflow", async ({
+  page,
+}) => {
+  for (const [route, title] of [
+    ["/dashboard", "Home"],
+    ["/quotations/edit?id=q1", "Quotes"],
+    ["/payments?statement=b1", "Payments"],
+  ]) {
+    await page.goto(route);
+    await expect(page).toHaveTitle(`${title} · MEP Sabio Travel`);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("short-notice trip uses the same installment allocation on front, details and ledger", async ({
+  page,
+}) => {
+  const date = (days: number) => {
+    const value = new Date();
+    value.setDate(value.getDate() + days);
+    return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
+  };
+  await page.goto("/quotations/edit?id=q1");
+  await page.getByLabel("Departure", { exact: true }).fill(date(10));
+  await page.getByLabel("Return", { exact: true }).fill(date(15));
+  await accept(page);
+  await deposit(page);
+  await expect(
+    page.getByRole("heading", {
+      name: "Collect the ₱66,000.00 deposit",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.goto("/bookings/details?id=b8");
+  const plan = page.getByTestId("installment-row");
+  await expect(plan.first()).toContainText("Final balance");
+  await expect(plan.first()).toContainText("₱94,000.00");
+  await expect(plan.nth(1)).toContainText("₱66,000.00");
+  await page.goto("/payments");
+  const row = page
+    .getByTestId("receivables-table")
+    .locator("tbody tr")
+    .filter({ hasText: "Andrea Reyes" });
+  await expect(row).toContainText("Final balance · ₱94,000.00");
+  await expect(
+    page.getByText("Due in 7 days", { exact: true }).locator(".."),
+  ).toContainText("₱66,000.00");
+});

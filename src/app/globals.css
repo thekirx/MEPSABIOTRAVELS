@@ -3316,3 +3316,22 @@ td strong {
   min-height: 28px;
   white-space: normal;
 }
+.statement-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.statement-table .t {
+  min-width: 450px;
+}
+.statement-meta {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+@media print {
+  .statement-table {
+    overflow: visible;
+  }
+  .statement-table .t {
+    min-width: 0;
+  }
+}

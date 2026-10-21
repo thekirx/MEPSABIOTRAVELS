@@ -36,3 +36,7 @@ export function daysUntil(value: string, now = new Date()) {
         ? `${Math.abs(days)} ${days === -1 ? "day" : "days"} ago`
         : `in ${days} days`;
 }
+
+export function displayNote(note: string) {
+  return note.replace(/^(\d{4}-\d{2}-\d{2})(?=:)/, (date) => displayDate(date));
+}

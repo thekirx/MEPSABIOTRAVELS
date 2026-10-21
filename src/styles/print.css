@@ -125,3 +125,11 @@
     padding: 10px 18px !important;
   }
 }
+
+@media print {
+  .statement th {
+    font-size: 9px;
+    letter-spacing: 0.02em;
+    white-space: normal;
+  }
+}

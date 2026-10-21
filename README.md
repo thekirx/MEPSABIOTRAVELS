@@ -1,6 +1,6 @@
 # Optrizo TravelOS
 
-A presentation-ready, browser-only travel agency operations demo built by Optrizo Information Technology Solutions. Default agency: **Horizon Travel & Tours**. All people, supplier names, prices and transactions are synthetic or illustrative.
+A presentation-ready, browser-only travel agency operations demo built by Optrizo Information Technology Solutions. Default agency: **MEP Sabio Travel**. All people, supplier names, prices and transactions are synthetic or illustrative.
 
 ## Run
 
@@ -11,11 +11,12 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000/dashboard. The app has no server endpoints, database, credentials or external integrations. LocalStorage is the only persistence layer. An internet connection is needed for the initial install and Google Geist font download during build; the exported app includes the font.
+Open http://localhost:3000/dashboard. The app has no server endpoints, database, credentials or external integrations. LocalStorage is the only persistence layer. An internet connection is needed for the initial install and Google Barlow / Barlow Condensed font download during build; the exported app includes the font.
 
 ## Check and build
 
 ```sh
+npm run format:check
 npm run lint
 npm run typecheck
 npm test
@@ -32,7 +33,7 @@ Upload the contents of `out/` to any static host. On Vercel, import this reposit
 
 ## Reset and personalize
 
-In **Settings**, change the agency name and logo text, then Save identity. Use **Reset demo data → Reset demo** to restore the deterministic seed, including branding. The hidden shortcut **Shift+R** opens the same confirmation outside input fields. Reset generates dates relative to the current browser date. For a clean presentation, reset shortly before starting.
+In **Settings**, change the agency name and logo text, then Save identity. A PNG/JPEG/WebP logo (under 500 KB) can be uploaded and saved locally. Use **Reset demo data → Reset demo** to restore the deterministic seed, including branding. The hidden shortcut **Shift+R** opens the same confirmation outside input fields. Reset generates dates relative to the current browser date. For a clean presentation, reset shortly before starting.
 
 The versioned storage key is `travelos-demo-v1`. Schema mismatches reseed. Refresh preserves current records. Clearing browser storage also starts a fresh seed.
 
@@ -40,4 +41,10 @@ The versioned storage key is `travelos-demo-v1`. Schema mismatches reseed. Refre
 
 Follow [DEMO_SCRIPT.md](DEMO_SCRIPT.md) for the seven-minute story. [DECISIONS.md](DECISIONS.md) records shortcuts, design comparisons and production requirements. [PROGRESS.md](PROGRESS.md) records phase gates and verification.
 
-Quotation fields save locally as they change; Save provides explicit confirmation. Accepted quotations are read-only. Print / Save as PDF uses the browser's print dialog and hides supplier costs, margins, sidebar and controls. Use A4, default scale and disable browser headers/footers for the cleanest output. Statements are labeled as not being official receipts/invoices.
+Quotation fields save locally as they change; Save provides explicit confirmation. Accepted quotations are read-only. Print / Save as PDF uses the browser's print dialog and hides supplier costs, margins, top bar and controls. Use A4, default scale and disable browser headers/footers for the cleanest output. Statements are labeled as not being official receipts/invoices.
+
+## Redesign and review
+
+The approved design is in `design/mocks/`. Start with `REDESIGN_HANDOFF.md`, then `REDESIGN_PLAN.md`. The interface uses charcoal, cream, lime and red, Barlow type, a top bar, simple working fronts and full detail pages. Main paths: Home → People asking → Customer → Quote → Trip. Full editors use `/quotations/edit?id=...`, `/bookings/details?id=...`; customer profiles use `/customers/view?id=...`. Payments includes the receivables ledger, received history and printable statements; Visas keeps the selected case in `?case=`.
+
+`npm run format` applies the pinned Prettier defaults; run format:check before the other checks. References retain their `HTT-` prefixes. Seed visas cover six distinct travelers on b1/b6/b7 only, matching Japan/South Korea; eight seeded travelers require visas. Existing browser data stays intact until reset.

@@ -3,7 +3,7 @@
 ## Scope and assumptions
 
 - Followed the supplied eight-phase implementation plan without approval pauses. The empty workspace was initialized as a Git repository. This file and PROGRESS.md carry decisions/planning; no additional design/spec documents were added.
-- Kept **Horizon Travel & Tours** as the fictional agency per the brief. The supplied [Facebook page](https://www.facebook.com/mepsabiotravel/) is a client reference in Settings. Facebook returned a temporary-block page during inspection, so no business details, logo, services, real staff, customer information or prices were inferred from it. Agency identity is editable in Settings.
+- Original build used **Horizon Travel & Tours** as the fictional agency per the brief; the approved redesign supersedes this with **MEP Sabio Travel**. The supplied [Facebook page](https://www.facebook.com/mepsabiotravel/) is a client reference in Settings. Facebook returned a temporary-block page during inspection, so no business details, logo, services, real staff, customer information or prices were inferred from it. Agency identity is editable in Settings.
 - A single Zustand store persists only domain records under `travelos-demo-v1`, with schema version 1. Pure selectors compute financials, KPIs, stage counts, charts and attention items. No derived balances are persisted.
 - Query detail URLs replace bracket routes: `/quotations/view?id=...` and `/bookings/view?id=...`. This is the fallback explicitly allowed in the brief and supports runtime IDs on a static host.
 - Integer centavos everywhere; quote multiplication uses per-traveler or per-group basis, then one final markup rounding. Andrea's net cost is ₱200,000 with 10% markup and no discount, giving exactly ₱220,000.
@@ -17,7 +17,7 @@
 - Reset also restores agency identity. Seed dates are anchored to the browser's local date at first load/reset; existing persisted dates remain unchanged until reset.
 - Only needed shadcn primitives were installed. Base UI, animation styles and standard class utilities are their supporting dependencies; the shadcn generator is development tooling. No dark-mode library is used.
 
-## Visual and browser verification
+## Original build visual and browser verification (historical, superseded)
 
 Reference: `design/dashboard-concept.png`, generated with the built-in Image Gen tool. Prompt: premium 1440×900 travel operations dashboard, navy #142D4E sidebar, teal #0D9488 actions, cool #F7F9FC background, white fine-border panels, seven-item navigation, five KPIs, attention list, six-month chart and departure table; no photography, gradients or marketing hero.
 
@@ -50,6 +50,20 @@ Above-the-fold copy comparison: intentional deviations are the brief's five requ
 
 Independent review identified required quotation date validation and client-navigation search state. Regression tests reproduced both issues before repair. Required dates now reject empty/invalid calendar dates before persistence, and attention selectors safely ignore legacy invalid dates. Customer drawer selection is derived from the query URL, so selecting another customer on the same route works. Additional tests reproduced and fixed corrupt LocalStorage hydration and traveler-count inconsistency after adding a traveler.
 
-Production dependency audit reports zero advisories. Remaining development-tool advisories are in globbing dependencies used by ESLint/shadcn; npm proposes incompatible downgrades rather than a compatible fix, so these were not forced. Vitest was updated to remove its available critical advisory fixes.
+The original-build production dependency audit reported zero advisories. Its remaining development-tool advisories were in globbing dependencies used by ESLint/shadcn; npm proposed incompatible downgrades rather than a compatible fix, so these were not forced. Vitest was updated to remove its available critical advisory fixes.
 
-Final verification: lint/typecheck/build pass; 8 unit tests and 10 Chromium end-to-end tests pass. Every app route visited with zero console errors/warnings. Both default quote and statement printed as one A4 page. The final native 1440×900 screenshot was compared against the saved concept after tightening dashboard density; remaining copy/data/density differences are intentional and described above. No unresolved material visual or interaction defects were observed in the tested desktop/tablet surfaces.
+Original-build verification: lint/typecheck/build passed; 8 unit tests and 10 Chromium end-to-end tests passed. Every app route visited with zero console errors/warnings. Both default quote and statement printed as one A4 page. The final native 1440×900 screenshot was compared against the saved concept after tightening dashboard density; remaining copy/data/density differences are intentional and described above. No unresolved material visual or interaction defects were observed in the tested desktop/tablet surfaces.
+
+## Approved MEP redesign — current decisions
+
+- User-approved mock assets define the MEP identity; the earlier Facebook access failure is unchanged and no additional business facts were inferred. The top bar replaces the sidebar. Fonts are Barlow and Barlow Condensed, with charcoal #292b2f, lime #c8e63c, red #c62828 and cream #f2f1ea. Flat blocks, 18px radii and pill actions follow the supplied HTML mocks. Original navy/teal concept comparisons above are historical.
+- Two layers: simple Home / People asking / Quote / Trip fronts; full customer, quote and trip details one click deeper. New query routes: `/customers/view?id=`, `/quotations/edit?id=`, `/bookings/details?id=`. They support runtime IDs in the static export. The temporary component gallery is removed.
+- UI label map preserves stored enums: New Inquiry→New, Contacted→Talking, Quoted→Quote sent, Negotiating→Almost booked, Won/Lost→Finished: booked/said no, Pending Confirmation→Waiting on suppliers. HTT reference prefixes are unchanged.
+- Financial math remains unchanged. Checklist completion, urgency, payment allocations, counts and totals are selectors. Urgent service deadlines within 72 hours take precedence on Trip as well as Home. Shared date helpers calculate weekday/relative labels.
+- Seed visa eligibility is a demo rule: only Japan/South Korea trips b1/b6/b7 require visas. All eight travelers on them are flagged; six unique cases (two per trip) have matching countries and the original 3/1/1/1 stage mix. Existing persisted data is preserved until reset; this is a seed correction rather than a migration.
+- Settings accepts a local PNG/JPEG/WebP logo under 500 KB. The data URL is stored with identity, used in the bar/quote/statement, and cleared by reset. No upload service or external storage was added.
+- Prettier is the sole new dependency, exact-pinned as explicitly authorized by review fix R1. It uses default formatting. Long generated utility-class strings are the only line-length exceptions. Large detail components are split into sections for maintenance.
+- Responsive table columns stay readable by scrolling inside sheets. All three specified widths are supported. Browser plugin absent: isolated Playwright Chromium is used for QA; presenter LocalStorage stays untouched. Print uses browser A4 output with top bar, controls and staff information hidden.
+- Current verification results and review disposition are in the latest PROGRESS.md entry. These replace the original-build counts above. No backend, auth, production integration, push or deployment was added.
+
+The independent final review found a short-notice installment-allocation inconsistency and raw history date prefixes. Both were repaired and re-reviewed. All payment surfaces now use one chronological allocation, including deposit completion, while quotation math and cumulative overdue rules remain unchanged. Generated history prefixes are formatted at rendering. Final verification: format/lint/typecheck/build, 21 unit and 20 Chromium browser tests passed; 39 route/viewport checks passed and default quotation/statement each rendered as one A4 page.

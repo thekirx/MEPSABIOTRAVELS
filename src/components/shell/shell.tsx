@@ -55,8 +55,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", handler);
   }, []);
   useEffect(() => {
-    document.title = `${pageNames[path.split("/")[1]] ?? "TravelOS"} · ${s.settings.agencyName}`;
-  }, [path, s.settings.agencyName]);
+    const frame = requestAnimationFrame(() => {
+      document.title = `${pageNames[path.split("/")[1]] ?? "TravelOS"} · ${s.settings.agencyName}`;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [path, s.settings.agencyName, s.hydrated]);
   const q = search.toLowerCase().trim();
   const results = q
     ? [

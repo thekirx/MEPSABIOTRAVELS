@@ -1,6 +1,8 @@
 # Optrizo TravelOS — execution plan and progress
 
-> **Paused task: MEP Sabio Travel redesign**
+**Current status — complete, 21 October 2026:** the user resumed the redesign after the pause below. Phases 0–8 and review fixes R1–R4 are complete on `redesign/mep`. Final gate passed **21 unit / 20 Chromium e2e**, formatting, lint, typecheck and static build. All 39 route/viewport checks passed; A4 quote/statement and keyboard dialogs verified. See the final Phase 8 entry for review fixes and evidence. No push or deployment. The earlier pause block is retained as history.
+
+> **Historical pause: MEP Sabio Travel redesign**
 >
 > Paused at the user's explicit request: “pause and continue later”. Implementation stopped after Phase 6, commit `fdd7f58`, on branch `redesign/mep`. Phases 0–6 are complete; Phases 7–8 remain unfinished. The last full gate passed 14 unit tests and 12 Chromium tests, plus lint, typecheck and static build.
 >
@@ -165,3 +167,43 @@ Installed exact Prettier 3.9.10 as the explicitly authorized dev dependency, add
 - Browser plugin unavailable; used isolated Playwright Chromium against the static export. Presenter LocalStorage and .claude remain untouched.
 
 Phase 7 final gate: **format:check, lint, typecheck, 18 unit tests, static build and 16 Chromium e2e tests passed**. Captured the five remaining screens and Miguel's Trip at 1440×900, 1024×768 and 390×844 in `/tmp/mep-app--bookings-*.png`, `--payments-*`, `--visas-case-v1-*`, `--quotations-*`, `--settings-*`, and `--bookings-view-id-b1-*`. Reviewed desktop/mobile captures; zero app errors and no page-level overflow across all 18 route/viewport combinations. Formatting line-length check has only permitted string-literal exceptions. Continue with Phase 8.
+
+## Phase 8 — final seed, documentation and QA
+
+- Corrected the seed to flag all eight travelers on the Japan/Korea bookings b1/b6/b7 and create six distinct cases (two per trip), using each package's destination. Preserved the 3 collecting / 1 under review / 1 approved / 1 released stage mix. The eligibility regression failed before the change and passed after. Existing presenter storage is preserved until reset.
+- Removed the temporary `/dev/blocks` route. Split the large quote editor, trip details and inquiry dialog into focused components (each feature component is now under 300 lines). After route removal, regenerated Next route types to clear stale generated references.
+- Updated README, DEMO_SCRIPT, DECISIONS and QA_HANDOFF for MEP, the top bar, new routes, simple fronts/full details, revised presenter paths and independent review checks. Historical paused work remains logged above.
+- Added full browser rehearsal: Andrea's quote → acceptance → ₱60,000 + ₱6,000 → supplier references → all four synthetic travelers → all four approved visas → ₱154,000 balance → tickets → Ready to fly, including reload and seven checked steps.
+- Added keyboard-only dialog coverage for Search, Someone new, quote acceptance, Trip ticket and payment: Enter opens, repeated Tab stays within the dialog, Escape closes, focus returns. The test exposed Base UI focus-guard escape and missing return focus for controlled dialogs; explicit boundary wrapping and shared client focus memory repair both without changing record data. Initial test-only label/amount-format mistakes were corrected to the actual visible control names and exact existing prefill values.
+- Final QA reproduced incorrect route titles and mobile statement overflow. Server metadata now provides route titles, with the saved agency name applied after hydration; statement tables scroll within their document on mobile and regain natural width for print. Both regressions have browser coverage.
+
+### Independent review and disposition
+
+A read-only reviewer checked the worktree against the handoff/plan. No critical issues. Two findings were repaired and re-reviewed:
+
+1. **P2: short-notice installment allocation disagreed across surfaces.** A trip leaving in ten days has a final balance due before its deposit. Added a shared chronological allocation selector for ledger, full Trip details and deposit checklist. Domain quote math, accepted amounts and cumulative overdue rules are unchanged. For this edge case, money covers the older final installment first; the deposit stays unfilled until its own allocation is covered. Ordinary 45-day demo behavior is unchanged. Unit regression failed before repair and passed after; browser coverage compares front/details/ledger on the short-notice schedule. This is a deliberate refinement of the deposit-only cumulative shortcut to keep all surfaces consistent.
+2. **P3: History showed generated ISO date prefixes.** Added displayNote to format only a recognized leading date, preserving stored strings and note bodies. Red/green unit coverage. Applied to history/customer/visa note rendering.
+
+Follow-up review confirmed both findings resolved and found no new material issue. Reviewer did not claim browser/PDF results; those checks were performed separately in isolated Chromium contexts. React checklist checked client boundaries, hook order/cleanup, derived state, visible labels and listener deduplication.
+
+### Visual and print evidence
+
+Ran all 13 main/detail/document routes at **1440×900, 1024×768 and 390×844**: 39 combinations, meaningful pages and correct route titles, **zero app console/page errors, zero page-level overflow and no raw ISO display dates / “1 days”**. Screenshots: `/tmp/mep-final--dashboard-1440.png`, `/tmp/mep-final--inquiries-390.png`, `/tmp/mep-final--customers-view-id-c1-1440.png`, `/tmp/mep-final--quotations-view-id-q1-1440.png`, `/tmp/mep-final--quotations-edit-id-q1-1024.png`, `/tmp/mep-final--bookings-1440.png`, `/tmp/mep-final--bookings-view-id-b1-390.png`, `/tmp/mep-final--bookings-details-id-b1-1024.png`, `/tmp/mep-final--payments-1440.png`, `/tmp/mep-final--payments-statement-b1-390.png`, `/tmp/mep-final--visas-case-v1-1440.png`, `/tmp/mep-final--settings-390.png` (every route also captured at the other widths). Machine-readable audit: `/tmp/mep-final-qa.json`.
+
+Generated and visually inspected **one A4 page each** for quote front, quote editor print copy and seeded statement: `/tmp/mep-final-quote.pdf`, `/tmp/mep-final-quote-edit.pdf`, `/tmp/mep-final-statement.pdf`; rendered previews `/tmp/mep-final-quote-print.png` and `/tmp/mep-final-statement-print.png`. Customer copy includes itinerary/inclusions/exclusions/terms; statement includes exact figures and manual-payment disclaimer. Navigation, controls and staff-only prices remain hidden. Insets used for focus/borders/toasts are intentional; no gradients, glass, decorative illustrations, rotated cards or large shadows. No dead `href="#"` links in source.
+
+Browser plugin unavailable, so used project Playwright Chromium against `http://127.0.0.1:4173`, serving this checkout's static export. Browser contexts were isolated. Evidence under /tmp is temporary; the committed implementation, tests, documents and this log are durable. Coverage is Chromium only; this is not a screen-reader certification or a production backend/payment/visa/ticket integration.
+
+### Final gate and saved state
+
+- `npm run format:check` — passed.
+- `npm run lint` — passed, no errors or warnings.
+- `npm run typecheck` — passed.
+- `npm test` — **21 tests passed across 5 files**.
+- `npm run build` — passed; static export has all intended routes and excludes the temporary gallery.
+- `npm run e2e` — **20 Chromium tests passed** against the exported app, including all six original journeys, urgent Trip deadline, restored details reference guard, search/filter counts, uploaded branding/reset, complete Ready to fly flow, keyboard trapping/Escape/focus return, route titles/mobile statement, and short-notice allocation consistency.
+- `git diff --check` — passed. Source/test lines above 160 characters are only allowed long literal strings (generated utility classes and one explanatory quotation sentence).
+- Customer view on/off each generated a one-page A4 quote, with printed customer copy visible and every staff panel/top bar hidden: `/tmp/mep-quote-customer-true.pdf` and `/tmp/mep-quote-customer-false.pdf`.
+- Remaining limitations: Chromium-only QA; no production integrations or accessibility certification. No unresolved material findings in the reviewed demo scope. The reviewer confirmed both findings resolved after repair.
+
+All requested redesign work is saved locally and committed on `redesign/mep`. No push, deployment, backend or external integration. User-owned `.claude/` remains untracked and untouched. The development/static servers are left available. To have another AI double-check, start from this branch, read REDESIGN_HANDOFF.md, then REDESIGN_PLAN.md and QA_HANDOFF.md; the latest completion state is this entry, rather than the historical pause above.

@@ -1,4 +1,5 @@
 "use client";
+import { displayNote } from "@/domain/dates";
 import Link from "next/link";
 import { ArrowUpRight, CheckCircle2, CalendarDays } from "lucide-react";
 import { useTravelStore } from "@/store";
@@ -123,7 +124,7 @@ export function VisaCasePanel({
           <h3>Notes</h3>
           <div className="drawer-notes">
             {v.notes.map((n, i) => (
-              <p key={i}>{n}</p>
+              <p key={i}>{displayNote(n)}</p>
             ))}
           </div>
           <NoteForm onAdd={(n) => s.addVisaNote(v.id, n)} />

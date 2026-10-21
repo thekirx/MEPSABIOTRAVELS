@@ -1,3 +1,4 @@
+import { allocatedInstallments } from "./payment-selectors";
 import { dueLabel } from "@/domain/dates";
 import { money as moneyForStep } from "@/domain/money";
 import type { DemoData, Booking } from "@/domain/types";
@@ -274,7 +275,10 @@ export function tripSteps(s: DemoData, b: Booking): TripStep[] {
   const f = financials(s, b),
     plan = s.installments.filter((i) => i.bookingId === b.id),
     deposit = plan[0]?.amountCentavos ?? Math.round(f.total * 0.3),
-    left = Math.max(0, deposit - f.paid),
+    depositPaid =
+      allocatedInstallments(s, b.id).find((i) => i.id === plan[0]?.id)?.paid ??
+      Math.min(deposit, f.paid),
+    left = Math.max(0, deposit - depositPaid),
     active = b.services.filter((x) => x.status !== "Cancelled"),
     confirmed = active.filter((x) =>
       ["Confirmed", "Issued"].includes(x.status),
@@ -306,13 +310,13 @@ export function tripSteps(s: DemoData, b: Booking): TripStep[] {
     {
       id: "deposit",
       label: "Get the full deposit",
-      done: f.paid >= deposit,
+      done: depositPaid >= deposit,
       title:
-        f.paid > 0
+        depositPaid > 0
           ? `Collect ${moneyForStep(left)} more for the deposit`
           : `Collect the ${moneyForStep(deposit)} deposit`,
       action: "Record payment",
-      detail: `${moneyForStep(f.paid)} paid of ${moneyForStep(deposit)}.`,
+      detail: `${moneyForStep(depositPaid)} paid of ${moneyForStep(deposit)}.`,
       dueDate: plan[0]?.dueDate,
       remainingCentavos: left,
     },

@@ -31,3 +31,13 @@ it("prioritizes Miguel's urgent airfare, then restores normal checklist order", 
   b.services[0].supplierRef = "SIM-TKT-7788";
   expect(tripSteps(s, b).find((step) => !step.done)?.id).toBe("passports");
 });
+
+import { displayNote } from "@/domain/dates";
+it("formats generated history date prefixes without changing note text", () => {
+  expect(displayNote("2026-10-21: Service issued — recorded manually.")).toBe(
+    "Wed 21 Oct 2026: Service issued — recorded manually.",
+  );
+  expect(displayNote("Discuss 2026-10-21 with customer")).toBe(
+    "Discuss 2026-10-21 with customer",
+  );
+});
