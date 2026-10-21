@@ -1,3 +1,4 @@
+import {money as moneyForStep} from "@/domain/money";
 import type { DemoData, Booking } from "@/domain/types";
 import { leadStages, visaStages } from "@/domain/types";
 import { bookingFinancials } from "@/domain/payments";
@@ -169,4 +170,16 @@ export function tripStatus(s:DemoData,b:Booking):{label:string;tone:'late'|'ok'|
  if(b.travelers.some(t=>t.visaRequired&&!s.visas.some(v=>v.bookingId===b.id&&v.travelerId===t.id&&['Approved','Released'].includes(v.stage))))return {label:'Waiting on visa papers',tone:'wait'};
  if(b.services.some(x=>!['Confirmed','Issued','Cancelled'].includes(x.status)))return {label:'Waiting on suppliers',tone:'wait'};
  return {label:'On track',tone:'ok'};
+}
+
+export type TripStep={id:'book'|'deposit'|'suppliers'|'passports'|'visa'|'balance'|'tickets';label:string;done:boolean;title:string;action:string;detail:string;dueDate?:string;remainingCentavos?:number};
+export function tripSteps(s:DemoData,b:Booking):TripStep[]{
+ if(b.status==='Cancelled')return [];
+ const f=financials(s,b),plan=s.installments.filter(i=>i.bookingId===b.id),deposit=plan[0]?.amountCentavos??Math.round(f.total*.3),left=Math.max(0,deposit-f.paid),active=b.services.filter(x=>x.status!=='Cancelled'),confirmed=active.filter(x=>['Confirmed','Issued'].includes(x.status)).length;
+ const passportCount=b.travelers.filter(t=>t.fullName.trim().length>1&&!/^(Guest|Traveler)\s+\d+$/i.test(t.fullName.trim())&&isMatch(t.passportExpiry,'yyyy-MM-dd')).length;
+ const visaTravelers=b.travelers.filter(t=>t.visaRequired),visaDone=visaTravelers.filter(t=>s.visas.some(v=>v.bookingId===b.id&&v.travelerId===t.id&&['Approved','Released'].includes(v.stage))).length;
+ const steps:TripStep[]=[{id:'book',label:'Book the trip',done:true,title:'Trip booked',action:'',detail:'Price locked'},{id:'deposit',label:'Get the full deposit',done:f.paid>=deposit,title:f.paid>0?`Collect ${moneyForStep(left)} more for the deposit`:`Collect the ${moneyForStep(deposit)} deposit`,action:'Record payment',detail:`${moneyForStep(f.paid)} paid of ${moneyForStep(deposit)}.`,dueDate:plan[0]?.dueDate,remainingCentavos:left},{id:'suppliers',label:'Confirm flight, hotel, tours and car',done:confirmed===active.length,title:'Confirm flight, hotel, tours and car',action:'Add references',detail:`${confirmed} of ${active.length} confirmed. Ask each supplier and type their reference.`},{id:'passports',label:"Get everyone's passport details",done:passportCount===b.travelers.length,title:"Get everyone's passport details",action:'Add travelers',detail:`${passportCount} of ${b.travelers.length} complete. Use synthetic demo details.`}];
+ if(visaTravelers.length)steps.push({id:'visa',label:'Get the visas ready',done:visaDone===visaTravelers.length,title:'Get the visas ready',action:'Start / open visa case',detail:`${visaDone} of ${visaTravelers.length} approved or released. Nothing is sent to an embassy.`});
+ steps.push({id:'balance',label:'Get the rest of the money',done:f.balance<=0,title:`Collect the ${moneyForStep(f.balance)} balance`,action:'Record payment',detail:'Final balance is due 30 days before departure.',dueDate:plan[1]?.dueDate,remainingCentavos:f.balance},{id:'tickets',label:'Issue the plane tickets',done:active.filter(x=>x.category==='Airfare').every(x=>x.status==='Issued'),title:'Issue the plane tickets',action:'Record tickets',detail:'Type the airline reference to finish. Recorded manually.',dueDate:b.quotationSnapshot.departDate});
+ return steps;
 }

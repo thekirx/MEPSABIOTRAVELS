@@ -37,8 +37,21 @@ Approved spec: REDESIGN_HANDOFF.md. Plan: REDESIGN_PLAN.md. Active branch: redes
 - Phase 3 — Complete. Home uses urgency-sorted derived jobs, direct ticket/reference and payment dialogs, session-only completion feedback and four luggage tags. KPI assertions moved to Trips/Payments with identical exact-count/value checks because the approved Home removes KPI strips. Home ticket test rejects blank ref, records reference, removes job and verifies reload. Gate PASS: 11 unit, 10 e2e, lint/typecheck/build; all three viewports no errors/overflow. Desktop render compared with home mock; priority order and real counts intentionally replace mock literals.
 - Phase 4 — Complete. URL stage blocks, plain-language person cards/actions, finished/reopen view, validated new inquiry, table and More stage select. Customer page replaces drawer; old customer query redirects and global search links directly. Exact balance assertions retained on new customer route. Added stage-action/reload e2e RED→GREEN. Gate PASS: 11 unit, 11 e2e, lint/typecheck/build; both screens at 1440/1024/390 no app errors or overflow.
 - Phase 5 — Complete. Simple quote pricing/presets, Other markup, locked state, explicit booking confirmation and full editor route. Terms, inclusions/exclusions, agent and bounded edit history extend quotation records only; centavo math unchanged. Customization/agent snapshot test RED→GREEN. Gate PASS: 12 unit, 11 e2e, lint/typecheck/build; both screens clean at all three viewports. MEP quotation PDF one A4 page, rendered and visually inspected at /tmp/mep-quote-print.png; every staff-only panel asserted hidden. Payment plan remains the specified fixed 30%/balance schedule.
-- Phase 6 — Trip/front/details/steps: pending.
+- Phase 6 — Complete. Pure tripSteps selector, simple trip front, derived next-action/checklist, deposit prefill, supplier/ticket references, traveler dialogs and full detail sections. Snapshot financials unchanged. Checklist tests RED→GREEN cover fresh, partial/full deposit, all done, optional visas and cancellation. Gate PASS: lint 0 errors/warnings, typecheck, 14 unit tests, static build, 12 Chromium tests. Added exact 60000 + 6000 deposit progression test; existing assertions moved to full-detail route where required. /tmp/mep-app--bookings-{view,details}-id-b1-{1440,1024,390}.png; no app errors or page overflow; desktop inspected against mocks.
 - Phase 7 — Tables/payments/visas/settings: pending.
 - Phase 8 — Seed correction/docs/final QA: pending.
 
 Preflight rulings: use approved HTML mocks instead of generating a new image concept; user has already approved this design and asked to execute the supplied plan. Preserve original test assertions while moving their navigation targets where the two-layer design requires it. The historical QA default Horizon branding is superseded by the explicit MEP default in the redesign handoff.
+
+## Paused at the user’s request
+
+Paused after completing Phase 6. Resume at **Phase 7** in REDESIGN_PLAN.md. Do not restart the completed phases. Branch: redesign/mep. All Phase 6 changes are committed as `redesign: phase 6 — trip checklist and full details`. The user-owned untracked .claude/ directory remains untouched.
+
+Remaining work:
+- Phase 7: restyle All trips, Payments, Visas, Quotes list and Settings to the approved mocks/system. Preserve exact financial assertions; when adding received-payment tables, scope ledger assertions to the receivables table to avoid matching the same customer at a different grain.
+- Phase 8: fix seed visa eligibility/countries (six cases across b1, b6, b7; same stage mix); remove temporary /dev/blocks gallery; update README/DEMO_SCRIPT/DECISIONS/QA_HANDOFF for the new UI; final responsive, keyboard, print and console QA; independent review and final gate.
+- Existing screenshots and mock references are in /tmp/mep-mock-*.png and /tmp/mep-app-*.png. MEP quote print inspected at /tmp/mep-quote-print.png; one A4 page confirmed.
+- Existing source has been kept functionally gated; run formatting in the final polish pass. No new npm dependencies were added.
+- Latest passing counts: **14 unit / 12 e2e**. Current export includes the temporary blocks gallery (remove in Phase 8).
+- Browser plugin absent: Playwright Chromium is the recorded browser fallback. Existing local mock server on 4300 and static server on 4173 were reused after checking their contents.
+- Preserve the user’s current browser LocalStorage; QA uses isolated Playwright contexts. Existing persisted branding is preserved until the user chooses Reset demo.

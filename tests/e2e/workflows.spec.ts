@@ -53,6 +53,7 @@ test("2: conversion creates consistent booking and increments KPI", async ({
   await page.goto("/bookings");
   const before = Number(await page.getByTestId("kpi-bookings").innerText());
   await accept(page);
+  await page.getByRole("link",{name:"See full trip details →",exact:true}).click();
   await expect(page.getByTestId("traveler-row")).toHaveCount(4);
   await expect(page.getByTestId("service-row")).toHaveCount(4);
   await expect(page.getByTestId("installment-row")).toHaveCount(2);
@@ -91,6 +92,7 @@ test("3: deposit updates balance, receivables, ledger and customer", async ({
 });
 test("4: visa creation, checklist and stage counts", async ({ page }) => {
   await accept(page);
+  await page.goto("/bookings/details?id=b8");
   await page
     .getByRole("button", { name: "Create visa case", exact: true })
     .first()
@@ -176,6 +178,7 @@ test("adding a traveler is reflected consistently in booking list", async ({
   page,
 }) => {
   await accept(page);
+  await page.goto("/bookings/details?id=b8");
   await page.getByRole("button", { name: "Add traveler", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Full name", { exact: true }).fill("Demo Guest");
@@ -200,4 +203,14 @@ test('inquiry card advances stage and URL filter persists',async({page})=>{
  await page.getByRole('button',{name:/Talking Make a quote/}).click();
  await expect(page.getByTestId('person-card').filter({hasText:name})).toBeVisible();
  await page.reload();await expect(page.getByTestId('person-card').filter({hasText:name})).toBeVisible();
+});
+
+test('trip next step collects remaining deposit then advances to suppliers',async({page})=>{
+ await accept(page);await deposit(page);
+ await expect(page.getByRole('heading',{name:'Collect ₱6,000.00 more for the deposit',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Record payment',exact:true}).first().click();
+ await expect(page.getByLabel('Amount (PHP)')).toHaveValue('6000');
+ await page.getByRole('button',{name:'Save payment',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Confirm flight, hotel, tours and car',exact:true})).toBeVisible();
+ await expect(page.getByTestId('booking-balance')).toHaveText('₱154,000.00');
 });
