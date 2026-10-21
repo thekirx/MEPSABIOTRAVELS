@@ -31,7 +31,7 @@ test("1: Andrea lead → quote, live math and print isolation", async ({
 }) => {
   await page.goto("/inquiries");
   await page
-    .getByRole("button", { name: "Andrea Reyes", exact: true })
+    .getByRole("link", { name: "Andrea Reyes", exact: true })
     .first()
     .click();
   await page.getByRole("link", { name: "HTT-Q-2026-0142" }).click();
@@ -84,11 +84,7 @@ test("3: deposit updates balance, receivables, ledger and customer", async ({
   const row = page.locator("tr").filter({ hasText: "Andrea Reyes" });
   await expect(row).toContainText("₱160,000.00");
   await expect(row).toContainText("Partially Paid");
-  await page.goto("/inquiries");
-  await page
-    .getByRole("button", { name: "Andrea Reyes", exact: true })
-    .first()
-    .click();
+  await page.goto("/customers/view?id=c1");
   await expect(page.getByTestId("customer-balance")).toHaveText("₱160,000.00");
 });
 test("4: visa creation, checklist and stage counts", async ({ page }) => {
@@ -136,16 +132,15 @@ test("6: refresh persists; reset restores all seed records", async ({
   await expect(page.locator("tbody tr")).toHaveCount(7);
 });
 
-test("global search updates customer drawer within the current inquiries route", async ({
+test("global search opens the customer page from inquiries", async ({
   page,
 }) => {
   await page.goto("/inquiries");
   await page.getByRole("button",{name:"Search",exact:true}).click();
   await page.getByLabel("Global search").fill("Andrea");
   await page
-    .getByRole("link")
-    .filter({ hasText: "Andrea Reyes" })
-    .first()
+    .getByRole("dialog")
+    .getByRole("link",{name:"Andrea Reyes Customer",exact:true})
     .click();
   await expect(
     page.getByRole("heading", { name: "Andrea Reyes", exact: true }),
@@ -194,4 +189,13 @@ test("adding a traveler is reflected consistently in booking list", async ({
   await expect(
     page.locator("tr").filter({ hasText: "Andrea Reyes" }),
   ).toContainText("5 pax");
+});
+
+test('inquiry card advances stage and URL filter persists',async({page})=>{
+ await page.goto('/inquiries?stage=New%20Inquiry');
+ const card=page.getByTestId('person-card').first();const name=await card.locator('h3').innerText();
+ await card.getByRole('button',{name:'Log first reply →',exact:true}).click();
+ await page.getByRole('button',{name:/Talking Make a quote/}).click();
+ await expect(page.getByTestId('person-card').filter({hasText:name})).toBeVisible();
+ await page.reload();await expect(page.getByTestId('person-card').filter({hasText:name})).toBeVisible();
 });
