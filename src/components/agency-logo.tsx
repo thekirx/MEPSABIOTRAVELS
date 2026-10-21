@@ -18,10 +18,10 @@ export function AgencyLogo({ compact = false }: { compact?: boolean }) {
     return (
       <Image
         className="agency-logo"
-        src={compact ? "/brand/mep-mark.png" : "/brand/mep-logo-full.png"}
+        src="/brand/mep-logo-horizontal.png"
         alt={settings.agencyName}
-        width={compact ? 72 : 160}
-        height={60}
+        width={compact ? 210 : 263}
+        height={compact ? 48 : 60}
       />
     );
   return (

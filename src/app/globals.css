@@ -3219,12 +3219,12 @@ td strong {
 }
 .agency-logo {
   object-fit: contain;
-  max-width: 160px;
+  width: auto;
+  max-width: 100%;
   height: 60px;
 }
 .appbar .agency-logo {
-  height: 44px;
-  width: 90px;
+  height: 48px;
 }
 .statement {
   max-width: 900px;
