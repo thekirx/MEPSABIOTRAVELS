@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Payments · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>.t td small, .t td b { white-space: nowrap; }</style>
+</head>
+<body data-page="payments">
+<div id="appbar"></div>
+<main class="page">
+  <section class="hello" style="margin-bottom:24px"><div><h1>Payments</h1><p>Who owes what, and every payment we've recorded.</p></div><a class="btn lime" href="#">+ Record payment</a></section>
+
+  <section class="stats">
+    <div class="block red"><span class="tag">Late</span><div class="big num">₱112,200</div><p>Camille Dela Cruz · Hong Kong</p></div>
+    <div class="block lime"><span class="tag">Due in 7 days</span><div class="big num">₱6,000</div><p>Andrea Reyes · by Sat 24 Oct</p></div>
+    <div class="block white"><span class="tag">Still to collect</span><div class="big num">₱634,870</div><p style="color:var(--muted);opacity:1">across 8 trips</p></div>
+    <div class="block char"><span class="tag">Received this month</span><div class="big num">₱215,430</div><p>7 payments</p></div>
+  </section>
+
+  <section class="sheet">
+    <div class="sheet-h"><h2>Who owes what</h2><span class="note">Sorted by what needs you first</span></div>
+    <table class="t">
+      <thead><tr><th>Customer</th><th>Trip</th><th class="r">Total</th><th class="r">Paid</th><th class="r">Left</th><th>Next due</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <tr class="click"><td><b>Camille Dela Cruz</b><small>HTT-B-2026-0082</small></td><td>Hong Kong</td><td class="r num">₱112,200</td><td class="r num">₱0</td><td class="r num"><b>₱112,200</b></td><td><b>Deposit ₱33,660</b><small>was due Wed 14 Oct</small></td><td><span class="chip late">7 days late</span></td><td class="r"><a class="btn small" href="#">Record</a></td></tr>
+        <tr class="click" onclick="location.href='trip-details.html#payments'"><td><b>Andrea Reyes</b><small>HTT-B-2026-0088</small></td><td>Tokyo–Osaka</td><td class="r num">₱220,000</td><td class="r num">₱60,000</td><td class="r num"><b>₱160,000</b></td><td><b>Deposit ₱6,000</b><small>Sat 24 Oct</small></td><td><span class="chip next">Due in 3 days</span></td><td class="r"><a class="btn ghost small" href="#">Record</a></td></tr>
+        <tr class="click"><td><b>Miguel Santos</b><small>HTT-B-2026-0081</small></td><td>Seoul</td><td class="r num">₱85,250</td><td class="r num">₱25,575</td><td class="r num"><b>₱59,675</b></td><td><b>Balance ₱59,675</b><small>Mon 2 Nov</small></td><td><span class="chip wait">Not due yet</span></td><td class="r"><a class="btn ghost small" href="#">Record</a></td></tr>
+        <tr class="click"><td><b>Paolo Mendoza</b><small>HTT-B-2026-0083</small></td><td>Singapore</td><td class="r num">₱62,700</td><td class="r num">₱18,810</td><td class="r num"><b>₱43,890</b></td><td><b>Balance ₱43,890</b><small>Thu 12 Nov</small></td><td><span class="chip wait">Not due yet</span></td><td class="r"><a class="btn ghost small" href="#">Record</a></td></tr>
+        <tr class="click"><td><b>Sofia Lim</b><small>HTT-B-2026-0084</small></td><td>El Nido</td><td class="r num">₱90,200</td><td class="r num">₱27,060</td><td class="r num"><b>₱63,140</b></td><td><b>Balance ₱63,140</b><small>Tue 17 Nov</small></td><td><span class="chip wait">Not due yet</span></td><td class="r"><a class="btn ghost small" href="#">Record</a></td></tr>
+        <tr class="click"><td><b>Rafael Garcia</b><small>HTT-B-2026-0085</small></td><td>Boracay</td><td class="r num">₱118,800</td><td class="r num">₱35,640</td><td class="r num"><b>₱83,160</b></td><td><b>Balance ₱83,160</b><small>Sun 22 Nov</small></td><td><span class="chip wait">Not due yet</span></td><td class="r"><a class="btn ghost small" href="#">Record</a></td></tr>
+        <tr class="click"><td><b>Bianca Navarro</b><small>HTT-B-2026-0086</small></td><td>Tokyo–Osaka</td><td class="r num">₱66,000</td><td class="r num">₱19,800</td><td class="r num"><b>₱46,200</b></td><td><b>Balance ₱46,200</b><small>Fri 27 Nov</small></td><td><span class="chip wait">Not due yet</span></td><td class="r"><a class="btn ghost small" href="#">Record</a></td></tr>
+        <tr class="click"><td><b>Gabriel Tan</b><small>HTT-B-2026-0087</small></td><td>Seoul</td><td class="r num">₱95,150</td><td class="r num">₱28,545</td><td class="r num"><b>₱66,605</b></td><td><b>Balance ₱66,605</b><small>Wed 2 Dec</small></td><td><span class="chip wait">Not due yet</span></td><td class="r"><a class="btn ghost small" href="#">Record</a></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2">8 trips</td><td class="r num">₱850,300</td><td class="r num">₱215,430</td><td class="r num">₱634,870</td><td colspan="3"></td></tr></tfoot>
+    </table>
+  </section>
+
+  <section class="sheet" style="margin-top:22px">
+    <div class="sheet-h"><h2>Payments received</h2><span class="note">Recorded by hand · no money moves in this demo</span><span class="right"><a class="btn ghost small" href="#">Print statements</a></span></div>
+    <table class="t">
+      <thead><tr><th>Date</th><th>Customer</th><th>Booking</th><th>Method</th><th>Receipt no.</th><th class="r">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>Wed 21 Oct</td><td><b>Andrea Reyes</b></td><td>HTT-B-2026-0088</td><td>Bank transfer</td><td>DEMO-P-107</td><td class="r num"><b>₱60,000.00</b></td></tr>
+        <tr><td>Mon 19 Oct</td><td><b>Gabriel Tan</b></td><td>HTT-B-2026-0087</td><td>Bank transfer</td><td>DEMO-P-106</td><td class="r num"><b>₱28,545.00</b></td></tr>
+        <tr><td>Mon 19 Oct</td><td><b>Bianca Navarro</b></td><td>HTT-B-2026-0086</td><td>Bank transfer</td><td>DEMO-P-105</td><td class="r num"><b>₱19,800.00</b></td></tr>
+        <tr><td>Mon 19 Oct</td><td><b>Rafael Garcia</b></td><td>HTT-B-2026-0085</td><td>Bank transfer</td><td>DEMO-P-104</td><td class="r num"><b>₱35,640.00</b></td></tr>
+        <tr><td>Mon 19 Oct</td><td><b>Sofia Lim</b></td><td>HTT-B-2026-0084</td><td>Bank transfer</td><td>DEMO-P-103</td><td class="r num"><b>₱27,060.00</b></td></tr>
+        <tr><td>Mon 19 Oct</td><td><b>Paolo Mendoza</b></td><td>HTT-B-2026-0083</td><td>Bank transfer</td><td>DEMO-P-102</td><td class="r num"><b>₱18,810.00</b></td></tr>
+        <tr><td>Mon 19 Oct</td><td><b>Miguel Santos</b></td><td>HTT-B-2026-0081</td><td>Bank transfer</td><td>DEMO-P-101</td><td class="r num"><b>₱25,575.00</b></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="5">7 payments this month</td><td class="r num">₱215,430.00</td></tr></tfoot>
+    </table>
+  </section>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>Payments</strong>The full ledger. Late is red, due soon is lime, and the rest wait. <a href="index.html">All mocks →</a></div>
+<script src="shell.js"></script>
+</body>
+</html>

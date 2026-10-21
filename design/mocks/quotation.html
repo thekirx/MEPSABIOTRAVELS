@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quote · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 24px; align-items: start; }
+  .col { display: flex; flex-direction: column; gap: 20px; }
+  .steps { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+  .steps a { height: 44px; padding: 0 18px; border-radius: 22px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; background: #fff; }
+  .steps a.done { color: var(--muted); }
+  .steps a.done::before { content: "✓"; color: var(--ok); }
+  .steps a.on { background: var(--char); color: #fff; }
+
+  .ask h3 { font-size: 32px; }
+  .ask .cost { color: var(--muted); }
+  .opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; }
+  .opts button { height: 86px; border-radius: 16px; border: 3px solid #e2e1d8; background: #fff; font-family: var(--head); font-size: 40px; font-weight: 700; color: var(--ink); transition: border-color .15s, transform .15s; }
+  .opts button:hover { border-color: var(--char); }
+  .opts button:disabled { cursor: not-allowed; opacity: .55; }
+  .opts button[aria-checked="true"] { background: var(--char); border-color: var(--char); color: var(--lime); }
+  .pays .big { font-size: 84px; }
+  .pays .row { display: flex; gap: 32px; font-size: 19px; font-weight: 600; }
+  .pays .row span b { font-family: var(--head); font-size: 30px; display: block; }
+  .yes { flex-direction: row !important; align-items: center; }
+  .yes h3 { font-size: 34px; }
+  .yes .btn { margin: 0 0 0 auto; align-self: center; }
+
+  /* Andrea's copy on MEP letterhead */
+  .copy-label { font-weight: 700; margin-bottom: 10px; }
+  .doc { background: #fff; border-radius: 6px; overflow: hidden; font-size: 14px; }
+  .doc-top { background: var(--char); display: flex; align-items: center; padding: 14px 22px; }
+  .doc-top img { height: 52px; }
+  .doc-top span { margin-left: auto; color: var(--lime); font-weight: 700; letter-spacing: .08em; font-size: 13px; }
+  .doc-body { padding: 22px 24px; }
+  .doc h4 { font-family: var(--head); font-size: 40px; font-weight: 700; margin: 0; line-height: 1; }
+  .doc .for { color: var(--muted); margin: 4px 0 14px; }
+  .doc ul { margin: 0 0 16px; padding-left: 18px; line-height: 1.8; }
+  .doc .tot { display: flex; justify-content: space-between; align-items: baseline; border-top: 3px solid var(--char); padding-top: 12px; }
+  .doc .tot b { font-family: var(--head); font-size: 40px; }
+  .doc .each { display: flex; justify-content: space-between; color: var(--muted); margin-top: 4px; }
+  .doc-foot { background: var(--lime); padding: 10px 24px; font-size: 13px; font-weight: 600; display: flex; gap: 14px; flex-wrap: wrap; }
+</style>
+</head>
+<body data-page="quotes">
+<div id="appbar"></div>
+<main class="page">
+  <a class="back" href="inquiries.html">← People asking</a>
+  <section class="hello" style="margin-bottom:20px"><div><h1>Andrea's Japan trip</h1><p>Tokyo–Osaka · 4 people · Dec 5 to 10</p></div></section>
+  <nav class="steps" aria-label="Quote steps" style="align-items:center"><a class="done" href="#">1 · The trip</a><a class="done" href="#">2 · What's included</a><a class="on" href="#" aria-current="step">3 · The price</a><a href="quote-details.html" style="margin-left:auto;background:transparent;text-decoration:underline;text-underline-offset:3px">Edit every detail →</a></nav>
+
+  <div class="split">
+    <div class="col">
+      <section class="block white ask">
+        <h3>How much do we add on top?</h3>
+        <p class="cost">The trip costs us ₱200,000. Andrea never sees this.</p>
+        <div class="opts" role="radiogroup" aria-label="Markup">
+          <button role="radio" aria-checked="false">8%</button><button role="radio" aria-checked="true">10%</button><button role="radio" aria-checked="false">12%</button><button role="radio" aria-checked="false">15%</button>
+        </div>
+      </section>
+      <section class="block lime pays" aria-live="polite">
+        <span class="tag">Andrea pays</span>
+        <div class="big num" data-v="pay">₱220,000</div>
+        <div class="row"><span>Each person<b class="num" data-v="each">₱55,000</b></span><span>We earn<b class="num" data-v="earn">₱20,000</b></span></div>
+      </section>
+      <section class="block char yes">
+        <div><h3>Did Andrea say yes?</h3><p>We'll book the trip and lock this price.</p></div>
+        <button class="btn lime" id="bookIt">Yes, book it</button>
+      </section>
+    </div>
+
+    <aside>
+      <div class="copy-label">What Andrea gets</div>
+      <article class="doc">
+        <div class="doc-top"><img src="assets/mep-logo-full.png" alt="MEP Sabio Travel" /><span>QUOTATION</span></div>
+        <div class="doc-body">
+          <h4>Tokyo–Osaka</h4>
+          <p class="for">For Andrea Reyes and family · Dec 5–10, 2026</p>
+          <ul>
+            <li>Flights to Tokyo and back</li>
+            <li>Hotel with breakfast, 5 nights</li>
+            <li>Mt. Fuji, Kyoto and city tours</li>
+            <li>Private airport rides</li>
+          </ul>
+          <div class="tot"><span>Total for 4</span><b class="num" data-v="pay">₱220,000</b></div>
+          <div class="each"><span>Each person</span><span class="num" data-v="each">₱55,000</span></div>
+          <div class="each"><span>Pay now to hold (30%)</span><span class="num" data-v="dep">₱66,000</span></div>
+        </div>
+        <div class="doc-foot"><span>reservations@meptravel.com</span><span>mepsabiotravel.com</span><span style="margin-left:auto">DEMO</span></div>
+      </article>
+    </aside>
+  </div>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>Quote</strong>Tap a number. Andrea's price and her copy update right away. <a href="index.html">All mocks →</a></div>
+<script src="app.js"></script>
+<script>
+  // Same maths as the app: cost × (1 + markup); per person = total ÷ 4; deposit = 30%.
+  const S = MEP.state, cost = 200000, pax = 4;
+  let markup = 10;
+  function show() {
+    const pay = Math.round(cost * (1 + markup / 100));
+    const v = { pay: MEP.peso(pay), each: MEP.peso(Math.round(pay / pax)), earn: MEP.peso(pay - cost), dep: MEP.peso(Math.round(pay * 0.3)) };
+    document.querySelectorAll("[data-v]").forEach((el) => (el.textContent = v[el.dataset.v]));
+    document.querySelectorAll(".opts button").forEach((x) => x.setAttribute("aria-checked", String(parseInt(x.textContent) === markup)));
+    return pay;
+  }
+  function lock() {
+    // Accepted quotes are read-only, like the real app.
+    markup = S.trip.markup; show();
+    document.querySelectorAll(".opts button").forEach((x) => (x.disabled = true));
+    document.querySelector(".ask .cost").textContent = "This quote was accepted, so the price is locked.";
+    document.querySelector(".yes").innerHTML = `<div><span class="tag">✓ Booked</span><h3>Andrea said yes</h3><p>Price locked at ${MEP.peso(S.trip.total)}.</p></div><a class="btn lime" href="booking.html">Open her trip</a>`;
+  }
+  document.querySelectorAll(".opts button").forEach((b) => (b.onclick = () => { markup = parseInt(b.textContent); show(); }));
+  document.getElementById("bookIt").onclick = () => {
+    const total = show();
+    MEP.confirm({
+      title: "Book Andrea's trip?",
+      body: `The price locks at <b>${MEP.peso(total)}</b> and her booking is created with 4 travelers, 4 supplier requests and a 30% deposit plan.`,
+      yes: "Yes, book it",
+      onYes: () => {
+        S.trip = { total, markup, paid: 0, payments: [], suppliers: false, passports: false, tickets: false };
+        MEP.save(); location.href = "booking.html#new";
+      },
+    });
+  };
+  if (S.trip) lock(); else show();
+</script>
+<script src="shell.js"></script>
+</body>
+</html>

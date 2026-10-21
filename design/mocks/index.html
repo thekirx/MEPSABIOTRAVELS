@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TravelOS for MEP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .cover { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+  .cover .char { flex-direction: row !important; align-items: center; gap: 28px; min-height: 260px; }
+  .cover img.logo { width: 240px; }
+  .cover h1 { font-size: 56px; color: #fff; }
+  .cover .lime h2 { font-size: 40px; }
+  .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .g4 .block { min-height: 220px; }
+  .g4 h3 { font-size: 40px; }
+  .photos { display: flex; gap: 12px; margin-top: 20px; }
+  .photos img { width: 140px; height: 140px; }
+</style>
+</head>
+<body>
+<div id="appbar"></div>
+<main class="page">
+  <section class="cover">
+    <div class="block char"><img class="logo" src="assets/mep-logo-full.png" alt="MEP Sabio Travel" /><div><span class="tag">Demo · simulated data</span><h1>TravelOS for MEP</h1></div></div>
+    <div class="block lime"><span class="tag">For the team</span><h2>Three jobs a day, one button each.</h2><p style="opacity:1">Big words, MEP's colours, nothing extra. The front screens work: try them, then use Reset demo at the bottom.</p></div>
+  </section>
+
+  <div class="title"><h2>The screens</h2></div>
+  <section class="g4">
+    <a class="block white" href="home.html"><span class="tag">01</span><h3>Home</h3><p>Today's jobs and trips leaving soon.</p></a>
+    <a class="block white" href="inquiries.html"><span class="tag">02</span><h3>People asking</h3><p>Four steps from "hello" to booked.</p></a>
+    <a class="block white" href="quotation.html"><span class="tag">03</span><h3>Quote</h3><p>Tap a number, see the price.</p></a>
+    <a class="block white" href="booking.html"><span class="tag">04</span><h3>Trip</h3><p>What's next and a checklist.</p></a>
+  </section>
+
+  <div class="title"><h2>Full details</h2><span style="color:var(--muted)">One click deeper, for when you need everything</span></div>
+  <section class="g4" style="grid-template-columns:repeat(3,1fr)">
+    <a class="block white" href="trips.html"><span class="tag">From Home</span><h3>All trips</h3><p>Every booking: status, paid, next step, agent.</p></a>
+    <a class="block white" href="trip-details.html"><span class="tag">From Trip</span><h3>Trip details</h3><p>Travelers, suppliers, payments, itinerary, visa, history.</p></a>
+    <a class="block white" href="quote-details.html"><span class="tag">From Quote</span><h3>Quote details</h3><p>Every service, cost, markup, day and term.</p></a>
+    <a class="block white" href="customer.html"><span class="tag">From People asking</span><h3>Customer</h3><p>Contact, request, quotes, trips, payments, notes.</p></a>
+    <a class="block white" href="payments.html"><span class="tag">Top bar</span><h3>Payments</h3><p>Who owes what and every payment received.</p></a>
+    <a class="block white" href="visas.html"><span class="tag">Top bar</span><h3>Visas</h3><p>Every case with its document checklist.</p></a>
+  </section>
+
+  <div class="title"><h2>From MEP's own tours</h2></div>
+  <div class="photos"><img class="photo" src="assets/photo-namsan.jpg" alt="N Seoul Tower" /><img class="photo" src="assets/photo-hanbok.jpg" alt="Guests in hanbok" /><img class="photo" src="assets/photo-group-korea.jpg" alt="MEP Korea tour group" /></div>
+</main>
+<div id="footer"></div>
+<script src="shell.js"></script>
+</body>
+</html>

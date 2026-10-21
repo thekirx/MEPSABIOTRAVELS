@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Home · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .job { min-height: 300px; }
+  .job h3 { font-size: 38px; }
+  .job .acts { margin-top: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+  .job .acts .btn { margin: 0; }
+
+  .lug { position: relative; background: #fff; border-radius: var(--r); padding: 34px 24px 0; display: flex; flex-direction: column; overflow: hidden; transition: transform .2s; }
+  .lug:hover { transform: translateY(-3px); }
+  .lug::before { content: ""; position: absolute; top: 14px; left: 50%; width: 22px; height: 10px; margin-left: -11px; border-radius: 6px; background: var(--cream); }
+  .lug .code { font-family: var(--head); font-weight: 700; font-size: 76px; line-height: .9; }
+  .lug .city { font-size: 20px; font-weight: 700; margin-top: 6px; }
+  .lug .when, .lug .who { color: var(--muted); }
+  .lug .who { margin-bottom: 18px; }
+  .lug .strip { margin: auto -24px 0; padding: 14px 24px; font-weight: 700; }
+  .strip.late { background: var(--red); color: #fff; }
+  .strip.ok { background: var(--lime); color: var(--ink); }
+  .strip.wait { background: #ecebe3; color: var(--ink); }
+</style>
+</head>
+<body data-page="home">
+<div id="appbar"></div>
+<main class="page">
+  <section class="hello">
+    <div><h1>Good morning, Isabel</h1><p id="count">You have 3 jobs today.</p></div>
+    <a class="btn lime" href="inquiries.html#new">+ New inquiry</a>
+  </section>
+
+  <section class="g3" id="jobs" aria-label="Today's jobs" aria-live="polite"></section>
+
+  <div class="title"><h2>Leaving soon</h2><a href="trips.html">See all trips →</a></div>
+  <section class="g4" id="tags"></section>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>Home · working</strong>Try "Record ticket" with a blank reference, then with SIM-TKT-7788. Record a payment for Camille. <a href="index.html">All mocks →</a></div>
+<script src="app.js"></script>
+<script>
+  const S = MEP.state, CAMILLE = 112200;
+
+  function render() {
+    const ticket = S.jobs.ticket, camLeft = CAMILLE - S.jobs.camillePaid, booked = !!S.trip;
+    const left = [!ticket, camLeft > 0, !booked].filter(Boolean).length;
+    document.getElementById("count").textContent = left ? `You have ${left} job${left > 1 ? "s" : ""} today.` : "All done for today. Nice work.";
+
+    const jobTicket = ticket
+      ? `<div class="block done job"><span class="tag">✓ Done</span><h3>Miguel's ticket is issued</h3><p>Reference <b>${MEP.esc(ticket)}</b> · recorded by hand (simulated).</p><div class="acts"><button class="btn ghost small" id="undoTicket">Undo</button></div></div>`
+      : `<div class="block char job"><span class="tag">Tomorrow, 5 PM</span><h3>Issue Miguel's plane ticket</h3><p>Seoul trip. The airline lets go of the seat after 5 PM tomorrow.</p><div class="acts"><button class="btn lime" id="doTicket">Record ticket</button></div></div>`;
+    const jobPay = camLeft <= 0
+      ? `<div class="block done job"><span class="tag">✓ Done</span><h3>Camille has paid in full</h3><p>Hong Kong trip · ${MEP.peso(CAMILLE)} received.</p></div>`
+      : `<div class="block red job"><span class="tag">${S.jobs.camillePaid ? MEP.peso(S.jobs.camillePaid) + " paid · rest still late" : "7 days late"}</span><div class="big num">${MEP.peso(camLeft)}</div><p>Collect from Camille Dela Cruz for her Hong Kong trip.</p><div class="acts"><button class="btn white" id="doPay">Record payment</button></div></div>`;
+    const jobAndrea = booked
+      ? `<a class="block done job" href="booking.html"><span class="tag">✓ Done</span><h3>Andrea booked her Japan trip</h3><p>${MEP.peso(S.trip.total)} · price locked.</p><div class="acts"><span class="btn ghost small">Open her trip</span></div></a>`
+      : `<a class="block lime job" href="quotation.html"><span class="tag">By Saturday</span><h3>Call Andrea about her Japan quote</h3><p>Ask if she's ready to book. The quote ends Saturday.</p><div class="acts"><span class="btn">Open quote</span></div></a>`;
+    document.getElementById("jobs").innerHTML = jobTicket + jobPay + jobAndrea;
+
+    const tags = [
+      ["ICN", "Seoul", "Thu 5 Nov · in 15 days", "Miguel Santos + 2", ticket ? ["ok", "✓ Ticket issued"] : ["late", "● Needs plane ticket"], "trips.html"],
+      ["HKG", "Hong Kong", "Tue 10 Nov · in 20 days", "Camille Dela Cruz + 3", camLeft <= 0 ? ["ok", "✓ Paid in full"] : S.jobs.camillePaid ? ["late", `● ${MEP.peso(camLeft)} still late`] : ["late", "● Payment late"], "payments.html"],
+      ["SIN", "Singapore", "Sun 15 Nov · in 25 days", "Paolo Mendoza + 1", ["wait", "○ Waiting on visa papers"], "visas.html"],
+      ["ENI", "El Nido", "Fri 20 Nov · in 30 days", "Sofia Lim + 2", ["wait", "○ Waiting on hotel"], "trips.html"],
+    ];
+    document.getElementById("tags").innerHTML = tags.map(([c, city, when, who, [k, txt], href]) =>
+      `<a class="lug" href="${href}"><span class="code">${c}</span><span class="city">${city}</span><span class="when">${when}</span><span class="who">${who}</span><span class="strip ${k}">${txt}</span></a>`).join("");
+
+    const t = document.getElementById("doTicket");
+    if (t) t.onclick = () => MEP.dialog({
+      title: "Record Miguel's ticket",
+      intro: "Seoul · HTT-B-2026-0081 · airfare by Skyline Wings",
+      fields: [{ id: "ref", label: "Airline reference", placeholder: "e.g. SIM-TKT-7788", hint: "It's on the airline's confirmation email." }],
+      submit: "Mark ticket issued",
+      validate: (v) => !v.ref.trim() ? { ref: "Type the airline's reference first. A ticket can't be marked issued without it." }
+        : v.ref.trim().length < 4 ? { ref: "That looks too short. Check the airline's confirmation." } : {},
+      onSubmit: (v) => { S.jobs.ticket = v.ref.trim().toUpperCase(); MEP.save(); render(); MEP.toast("Ticket recorded. Miguel's alert is cleared."); },
+    });
+    const u = document.getElementById("undoTicket");
+    if (u) u.onclick = () => { S.jobs.ticket = null; MEP.save(); render(); MEP.toast("Undone. The ticket job is back."); };
+    const p = document.getElementById("doPay");
+    if (p) p.onclick = () => MEP.dialog({
+      title: "Record Camille's payment",
+      intro: `Hong Kong · HTT-B-2026-0082 · still owes <b>${MEP.peso(camLeft)}</b>`,
+      fields: [
+        { id: "amt", label: "Amount received (₱)", type: "number", placeholder: "e.g. 33,660", hint: `Up to ${MEP.peso(camLeft)}` },
+        { id: "how", label: "Paid by", type: "select", options: ["Bank transfer", "Cash", "GCash", "Card"], value: "Bank transfer" },
+      ],
+      submit: "Save payment",
+      validate: (v) => {
+        const a = MEP.amount(v.amt);
+        if (!String(v.amt).trim()) return { amt: "Type the amount, like 33,660." };
+        if (isNaN(a)) return { amt: "Use numbers only, with up to 2 decimals." };
+        if (a <= 0) return { amt: "The amount must be more than ₱0." };
+        if (a > camLeft) return { amt: `That's more than she owes (${MEP.peso(camLeft)}).` };
+        return {};
+      },
+      onSubmit: (v) => { const a = MEP.amount(v.amt); S.jobs.camillePaid += a; MEP.save(); render(); MEP.toast(`${MEP.peso(a)} recorded (${v.how}). No money moves in this demo.`); },
+    });
+  }
+  render();
+</script>
+<script src="shell.js"></script>
+</body>
+</html>

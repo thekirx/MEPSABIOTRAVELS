@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visas · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .split { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  .docs .meter { width: 120px; height: 6px; margin-top: 6px; }
+  .t td small, .t td b { white-space: nowrap; }
+  tr.on td { background: #f6f9e4; }
+  .check { list-style: none; margin: 0; padding: 0; }
+  .check li { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
+  .check li:last-child { border-bottom: 0; }
+  .check .box { width: 28px; height: 28px; border-radius: 7px; border: 3px solid #cfcec4; display: grid; place-items: center; flex-shrink: 0; font-weight: 800; }
+  .check li.done .box { background: var(--char); border-color: var(--char); color: var(--lime); }
+  .check li.done span.t { color: var(--muted); }
+  .check li .btn { margin-left: auto; }
+</style>
+</head>
+<body data-page="visas">
+<div id="appbar"></div>
+<main class="page">
+  <section class="hello" style="margin-bottom:24px"><div><h1>Visas</h1><p>Track each traveler's documents. Nothing is sent to an embassy from here.</p></div><a class="btn lime" href="#">+ Start visa case</a></section>
+
+  <div class="callout"><span><b>Andrea Reyes needs a Japan visa</b> for her Tokyo–Osaka trip (leaves Sat 5 Dec). No case yet.</span><a class="btn small" href="#">Start her case</a></div>
+
+  <div class="filters">
+    <a class="on" href="#">All <b>6</b></a><a href="#">Collecting documents <b>3</b></a><a href="#">Under review <b>1</b></a><a href="#">Approved <b>1</b></a><a href="#">Released <b>1</b></a>
+  </div>
+
+  <div class="split">
+    <section class="sheet">
+      <table class="t">
+        <thead><tr><th>Traveler</th><th>Visa</th><th>Documents</th><th>Stage</th></tr></thead>
+        <tbody>
+          <tr class="click on"><td><b>Miguel Santos</b><small>HTT-B-2026-0081 · leaves Thu 5 Nov</small></td><td>Japan<small>Tourist</small></td><td class="docs"><b>2 of 7</b><div class="meter"><span style="width:29%"></span></div></td><td><span class="chip late">5 missing</span></td></tr>
+          <tr class="click"><td><b>Camille Dela Cruz</b><small>HTT-B-2026-0082 · leaves Tue 10 Nov</small></td><td>South Korea<small>Tourist</small></td><td class="docs"><b>3 of 7</b><div class="meter"><span style="width:43%"></span></div></td><td><span class="chip late">4 missing</span></td></tr>
+          <tr class="click"><td><b>Paolo Mendoza</b><small>HTT-B-2026-0083 · leaves Sun 15 Nov</small></td><td>Japan<small>Tourist</small></td><td class="docs"><b>4 of 7</b><div class="meter"><span style="width:57%"></span></div></td><td><span class="chip wait">3 missing</span></td></tr>
+          <tr class="click"><td><b>Sofia Lim</b><small>HTT-B-2026-0084</small></td><td>South Korea<small>Tourist</small></td><td class="docs"><b>7 of 7</b><div class="meter"><span style="width:100%"></span></div></td><td><span class="chip dark">Under review</span></td></tr>
+          <tr class="click"><td><b>Rafael Garcia</b><small>HTT-B-2026-0085</small></td><td>Japan<small>Tourist</small></td><td class="docs"><b>7 of 7</b><div class="meter"><span style="width:100%"></span></div></td><td><span class="chip ok">Approved</span></td></tr>
+          <tr class="click"><td><b>Bianca Navarro</b><small>HTT-B-2026-0086</small></td><td>South Korea<small>Tourist</small></td><td class="docs"><b>7 of 7</b><div class="meter"><span style="width:100%"></span></div></td><td><span class="chip ok">Released</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sheet">
+      <div class="sheet-h"><h2>Miguel Santos</h2><span class="note">Japan · tourist</span></div>
+      <div class="kv two" style="margin-bottom:16px">
+        <div>Stage<b>Collecting documents</b></div>
+        <div>Handled by<b>Mara Cruz</b></div>
+        <div>Trip leaves<b>Thu 5 Nov · in 15 days</b></div>
+        <div>Passport<b>Valid</b></div>
+      </div>
+      <ul class="check">
+        <li class="done"><span class="box">✓</span><span class="t">Passport (valid at least 6 months)</span></li>
+        <li class="done"><span class="box">✓</span><span class="t">Completed application form</span></li>
+        <li><span class="box"></span><span class="t">Recent photo</span></li>
+        <li><span class="box"></span><span class="t">Bank certificate</span></li>
+        <li><span class="box"></span><span class="t">ITR / certificate of employment</span></li>
+        <li><span class="box"></span><span class="t">Travel itinerary</span><a class="btn ghost small" href="trip-details.html#itinerary">Use trip's</a></li>
+        <li><span class="box"></span><span class="t">Proof of accommodation</span></li>
+      </ul>
+      <div style="display:flex;gap:10px;margin-top:18px"><a class="btn ghost small" href="#">Add note</a><a class="btn small" href="#">Move to Under review</a></div>
+      <p class="muted" style="font-size:14px;margin-top:10px">Tick all 7 and the case suggests moving to the next stage.</p>
+    </section>
+  </div>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>Visas</strong>Every case with its checklist. Click a row to open it on the right. <a href="index.html">All mocks →</a></div>
+<script src="shell.js"></script>
+</body>
+</html>

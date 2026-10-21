@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>People asking · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .stage { border: 0; text-align: left; border-radius: var(--r); padding: 22px 24px; background: #fff; display: flex; flex-direction: column; gap: 2px; transition: transform .2s; color: var(--ink); }
+  .stage:hover { transform: translateY(-2px); }
+  .stage .n { font-family: var(--head); font-size: 60px; font-weight: 700; line-height: 1; }
+  .stage b { font-size: 20px; }
+  .stage span { color: var(--muted); }
+  .stage[aria-pressed="true"] { background: var(--char); color: #fff; }
+  .stage[aria-pressed="true"] .n { color: var(--lime); }
+  .stage[aria-pressed="true"] span { color: #c9cbcf; }
+  .help { margin: 26px 0 22px; font-size: 20px; }
+  .help b { background: var(--lime); padding: 0 6px; border-radius: 4px; }
+
+  .g2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .person { background: #fff; border-radius: var(--r); padding: 26px 28px; display: grid; grid-template-columns: 1fr auto; gap: 6px 20px; align-items: start; }
+  .person h3 { font-size: 34px; }
+  .person h3 a:hover { text-decoration: underline; }
+  .person .trip { color: var(--muted); font-size: 18px; }
+  .person .money { font-family: var(--head); font-size: 34px; font-weight: 600; text-align: right; }
+  .person .last { color: var(--muted); font-size: 15px; }
+  .person .last.stale { color: var(--red); font-weight: 700; }
+  .person .acts { grid-column: 1 / -1; display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .person.hot { box-shadow: inset 0 0 0 4px var(--lime); }
+  .empty { background: #fff; border-radius: var(--r); padding: 40px; text-align: center; color: var(--muted); font-size: 19px; grid-column: 1 / -1; }
+  .bottom { display: flex; gap: 16px; margin-top: 26px; }
+  .linkbtn { background: none; border: 0; padding: 0; font-weight: 700; min-height: 44px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+</style>
+</head>
+<body data-page="inquiries">
+<div id="appbar"></div>
+<main class="page">
+  <section class="hello">
+    <div><h1>People asking</h1><p>Move each person to the next step.</p></div>
+    <button class="btn lime" id="addNew">+ Someone new</button>
+  </section>
+
+  <nav class="g4" id="stages" aria-label="Steps"></nav>
+  <p class="help" id="help"></p>
+  <section class="g2" id="people" aria-live="polite"></section>
+  <div class="bottom"><button class="linkbtn" id="closedBtn"></button></div>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>People asking · working</strong>Click a step, press a person's button to move them on, or add someone new. <a href="index.html">All mocks →</a></div>
+<script src="app.js"></script>
+<script>
+  const S = MEP.state;
+  // Seed leads (stage: 0 New, 1 Talking, 2 Quote sent, 3 Almost booked, "won", "lost").
+  const seed = [
+    ["l7","Bianca Navarro","Japan",2,"Dec",110000,6,0], ["l13","Nicole Castillo","Japan",2,"Dec",140000,5,0],
+    ["l2","Miguel Santos","South Korea",3,"Dec",85000,1,1], ["l8","Gabriel Tan","South Korea",3,"Dec",115000,0,1], ["l14","Luis Bautista","South Korea",3,"Dec",145000,6,1],
+    ["l3","Camille Dela Cruz","Hong Kong",4,"Dec",90000,2,2], ["l9","Patricia Flores","Hong Kong",4,"Dec",120000,1,2], ["l15","Alyssa Cruz","Hong Kong",4,"Jan",150000,0,2],
+    ["l1","Andrea Reyes","Japan",4,"Dec",220000,0,3], ["l16","Carlo Mercado","Singapore",2,"Jan",155000,1,3], ["l10","Marco Villanueva","Singapore",2,"Dec",125000,2,3], ["l4","Paolo Mendoza","Singapore",2,"Dec",95000,3,3],
+    ["l5","Sofia Lim","El Nido",3,"Dec",100000,4,"won"], ["l11","Isabel Ramos","El Nido",3,"Dec",130000,3,"won"], ["l17","Mikaela Torres","El Nido",3,"Jan",160000,2,"won"],
+    ["l6","Rafael Garcia","Boracay",4,"Dec",105000,5,"lost"], ["l12","Daniel Aquino","Boracay",4,"Dec",135000,4,"lost"], ["l18","Joshua Rivera","Boracay",4,"Jan",165000,3,"lost"],
+  ];
+  S.leads = S.leads || { stage: {}, added: [] };
+  const all = () => [...S.leads.added, ...seed].map(([id, name, dest, pax, mon, budget, days, stage]) => {
+    let st = S.leads.stage[id] ?? stage;
+    if (id === "l1" && S.trip) st = "won"; // Andrea is won once her quote is accepted
+    return { id, name, dest, pax, mon, budget, days, stage: st };
+  });
+  const STAGES = [
+    ["New", "Say hello", "These people just asked. Reply within a day.", "Log first reply"],
+    ["Talking", "Make a quote", "You're chatting with these people. Send each one a quote.", "Quote sent"],
+    ["Quote sent", "Check in after 3 days", "They have a quote. Check in if you haven't heard back.", "Checked in"],
+    ["Almost booked", "Ask if they're ready", "These people have a quote. <b>Ask if they're ready to book.</b>", null],
+  ];
+  let view = /#s([0-3])/.test(location.hash) ? +location.hash[2] : location.hash === "#closed" ? "closed" : 3;
+
+  function move(p, to, msg) { S.leads.stage[p.id] = to; MEP.save(); render(); MEP.toast(msg); }
+
+  function render() {
+    const people = all();
+    document.getElementById("stages").innerHTML = STAGES.map(([t, sub], i) =>
+      `<button class="stage" data-s="${i}" aria-pressed="${view === i}"><span class="n">${people.filter((p) => p.stage === i).length}</span><b>${t}</b><span>${sub}</span></button>`).join("");
+    document.querySelectorAll(".stage").forEach((b) => (b.onclick = () => { view = +b.dataset.s; history.replaceState(null, "", "#s" + view); render(); }));
+
+    const list = view === "closed" ? people.filter((p) => p.stage === "won" || p.stage === "lost") : people.filter((p) => p.stage === view);
+    document.getElementById("help").innerHTML = view === "closed" ? "Finished conversations. Reopen someone if they come back." : STAGES[view][2];
+    const won = people.filter((p) => p.stage === "won").length, lost = people.filter((p) => p.stage === "lost").length;
+    document.getElementById("closedBtn").textContent = view === "closed" ? "← Back to open steps" : `See finished: ${won} booked, ${lost} said no →`;
+
+    document.getElementById("people").innerHTML = list.length ? list.map((p) => {
+      const last = p.days === 0 ? "Talked today" : p.days === 1 ? "Talked yesterday" : `Talked ${p.days} days ago`;
+      const stale = typeof p.stage === "number" && p.days >= 5;
+      let acts;
+      if (view === "closed") acts = `<span class="chip ${p.stage === "won" ? "ok" : "wait"}">${p.stage === "won" ? "Booked" : "Said no"}</span>${p.id === "l1" ? '<a class="btn small" href="booking.html">Open trip</a>' : `<button class="btn ghost small" data-act="reopen" data-id="${p.id}">Reopen</button>`}`;
+      else if (view === 3 && p.id === "l1") acts = `<a class="btn" href="quotation.html">Open quote</a>`;
+      else if (view === 3) acts = `<button class="btn small" data-act="won" data-id="${p.id}">They booked</button><button class="btn ghost small" data-act="lost" data-id="${p.id}">Said no</button>`;
+      else acts = `<button class="btn ${stale ? "" : "ghost"} small" data-act="next" data-id="${p.id}">${STAGES[view][3]} →</button>`;
+      return `<article class="person ${p.id === "l1" && view === 3 ? "hot" : ""}">
+        <h3>${p.id === "l1" ? `<a href="customer.html">${p.name}</a>` : MEP.esc(p.name)}</h3><span class="money num">${p.budget ? MEP.peso(p.budget) : "—"}</span>
+        <span class="trip">${MEP.esc(p.dest)} · ${p.pax} ${p.pax === 1 ? "person" : "people"} · ${p.mon}</span><span></span>
+        <span class="last ${stale ? "stale" : ""}">${stale ? `No reply in ${p.days} days` : last}</span>
+        <div class="acts">${acts}</div></article>`;
+    }).join("") : `<div class="empty">Nobody here right now.</div>`;
+
+    document.querySelectorAll("[data-act]").forEach((b) => (b.onclick = () => {
+      const p = all().find((x) => x.id === b.dataset.id), a = b.dataset.act;
+      if (a === "next") move(p, view + 1, `${p.name} moved to ${STAGES[view + 1][0]}.`);
+      if (a === "won") MEP.confirm({ title: `Did ${p.name} book?`, body: "They'll move to Finished as booked.", yes: "Yes, they booked", onYes: () => move(p, "won", `${p.name} marked as booked.`) });
+      if (a === "lost") MEP.confirm({ title: `${p.name} said no?`, body: "They'll move to Finished. You can reopen them later.", yes: "Yes, said no", onYes: () => move(p, "lost", `${p.name} moved to Finished.`) });
+      if (a === "reopen") move(p, 3, `${p.name} is back in Almost booked.`);
+    }));
+  }
+
+  document.getElementById("closedBtn").onclick = () => { view = view === "closed" ? 3 : "closed"; history.replaceState(null, "", view === "closed" ? "#closed" : "#s3"); render(); };
+  function addNew() {
+    MEP.dialog({
+      title: "Someone new is asking",
+      fields: [
+        { id: "name", label: "Their name" },
+        { id: "dest", label: "Where do they want to go?", placeholder: "e.g. Seoul" },
+        { id: "pax", label: "How many people?", type: "number", value: "2" },
+        { id: "mon", label: "When?", type: "select", options: ["Nov", "Dec", "Jan", "Feb", "Mar"], value: "Dec" },
+        { id: "src", label: "Where did they message?", type: "select", options: ["Facebook Messenger", "Viber", "Walk-in", "Referral", "Website"] },
+      ],
+      submit: "Add to New",
+      validate: (v) => {
+        const e = {};
+        if (v.name.trim().length < 2) e.name = "Type their name.";
+        if (!v.dest.trim()) e.dest = "Type where they want to go.";
+        if (!/^\d+$/.test(v.pax) || +v.pax < 1 || +v.pax > 50) e.pax = "Use a number from 1 to 50.";
+        return e;
+      },
+      onSubmit: (v) => {
+        S.leads.added.unshift(["n" + Date.now(), v.name.trim(), v.dest.trim(), +v.pax, v.mon, 0, 0, 0]);
+        MEP.save(); view = 0; history.replaceState(null, "", "#s0"); render();
+        MEP.toast(`${v.name.trim()} added to New. Logged by hand from ${v.src}.`);
+      },
+    });
+  }
+  document.getElementById("addNew").onclick = addNew;
+  render();
+  if (location.hash === "#new") addNew();
+</script>
+<script src="shell.js"></script>
+</body>
+</html>

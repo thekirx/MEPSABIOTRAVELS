@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trip details · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .days li { display: grid; grid-template-columns: 70px 120px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .days li:last-child { border-bottom: 0; }
+  .days ol { list-style: none; margin: 0; padding: 0; }
+  .days b { font-family: var(--head); font-size: 20px; }
+  .days time { color: var(--muted); }
+</style>
+</head>
+<body data-page="home">
+<div id="appbar"></div>
+<main class="page">
+  <a class="back" href="booking.html">← Trip summary</a>
+  <section class="head-block">
+    <div>
+      <span class="tag">Trip · HTT-B-2026-0088</span>
+      <h1>Tokyo–Osaka · Andrea Reyes</h1>
+      <div class="facts">
+        <div>Dates<b>Sat 5 – Thu 10 Dec 2026</b></div>
+        <div>Travelers<b>4 people</b></div>
+        <div>Price (locked)<b class="num">₱220,000</b></div>
+        <div>Still to collect<b class="num">₱160,000</b></div>
+        <div>Leaves in<b>45 days</b></div>
+      </div>
+    </div>
+    <div class="acts"><a class="btn ghost small" href="#">Print statement</a><a class="btn lime small" href="#">Record payment</a></div>
+  </section>
+
+  <div class="detail">
+    <nav class="subnav" aria-label="On this page">
+      <a class="on" href="#overview">Overview</a>
+      <a href="#travelers">Travelers <small>1/4</small></a>
+      <a href="#suppliers">Suppliers <small>0/4</small></a>
+      <a href="#payments">Payments</a>
+      <a href="#itinerary">Itinerary</a>
+      <a href="#visa">Visa</a>
+      <a href="#history">History</a>
+    </nav>
+
+    <div class="sections">
+      <section class="sheet" id="overview">
+        <div class="sheet-h"><h2>Overview</h2><span class="right"><span class="chip wait">Waiting on suppliers</span></span></div>
+        <div class="kv">
+          <div>Customer<b><a class="linkish" href="customer.html">Andrea Reyes</a></b></div>
+          <div>Handled by<b>Katrina Ramos</b></div>
+          <div>Came from<b>Facebook Messenger</b></div>
+          <div>Package<b>Tokyo–Osaka 6D5N</b></div>
+          <div>Booked<b>Wed 21 Oct 2026</b></div>
+          <div>From quote<b><a class="linkish" href="quote-details.html">HTT-Q-2026-0142</a> · v1</b></div>
+        </div>
+        <div class="sheet-h" style="margin:26px 0 10px"><h2 style="font-size:22px">Price breakdown</h2><span class="note">Staff only · locked when the quote was accepted</span></div>
+        <table class="t">
+          <thead><tr><th>Item</th><th>Supplier</th><th class="r">Cost</th><th>Charged</th><th class="r">Line total</th></tr></thead>
+          <tbody>
+            <tr><td>Round-trip economy airfare</td><td>Skyline Wings (fictional)</td><td class="r num">₱20,000</td><td>Per person × 4</td><td class="r num">₱80,000</td></tr>
+            <tr><td>Hotel · Tokyo &amp; Osaka, 5 nights, twin sharing</td><td>Maple Stays (fictional)</td><td class="r num">₱15,000</td><td>Per person × 4</td><td class="r num">₱60,000</td></tr>
+            <tr><td>Guided tours and entry fees</td><td>Wanderlight Tours (fictional)</td><td class="r num">₱7,500</td><td>Per person × 4</td><td class="r num">₱30,000</td></tr>
+            <tr><td>Private airport and city transfers</td><td>Haru Mobility (fictional)</td><td class="r num">₱30,000</td><td>Once per group</td><td class="r num">₱30,000</td></tr>
+          </tbody>
+          <tfoot>
+            <tr><td colspan="4">Our cost</td><td class="r num">₱200,000</td></tr>
+            <tr><td colspan="4" style="font-weight:500;padding-top:4px">Markup 10% · discount ₱0</td><td class="r num" style="font-weight:500;padding-top:4px">+ ₱20,000</td></tr>
+            <tr><td colspan="4">Customer pays · ₱55,000 per person</td><td class="r num" style="font-family:var(--head);font-size:26px">₱220,000</td></tr>
+          </tfoot>
+        </table>
+      </section>
+
+      <section class="sheet" id="travelers">
+        <div class="sheet-h"><h2>Travelers</h2><span class="note">1 of 4 complete</span><span class="right"><a class="btn ghost small" href="#">+ Add traveler</a></span></div>
+        <table class="t">
+          <thead><tr><th>Name</th><th>Birth date</th><th>Passport</th><th>Visa</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b>Andrea Reyes</b><small>Lead traveler</small></td><td>15 Jun 1992</td><td>On file<small>Expires Mar 2031</small></td><td><span class="chip wait">Needed · not started</span></td><td class="r"><a class="btn small" href="visas.html">Start visa</a></td></tr>
+            <tr><td><b>Guest 2</b><small>Name needed</small></td><td class="muted">—</td><td class="muted">Needed</td><td class="muted">—</td><td class="r"><a class="btn ghost small" href="#">Add details</a></td></tr>
+            <tr><td><b>Guest 3</b><small>Name needed</small></td><td class="muted">—</td><td class="muted">Needed</td><td class="muted">—</td><td class="r"><a class="btn ghost small" href="#">Add details</a></td></tr>
+            <tr><td><b>Guest 4</b><small>Name needed</small></td><td class="muted">—</td><td class="muted">Needed</td><td class="muted">—</td><td class="r"><a class="btn ghost small" href="#">Add details</a></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="sheet" id="suppliers">
+        <div class="sheet-h"><h2>Suppliers</h2><span class="note">0 of 4 confirmed</span></div>
+        <div class="callout"><span>To mark something <b>Confirmed</b> or <b>Issued</b>, type the supplier's reference number first. It's recorded by hand (simulated).</span></div>
+        <table class="t">
+          <thead><tr><th>Service</th><th>Supplier</th><th>Status</th><th>Reference</th><th>Deadline</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b>Airfare</b><small>Round-trip economy, 4 people</small></td><td>Skyline Wings</td><td><span class="chip wait">Requested</span></td><td class="muted">Not yet</td><td class="muted">—</td><td class="r"><a class="btn ghost small" href="#">Update</a></td></tr>
+            <tr><td><b>Hotel</b><small>5 nights, twin sharing</small></td><td>Maple Stays</td><td><span class="chip wait">Requested</span></td><td class="muted">Not yet</td><td class="muted">—</td><td class="r"><a class="btn ghost small" href="#">Update</a></td></tr>
+            <tr><td><b>Tours</b><small>Guided tours and entry fees</small></td><td>Wanderlight Tours</td><td><span class="chip wait">Requested</span></td><td class="muted">Not yet</td><td class="muted">—</td><td class="r"><a class="btn ghost small" href="#">Update</a></td></tr>
+            <tr><td><b>Transfers</b><small>Airport and city, private</small></td><td>Haru Mobility</td><td><span class="chip wait">Requested</span></td><td class="muted">Not yet</td><td class="muted">—</td><td class="r"><a class="btn ghost small" href="#">Update</a></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="sheet" id="payments">
+        <div class="sheet-h"><h2>Payments</h2><span class="right"><a class="btn ghost small" href="#">Print statement</a><a class="btn lime small" href="#">Record payment</a></span></div>
+        <div class="kv" style="margin-bottom:22px">
+          <div>Trip total<b class="num">₱220,000.00</b></div>
+          <div>Paid<b class="num">₱60,000.00</b></div>
+          <div>Still to collect<b class="num">₱160,000.00</b></div>
+        </div>
+        <table class="t">
+          <thead><tr><th>Payment plan</th><th>Due</th><th class="r">Amount</th><th class="r">Paid</th><th class="r">Left</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><b>Deposit (30%)</b></td><td>Sat 24 Oct<small>in 3 days</small></td><td class="r num">₱66,000</td><td class="r num">₱60,000</td><td class="r num"><b>₱6,000</b></td><td><span class="chip next">Due soon</span></td></tr>
+            <tr><td><b>Balance</b></td><td>Thu 5 Nov<small>30 days before departure</small></td><td class="r num">₱154,000</td><td class="r num">₱0</td><td class="r num"><b>₱154,000</b></td><td><span class="chip wait">Not due yet</span></td></tr>
+          </tbody>
+        </table>
+        <div class="sheet-h" style="margin:26px 0 10px"><h2 style="font-size:22px">Received</h2><span class="note">Recorded by hand · no money moves in this demo</span></div>
+        <table class="t">
+          <thead><tr><th>Date</th><th>Method</th><th>Receipt no.</th><th>Note</th><th>Recorded by</th><th class="r">Amount</th></tr></thead>
+          <tbody><tr><td>Wed 21 Oct</td><td>Bank transfer</td><td>DEMO-P-107</td><td>Initial deposit — demo</td><td>Katrina Ramos</td><td class="r num"><b>₱60,000.00</b></td></tr></tbody>
+        </table>
+      </section>
+
+      <section class="sheet days" id="itinerary">
+        <div class="sheet-h"><h2>Itinerary</h2><span class="note">As shown on Andrea's quote</span></div>
+        <ol>
+          <li><b>Day 1</b><time>Sat 5 Dec</time><span>Arrive in Tokyo · airport transfer and hotel check-in</span></li>
+          <li><b>Day 2</b><time>Sun 6 Dec</time><span>Tokyo city tour · Asakusa, Shibuya and Meiji Shrine</span></li>
+          <li><b>Day 3</b><time>Mon 7 Dec</time><span>Mt. Fuji day trip · Lake Kawaguchiko</span></li>
+          <li><b>Day 4</b><time>Tue 8 Dec</time><span>Travel to Osaka · evening at Dotonbori</span></li>
+          <li><b>Day 5</b><time>Wed 9 Dec</time><span>Kyoto discovery · Fushimi Inari and Arashiyama</span></li>
+          <li><b>Day 6</b><time>Thu 10 Dec</time><span>Free time · airport transfer and departure</span></li>
+        </ol>
+      </section>
+
+      <section class="sheet" id="visa">
+        <div class="sheet-h"><h2>Visa</h2></div>
+        <div class="callout"><span><b>Andrea needs a Japan visa.</b> Start a case so the team can track her 7 documents. Nothing is sent to the embassy from here.</span><a class="btn small" href="visas.html">Start visa case</a></div>
+      </section>
+
+      <section class="sheet" id="history">
+        <div class="sheet-h"><h2>History</h2></div>
+        <ul class="timeline">
+          <li><time>21 Oct, 10:42</time><span><b>₱60,000 payment recorded</b> by Katrina Ramos</span></li>
+          <li><time>21 Oct, 10:15</time><span><b>Booking created</b> from quote HTT-Q-2026-0142. Price locked at ₱220,000.</span></li>
+          <li><time>21 Oct, 10:15</time><span>Inquiry marked <b>Won</b></span></li>
+          <li><time>9 Oct</time><span>Quote <b>HTT-Q-2026-0142</b> sent to Andrea</span></li>
+          <li><time>3 Oct</time><span>New inquiry from <b>Facebook Messenger</b></span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>Trip details</strong>Everything about one trip. The menu on the left jumps to each part. <a href="index.html">All mocks →</a></div>
+<script>
+  // Highlight the section you're reading in the left menu.
+  const links = [...document.querySelectorAll(".subnav a")];
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll(".sections > .sheet").forEach((s) => io.observe(s));
+</script>
+<script src="shell.js"></script>
+</body>
+</html>

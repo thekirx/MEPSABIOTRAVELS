@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quote details · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .lines .in { height: 42px; font-size: 15px; }
+  .lines td { padding: 10px 8px; }
+  .seg { display: inline-flex; border: 2px solid #dedcd2; border-radius: 10px; overflow: hidden; }
+  .seg span { padding: 8px 12px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .seg span.on { background: var(--char); color: #fff; }
+  .x { color: #9a9da2; font-size: 22px; line-height: 1; }
+  .price { display: grid; grid-template-columns: 1fr 1.1fr; gap: 28px; }
+  .presets { display: flex; gap: 8px; margin-top: 8px; }
+  .presets span { height: 36px; padding: 0 14px; border-radius: 18px; background: #f0efe7; display: inline-flex; align-items: center; font-weight: 700; }
+  .presets span.on { background: var(--char); color: var(--lime); }
+  .sum { background: #f6f5ee; border-radius: 14px; padding: 18px 22px; }
+  .sum div { display: flex; justify-content: space-between; padding: 6px 0; }
+  .sum .big { border-top: 2px solid var(--char); margin-top: 6px; padding-top: 12px; font-size: 18px; font-weight: 700; }
+  .sum .big b { font-family: var(--head); font-size: 34px; }
+  .sum .staff { color: var(--ok); font-weight: 700; border-top: 1px dashed #cfcec4; margin-top: 6px; padding-top: 10px; }
+  .daylist .row { display: grid; grid-template-columns: 70px 110px 1fr 30px; gap: 12px; align-items: center; padding: 8px 0; }
+  .daylist b { font-family: var(--head); font-size: 20px; }
+  .lists { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .lists h3 { font-size: 22px; margin-bottom: 8px; }
+  .lists li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .lists ul { list-style: none; padding: 0; margin: 0 0 12px; }
+</style>
+</head>
+<body data-page="quotes">
+<div id="appbar"></div>
+<main class="page">
+  <a class="back" href="quotation.html">← Quote summary</a>
+  <section class="head-block">
+    <div>
+      <span class="tag">Quote · HTT-Q-2026-0142 · version 1</span>
+      <h1>Tokyo–Osaka for Andrea Reyes</h1>
+      <div class="facts">
+        <div>Status<b>Sent 9 Oct</b></div>
+        <div>Valid until<b>Sat 24 Oct</b></div>
+        <div>Travelers<b>4 people</b></div>
+        <div>Customer pays<b class="num">₱220,000</b></div>
+      </div>
+    </div>
+    <div class="acts"><a class="btn ghost small" href="quotation.html">See Andrea's copy</a><a class="btn lime small" href="booking.html">Accept &amp; book</a></div>
+  </section>
+
+  <div class="detail">
+    <nav class="subnav" aria-label="On this page">
+      <a class="on" href="#trip">Trip</a>
+      <a href="#services">Services <small>4</small></a>
+      <a href="#price">Price</a>
+      <a href="#itinerary">Itinerary <small>6</small></a>
+      <a href="#included">Included</a>
+      <a href="#terms">Terms</a>
+      <a href="#versions">Versions</a>
+    </nav>
+
+    <div class="sections">
+      <section class="sheet" id="trip">
+        <div class="sheet-h"><h2>Trip</h2><span class="note">Changes save as you type</span></div>
+        <div class="form">
+          <div class="field wide"><label>Package</label><div class="in">Tokyo–Osaka 6D5N ▾</div><span class="hint">Picking a package fills in services, itinerary and inclusions.</span></div>
+          <div class="field"><label>Travelers</label><div class="in">4</div></div>
+          <div class="field"><label>Customer</label><div class="in"><a class="linkish" href="customer.html">Andrea Reyes</a></div></div>
+          <div class="field"><label>Departure</label><div class="in">Sat 5 Dec 2026</div></div>
+          <div class="field"><label>Return</label><div class="in">Thu 10 Dec 2026</div><span class="hint">6 days, 5 nights</span></div>
+          <div class="field"><label>Valid until</label><div class="in">Sat 24 Oct 2026</div></div>
+          <div class="field"><label>Handled by</label><div class="in">Katrina Ramos ▾</div></div>
+        </div>
+      </section>
+
+      <section class="sheet" id="services">
+        <div class="sheet-h"><h2>Services</h2><span class="note">Costs and suppliers are staff only</span><span class="right"><a class="btn ghost small" href="#">+ Add service</a></span></div>
+        <table class="t lines">
+          <thead><tr><th>Type</th><th>What</th><th>Supplier</th><th class="r">Cost</th><th>Charged</th><th class="r">Total</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><div class="in">Airfare ▾</div></td><td><div class="in">Round-trip economy airfare</div></td><td><div class="in">Skyline Wings</div></td><td class="r"><div class="in num" style="justify-content:flex-end">20,000</div></td><td><span class="seg"><span class="on">Per person</span><span>Once</span></span></td><td class="r num"><b>₱80,000</b></td><td class="x">×</td></tr>
+            <tr><td><div class="in">Hotel ▾</div></td><td><div class="in">Tokyo &amp; Osaka · 5 nights, twin</div></td><td><div class="in">Maple Stays</div></td><td class="r"><div class="in num" style="justify-content:flex-end">15,000</div></td><td><span class="seg"><span class="on">Per person</span><span>Once</span></span></td><td class="r num"><b>₱60,000</b></td><td class="x">×</td></tr>
+            <tr><td><div class="in">Tour ▾</div></td><td><div class="in">Guided tours and entry fees</div></td><td><div class="in">Wanderlight Tours</div></td><td class="r"><div class="in num" style="justify-content:flex-end">7,500</div></td><td><span class="seg"><span class="on">Per person</span><span>Once</span></span></td><td class="r num"><b>₱30,000</b></td><td class="x">×</td></tr>
+            <tr><td><div class="in">Transfer ▾</div></td><td><div class="in">Private airport and city transfers</div></td><td><div class="in">Haru Mobility</div></td><td class="r"><div class="in num" style="justify-content:flex-end">30,000</div></td><td><span class="seg"><span>Per person</span><span class="on">Once</span></span></td><td class="r num"><b>₱30,000</b></td><td class="x">×</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="5">Our cost</td><td class="r num">₱200,000</td><td></td></tr></tfoot>
+        </table>
+      </section>
+
+      <section class="sheet" id="price">
+        <div class="sheet-h"><h2>Price</h2></div>
+        <div class="price">
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="field"><label>Markup</label><div class="in" style="max-width:160px">10 %</div><div class="presets"><span>8%</span><span class="on">10%</span><span>12%</span><span>15%</span></div></div>
+            <div class="field"><label>Discount</label><div class="in" style="max-width:200px">₱ 0</div><span class="hint">Can't be negative or more than the total.</span></div>
+            <div class="field"><label>Payment plan</label><div class="in">30% deposit, balance 30 days before departure ▾</div></div>
+          </div>
+          <div class="sum">
+            <div><span>Our cost</span><b class="num">₱200,000.00</b></div>
+            <div><span>Markup 10%</span><b class="num">+ ₱20,000.00</b></div>
+            <div><span>Discount</span><b class="num">− ₱0.00</b></div>
+            <div class="big"><span>Customer pays</span><b class="num">₱220,000.00</b></div>
+            <div><span>Per person</span><b class="num">₱55,000.00</b></div>
+            <div><span>Deposit (30%) · within 3 days of yes</span><b class="num">₱66,000.00</b></div>
+            <div><span>Balance · by Thu 5 Nov</span><b class="num">₱154,000.00</b></div>
+            <div class="staff"><span>Our profit (staff only)</span><span class="num">₱20,000.00 · 9.1%</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sheet daylist" id="itinerary">
+        <div class="sheet-h"><h2>Itinerary</h2><span class="right"><a class="btn ghost small" href="#">+ Add day</a></span></div>
+        <div class="row"><b>Day 1</b><span class="muted">Sat 5 Dec</span><div class="in">Arrive in Tokyo · airport transfer and hotel check-in</div><span class="x">×</span></div>
+        <div class="row"><b>Day 2</b><span class="muted">Sun 6 Dec</span><div class="in">Tokyo city tour · Asakusa, Shibuya and Meiji Shrine</div><span class="x">×</span></div>
+        <div class="row"><b>Day 3</b><span class="muted">Mon 7 Dec</span><div class="in">Mt. Fuji day trip · Lake Kawaguchiko</div><span class="x">×</span></div>
+        <div class="row"><b>Day 4</b><span class="muted">Tue 8 Dec</span><div class="in">Travel to Osaka · evening at Dotonbori</div><span class="x">×</span></div>
+        <div class="row"><b>Day 5</b><span class="muted">Wed 9 Dec</span><div class="in">Kyoto discovery · Fushimi Inari and Arashiyama</div><span class="x">×</span></div>
+        <div class="row"><b>Day 6</b><span class="muted">Thu 10 Dec</span><div class="in">Free time · airport transfer and departure</div><span class="x">×</span></div>
+      </section>
+
+      <section class="sheet" id="included">
+        <div class="sheet-h"><h2>Included and not included</h2></div>
+        <div class="lists">
+          <div><h3>Included</h3><ul><li>Round-trip economy airfare <span class="x">×</span></li><li>Twin-sharing hotel accommodation <span class="x">×</span></li><li>Daily breakfast <span class="x">×</span></li><li>Scheduled tours and airport transfers <span class="x">×</span></li></ul><a class="btn ghost small" href="#">+ Add</a></div>
+          <div><h3>Not included</h3><ul><li>Personal expenses <span class="x">×</span></li><li>Travel taxes unless listed <span class="x">×</span></li><li>Visa fees unless listed <span class="x">×</span></li></ul><a class="btn ghost small" href="#">+ Add</a></div>
+        </div>
+      </section>
+
+      <section class="sheet" id="terms">
+        <div class="sheet-h"><h2>Terms on the customer's copy</h2></div>
+        <div class="field"><label>Payment terms</label><div class="in" style="height:auto;padding:12px 14px">30% deposit (₱66,000) confirms the trip. The balance is due 30 days before departure.</div></div>
+        <div class="field" style="margin-top:14px"><label>Fine print</label><div class="in" style="height:auto;padding:12px 14px">Rates subject to availability until ticketed. Valid until Sat 24 Oct 2026.</div></div>
+      </section>
+
+      <section class="sheet" id="versions">
+        <div class="sheet-h"><h2>Versions and history</h2><span class="right"><a class="btn ghost small" href="#">Make version 2</a></span></div>
+        <ul class="timeline">
+          <li><time>9 Oct</time><span><b>Version 1 sent</b> to Andrea · ₱220,000</span></li>
+          <li><time>9 Oct</time><span>Quote created from the Tokyo–Osaka 6D5N package by Katrina Ramos</span></li>
+          <li><time>3 Oct</time><span>Inquiry received on Facebook Messenger</span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>Quote details</strong>Every field of the quote. The simple Quote screen stays the front. <a href="index.html">All mocks →</a></div>
+<script>
+  const links = [...document.querySelectorAll(".subnav a")];
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll(".sections > .sheet").forEach((s) => io.observe(s));
+</script>
+<script src="shell.js"></script>
+</body>
+</html>

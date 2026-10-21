@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>All trips · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .code { width: 52px; height: 52px; border-radius: 10px; background: var(--char); color: #fff; display: grid; place-items: center; font-family: var(--head); font-size: 19px; font-weight: 700; flex-shrink: 0; }
+  .trip { display: flex; align-items: center; gap: 14px; }
+  .paidbar { width: 130px; }
+  .sheet { overflow-x: auto; }
+  .paidbar .meter { height: 6px; margin-top: 6px; }
+  .t td small, .t td b { white-space: nowrap; }
+  .ag { width: 34px; height: 34px; border-radius: 50%; background: #ecebe3; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+</style>
+</head>
+<body data-page="home">
+<div id="appbar"></div>
+<main class="page">
+  <a class="back" href="home.html">← Home</a>
+  <section class="hello" style="margin-bottom:24px"><div><h1>All trips</h1><p>Every booking, what's paid, and what it needs next.</p></div><a class="btn lime" href="inquiries.html">+ New booking from a quote</a></section>
+
+  <section class="stats">
+    <div class="block white"><span class="tag">Trips booked</span><div class="big num">8</div></div>
+    <div class="block white"><span class="tag">Leaving in 30 days</span><div class="big num">4</div></div>
+    <div class="block white"><span class="tag">Still to collect</span><div class="big num">₱634,870</div></div>
+    <div class="block red"><span class="tag">Late</span><div class="big num">₱112,200</div></div>
+  </section>
+
+  <div class="filters">
+    <a class="on" href="#">All <b>8</b></a><a href="#">Needs action <b>6</b></a><a href="#">Leaving in 30 days <b>4</b></a><a href="#">Payment late <b>1</b></a><a href="#">Waiting on suppliers <b>4</b></a>
+    <span class="find">Find a name or place</span>
+  </div>
+
+  <section class="sheet">
+    <table class="t">
+      <thead><tr><th>Trip</th><th>Customer</th><th>Leaves</th><th>Status</th><th class="r">Total</th><th>Paid</th><th>Next step</th><th>Agent</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>All trips</strong>The full list behind "See all trips" on Home. Andrea's row opens the full trip page. <a href="index.html">All mocks →</a></div>
+<script>
+  // Seed bookings b1–b7 plus Andrea's new booking from the demo (b8). Dates relative to Wed 21 Oct 2026.
+  const rows = [
+    ["NRT","Tokyo–Osaka","0088","Andrea Reyes",4,"Sat 5 Dec",45,"Waiting on suppliers",220000,60000,"next","Collect ₱6,000 deposit balance","By Sat 24 Oct","Katrina Ramos",true],
+    ["ICN","Seoul","0081","Miguel Santos",3,"Thu 5 Nov",15,"Confirmed",85250,25575,"late","Issue airfare ticket","Hold ends tomorrow 5 PM","Katrina Ramos"],
+    ["HKG","Hong Kong","0082","Camille Dela Cruz",4,"Tue 10 Nov",20,"Waiting on suppliers",112200,0,"late","Collect payment","₱112,200 is 7 days late","Nico Flores"],
+    ["SIN","Singapore","0083","Paolo Mendoza",2,"Sun 15 Nov",25,"Confirmed",62700,18810,"wait","Chase visa papers","3 of 7 missing","Katrina Ramos"],
+    ["ENI","El Nido","0084","Sofia Lim",3,"Fri 20 Nov",30,"Waiting on suppliers",90200,27060,"wait","Confirm with suppliers","0 of 4 confirmed","Nico Flores"],
+    ["MPH","Boracay","0085","Rafael Garcia",4,"Wed 25 Nov",35,"Confirmed",118800,35640,"ok","On track","Balance due Sun 22 Nov","Katrina Ramos"],
+    ["NRT","Tokyo–Osaka","0086","Bianca Navarro",2,"Mon 30 Nov",40,"Waiting on suppliers",66000,19800,"wait","Confirm with suppliers","0 of 4 confirmed","Nico Flores"],
+    ["ICN","Seoul","0087","Gabriel Tan",3,"Sat 5 Dec",45,"Confirmed",95150,28545,"ok","On track","Balance due Wed 2 Dec","Katrina Ramos"],
+  ];
+  const peso = (n) => "₱" + n.toLocaleString("en-PH");
+  document.getElementById("rows").innerHTML = rows.map(([code, place, ref, cust, pax, dep, days, status, total, paid, lvl, step, detail, agent, link]) => {
+    const pct = Math.round(paid / total * 100);
+    return `<tr class="click" onclick="location.href='${link ? "trip-details.html" : "#"}'">
+      <td><div class="trip"><span class="code">${code}</span><div><b>${place}</b><small>HTT-B-2026-${ref}</small></div></div></td>
+      <td><b>${cust}</b><small>${pax} people</small></td>
+      <td><b>${dep}</b><small>in ${days} days</small></td>
+      <td><span class="chip ${status === "Confirmed" ? "ok" : "wait"}">${status}</span></td>
+      <td class="r num"><b>${peso(total)}</b></td>
+      <td class="paidbar"><span class="num">${peso(paid)} · ${pct}%</span><div class="meter ${paid === 0 ? "red" : ""}"><span style="width:${Math.max(pct, 3)}%"></span></div></td>
+      <td><span class="chip ${lvl}">${step}</span><small style="margin-top:4px">${detail}</small></td>
+      <td><span class="ag" title="${agent}">${agent.split(" ").map(w=>w[0]).join("")}</span></td>
+    </tr>`;
+  }).join("");
+</script>
+<script src="shell.js"></script>
+</body>
+</html>

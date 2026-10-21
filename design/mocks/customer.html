@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Andrea Reyes · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .av { width: 84px; height: 84px; border-radius: 50%; background: var(--lime); color: var(--ink); display: grid; place-items: center; font-family: var(--head); font-size: 36px; font-weight: 700; flex-shrink: 0; }
+  .head-block { align-items: center; }
+  .note-item { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .note-item:last-of-type { border-bottom: 0; }
+  .note-item small { display: block; color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .compose { display: flex; gap: 10px; margin-top: 14px; }
+  .compose .in { flex: 1; }
+</style>
+</head>
+<body data-page="inquiries">
+<div id="appbar"></div>
+<main class="page">
+  <a class="back" href="inquiries.html">← People asking</a>
+  <section class="head-block">
+    <span class="av">AR</span>
+    <div>
+      <span class="tag">Customer · since 22 Aug 2026</span>
+      <h1>Andrea Reyes</h1>
+      <div class="facts">
+        <div>Came from<b>Facebook Messenger</b></div>
+        <div>Trips<b>1 booked</b></div>
+        <div>Spent<b class="num">₱220,000</b></div>
+        <div>Still owes<b class="num">₱160,000</b></div>
+      </div>
+    </div>
+    <div class="acts"><a class="btn ghost small" href="#notes">Add note</a><a class="btn lime small" href="quote-details.html">New quote</a></div>
+  </section>
+
+  <div class="detail">
+    <nav class="subnav" aria-label="On this page">
+      <a class="on" href="#contact">Contact</a>
+      <a href="#request">Trip request</a>
+      <a href="#quotes">Quotes <small>1</small></a>
+      <a href="#trips">Trips <small>1</small></a>
+      <a href="#money">Payments</a>
+      <a href="#notes">Notes <small>2</small></a>
+    </nav>
+    <div class="sections">
+      <section class="sheet" id="contact">
+        <div class="sheet-h"><h2>Contact</h2><span class="right"><a class="btn ghost small" href="#">Edit</a></span></div>
+        <div class="kv">
+          <div>Mobile<b>0900 000 0001</b></div>
+          <div>Email<b>andrea.reyes@example.com</b></div>
+          <div>City<b>Quezon City</b></div>
+          <div>Came from<b>Facebook Messenger</b><small class="muted">Logged by hand</small></div>
+          <div>Handled by<b>Katrina Ramos</b></div>
+          <div>Customer since<b>22 Aug 2026</b></div>
+        </div>
+      </section>
+
+      <section class="sheet" id="request">
+        <div class="sheet-h"><h2>Trip request</h2><span class="right"><span class="chip ok">Won · booked 21 Oct</span></span></div>
+        <div class="kv">
+          <div>Destination<b>Japan</b></div>
+          <div>When<b>December 2026</b></div>
+          <div>People<b>4</b></div>
+          <div>Budget<b class="num">₱220,000</b></div>
+          <div>First contact<b>3 Oct 2026</b></div>
+          <div>Last talked<b>21 Oct 2026</b></div>
+        </div>
+      </section>
+
+      <section class="sheet" id="quotes">
+        <div class="sheet-h"><h2>Quotes</h2></div>
+        <table class="t">
+          <thead><tr><th>Quote</th><th>Trip</th><th>Sent</th><th>Status</th><th class="r">Price</th></tr></thead>
+          <tbody><tr class="click" onclick="location.href='quote-details.html'"><td><b>HTT-Q-2026-0142</b><small>Version 1</small></td><td>Tokyo–Osaka 6D5N · 4 people</td><td>9 Oct</td><td><span class="chip ok">Accepted 21 Oct</span></td><td class="r num"><b>₱220,000</b></td></tr></tbody>
+        </table>
+      </section>
+
+      <section class="sheet" id="trips">
+        <div class="sheet-h"><h2>Trips</h2></div>
+        <table class="t">
+          <thead><tr><th>Booking</th><th>Trip</th><th>Leaves</th><th>Next step</th><th class="r">Still owes</th></tr></thead>
+          <tbody><tr class="click" onclick="location.href='trip-details.html'"><td><b>HTT-B-2026-0088</b></td><td>Tokyo–Osaka · 4 people</td><td>Sat 5 Dec<small>in 45 days</small></td><td><span class="chip next">Collect ₱6,000 by Sat 24 Oct</span></td><td class="r num"><b>₱160,000</b></td></tr></tbody>
+        </table>
+      </section>
+
+      <section class="sheet" id="money">
+        <div class="sheet-h"><h2>Payments</h2></div>
+        <table class="t">
+          <thead><tr><th>Date</th><th>For</th><th>Method</th><th>Receipt no.</th><th class="r">Amount</th></tr></thead>
+          <tbody><tr><td>Wed 21 Oct</td><td>HTT-B-2026-0088 deposit</td><td>Bank transfer</td><td>DEMO-P-107</td><td class="r num"><b>₱60,000.00</b></td></tr></tbody>
+          <tfoot><tr><td colspan="4">Still owes across all trips</td><td class="r num">₱160,000.00</td></tr></tfoot>
+        </table>
+      </section>
+
+      <section class="sheet" id="notes">
+        <div class="sheet-h"><h2>Notes</h2></div>
+        <div class="note-item">Wants a flexible deposit plan. Paid ₱60,000 today, the rest of the deposit by Saturday.<small>Katrina Ramos · 21 Oct</small></div>
+        <div class="note-item">Interested in Tokyo–Osaka for the family. Requested a flexible deposit plan.<small>Katrina Ramos · 3 Oct</small></div>
+        <div class="compose"><div class="field" style="flex:1"><div class="in ph">Write a note for the team…</div></div><a class="btn small" href="#">Save note</a></div>
+      </section>
+    </div>
+  </div>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>Customer profile</strong>One page per customer: contact, request, quotes, trips, payments and notes. <a href="index.html">All mocks →</a></div>
+<script>
+  const links = [...document.querySelectorAll(".subnav a")];
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll(".sections > .sheet").forEach((s) => io.observe(s));
+</script>
+<script src="shell.js"></script>
+</body>
+</html>

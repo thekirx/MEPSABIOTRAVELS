@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trip · MEP Sabio Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="mock.css" />
+<style>
+  .top { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  .head { flex-direction: row !important; align-items: flex-end; min-height: 250px; }
+  .head h1 { font-size: 76px; }
+  .head p { font-size: 19px; margin-top: 6px; }
+  .head .days { margin-left: auto; text-align: right; }
+  .head .days b { display: block; font-family: var(--head); font-size: 110px; font-weight: 700; line-height: .85; color: var(--lime); }
+  .head .days span { color: #c9cbcf; font-weight: 600; }
+  .next h3 { font-size: 34px; }
+  .next .btn { margin-top: auto; }
+
+  .split { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; }
+  .list { background: #fff; border-radius: var(--r); padding: 8px 28px; }
+  .item { width: 100%; display: flex; align-items: center; gap: 18px; padding: 18px 0; font-size: 19px; background: none; border: 0; text-align: left; color: var(--ink); }
+  button.item:hover span.t { text-decoration: underline; }
+  .item + .item { border-top: 2px solid var(--cream); }
+  .item .box { width: 32px; height: 32px; border-radius: 8px; border: 3px solid #cfcec4; flex-shrink: 0; display: grid; place-items: center; font-weight: 800; }
+  .item.done .box { background: var(--char); border-color: var(--char); color: var(--lime); }
+  .item.done span.t { color: var(--muted); text-decoration: line-through; }
+  .item.now .box { border-color: var(--ink); }
+  .item.now span.t { font-weight: 700; }
+  .item .when { margin-left: auto; font-size: 16px; color: var(--muted); font-weight: 600; }
+  .item.now .when { color: var(--ink); background: var(--lime); padding: 2px 10px; border-radius: 12px; }
+  .money .big { font-size: 56px; }
+  .money .meter { margin: 6px 0 4px; }
+  .money .acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .money .acts .btn { margin: 0; }
+</style>
+</head>
+<body data-page="home">
+<div id="appbar"></div>
+<main class="page">
+  <a class="back" href="home.html">← Home</a>
+  <section class="top">
+    <div class="block char head">
+      <div><span class="tag">Booked · price locked</span><h1>Tokyo–Osaka</h1><p>Andrea Reyes · 4 people · Dec 5 to 10</p></div>
+      <div class="days"><b>45</b><span>days to go</span></div>
+    </div>
+    <div id="next" aria-live="polite"></div>
+  </section>
+
+  <div class="title"><h2>Before they fly</h2><span id="done" style="font-weight:700;color:var(--muted)"></span><a href="trip-details.html">See full trip details →</a></div>
+  <section class="split">
+    <div class="list" id="list"></div>
+    <div class="block white money" id="money"></div>
+  </section>
+</main>
+<div id="footer"></div>
+<div class="mock-note"><button onclick="this.parentElement.remove()" aria-label="Close note">✕</button><strong>Trip · working</strong>Press the lime block's button, or any open step in the checklist. Payments can't go over what's owed. <a href="index.html">All mocks →</a></div>
+<script src="app.js"></script>
+<script>
+  const S = MEP.state;
+  // If nobody pressed "Yes, book it", show the demo story: booked, ₱60,000 of the deposit paid.
+  const T = S.trip || { total: 220000, markup: 10, paid: 60000, payments: [{ amt: 60000, how: "Bank transfer", when: "21 Oct" }], suppliers: false, passports: false, tickets: false };
+  const save = () => { S.trip = T; MEP.save(); };
+  const dep = () => Math.round(T.total * 0.3);
+
+  function steps() {
+    return [
+      { key: "book", t: "Book the trip", done: true },
+      { key: "deposit", t: "Get the full deposit", done: T.paid >= dep(), when: "By Sat 24 Oct" },
+      { key: "suppliers", t: "Confirm flight, hotel, tours and car", done: T.suppliers, when: "0 of 4" },
+      { key: "passports", t: "Get everyone's passport details", done: T.passports, when: "1 of 4" },
+      { key: "balance", t: "Get the rest of the money", done: T.paid >= T.total, when: "By Thu 5 Nov" },
+      { key: "tickets", t: "Issue the plane tickets", done: T.tickets, when: "Before Dec 5" },
+    ];
+  }
+
+  function nextBlock(s) {
+    const left = T.total - T.paid;
+    switch (s && s.key) {
+      case "deposit": {
+        const need = dep() - T.paid;
+        return ["Do this next · by Sat 24 Oct", T.paid ? `Collect ${MEP.peso(need)} more for the deposit` : `Collect the ${MEP.peso(dep())} deposit`, T.paid ? `Andrea paid ${MEP.peso(T.paid)} of ${MEP.peso(dep())}.` : "30% holds the trip.", "Record payment", pay];
+      }
+      case "suppliers": return ["Do this next", "Confirm flight, hotel, tours and car", "Ask each supplier and type their reference.", "Add references", suppliers];
+      case "passports": return ["Do this next", "Get everyone's passport details", "Andrea's is in. 3 people to go.", "Add travelers", passports];
+      case "balance": return ["Do this next · by Thu 5 Nov", `Collect the ${MEP.peso(left)} balance`, "30 days before they fly.", "Record payment", pay];
+      case "tickets": return ["Do this next · before Dec 5", "Issue the plane tickets", "Type the airline's reference to finish.", "Record tickets", tickets];
+      default: return null;
+    }
+  }
+
+  function render() {
+    const st = steps(), first = st.find((s) => !s.done), nb = nextBlock(first);
+    const box = document.getElementById("next");
+    if (nb) {
+      box.className = "block lime next";
+      box.innerHTML = `<span class="tag">${nb[0]}</span><h3>${nb[1]}</h3><p>${nb[2]}</p><button class="btn" id="nextBtn">${nb[3]}</button>`;
+      document.getElementById("nextBtn").onclick = nb[4];
+    } else {
+      box.className = "block done next";
+      box.innerHTML = `<span class="tag">✓ All done</span><h3>Ready to fly</h3><p>Every step is finished. Have a great trip, Andrea!</p>`;
+    }
+    document.getElementById("done").textContent = `${st.filter((s) => s.done).length} of 6 done`;
+    document.getElementById("list").innerHTML = st.map((s) => {
+      const cls = s.done ? "done" : s === first ? "now" : "";
+      const when = s.done ? "" : `<span class="when">${s.when}</span>`;
+      return s.done || s.key === "book"
+        ? `<div class="item ${cls}"><span class="box">${s.done ? "✓" : ""}</span><span class="t">${s.t}</span>${when}</div>`
+        : `<button class="item ${cls}" data-k="${s.key}"><span class="box"></span><span class="t">${s.t}</span>${when}</button>`;
+    }).join("");
+    document.querySelectorAll("button.item").forEach((b) => (b.onclick = { deposit: pay, balance: pay, suppliers, passports, tickets }[b.dataset.k]));
+
+    const left = T.total - T.paid, pct = Math.round((T.paid / T.total) * 100);
+    document.getElementById("money").innerHTML = `<span class="tag">Money</span><div class="big num">${MEP.peso(T.paid)}</div>
+      <p style="opacity:1;color:var(--muted)">paid of ${MEP.peso(T.total)}</p><div class="meter"><span style="width:${pct}%"></span></div>
+      <p style="opacity:1">${left > 0 ? `${MEP.peso(left)} still to collect` : "Paid in full ✓"}</p>
+      <div class="acts">${left > 0 ? '<button class="btn small" id="payBtn">Record payment</button>' : ""}<a class="btn ghost small" href="trip-details.html#payments">See payments</a></div>`;
+    const pb = document.getElementById("payBtn");
+    if (pb) pb.onclick = pay;
+  }
+
+  function pay() {
+    const left = T.total - T.paid, need = Math.max(dep() - T.paid, 0);
+    MEP.dialog({
+      title: "Record a payment",
+      intro: `Andrea still owes <b>${MEP.peso(left)}</b>${need ? ` · ${MEP.peso(need)} finishes the deposit` : ""}.`,
+      fields: [
+        { id: "amt", label: "Amount received (₱)", type: "number", value: String(need || left), hint: `Up to ${MEP.peso(left)} · change it if she paid less` },
+        { id: "how", label: "Paid by", type: "select", options: ["Bank transfer", "Cash", "GCash", "Card"], value: "Bank transfer" },
+      ],
+      submit: "Save payment",
+      validate: (v) => {
+        const a = MEP.amount(v.amt);
+        if (!String(v.amt).trim()) return { amt: "Type the amount." };
+        if (isNaN(a)) return { amt: "Use numbers only, with up to 2 decimals." };
+        if (a <= 0) return { amt: "The amount must be more than ₱0." };
+        if (a > left) return { amt: `That's more than she owes (${MEP.peso(left)}).` };
+        return {};
+      },
+      onSubmit: (v) => { const a = MEP.amount(v.amt); T.paid += a; T.payments.push({ amt: a, how: v.how, when: "Today" }); save(); render(); MEP.toast(`${MEP.peso(a)} recorded. No money moves in this demo.`); },
+    });
+  }
+  function suppliers() {
+    MEP.dialog({
+      title: "Supplier references",
+      intro: "Type each supplier's reference to mark it confirmed (recorded by hand).",
+      fields: [["air", "Airfare · Skyline Wings"], ["hotel", "Hotel · Maple Stays"], ["tour", "Tours · Wanderlight Tours"], ["car", "Transfers · Haru Mobility"]].map(([id, label]) => ({ id, label, placeholder: "e.g. SIM-1234" })),
+      submit: "Mark all confirmed",
+      validate: (v) => Object.fromEntries(Object.entries(v).filter(([, x]) => !x.trim()).map(([k]) => [k, "Type the reference, or ask the supplier for one."])),
+      onSubmit: () => { T.suppliers = true; save(); render(); MEP.toast("All 4 suppliers confirmed."); },
+    });
+  }
+  function passports() {
+    MEP.dialog({
+      title: "Traveler names",
+      intro: "Use names exactly as they appear on each passport.",
+      fields: [2, 3, 4].map((n) => ({ id: "g" + n, label: `Traveler ${n}`, placeholder: "Full name" })),
+      submit: "Save travelers",
+      validate: (v) => Object.fromEntries(Object.entries(v).filter(([, x]) => x.trim().length < 2).map(([k]) => [k, "Type this traveler's full name."])),
+      onSubmit: () => { T.passports = true; save(); render(); MEP.toast("Traveler details saved."); },
+    });
+  }
+  function tickets() {
+    MEP.dialog({
+      title: "Issue plane tickets",
+      intro: T.paid < T.total ? "Heads up: Andrea hasn't paid in full yet." : "Andrea has paid in full.",
+      fields: [{ id: "ref", label: "Airline reference", placeholder: "e.g. SIM-TKT-7788", hint: "It's on the airline's confirmation." }],
+      submit: "Mark tickets issued",
+      validate: (v) => (!v.ref.trim() ? { ref: "Type the airline's reference first. Tickets can't be marked issued without it." } : {}),
+      onSubmit: () => { T.tickets = true; save(); render(); MEP.toast("Tickets recorded (simulated)."); },
+    });
+  }
+
+  render();
+  if (location.hash === "#new") { MEP.toast(`Booking created. Price locked at ${MEP.peso(T.total)}.`); history.replaceState(null, "", location.pathname); }
+</script>
+<script src="shell.js"></script>
+</body>
+</html>
