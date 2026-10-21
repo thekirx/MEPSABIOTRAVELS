@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { Modal, notify, Field } from "@/components/shared";
+import { permissions } from "@/domain/roles";
+import { persistGate } from "@/store/persist-gate";
+import type { DemoData } from "@/domain/types";
 const nav = [
   ["/dashboard", "Home"],
   ["/inquiries", "People asking"],
@@ -27,6 +30,8 @@ const pageNames: Record<string, string> = {
   visas: "Visas",
   settings: "Settings",
   customers: "Customer",
+  salary: "Salary",
+  approve: "Your quotation",
 };
 export function Shell({ children }: { children: React.ReactNode }) {
   const s = useTravelStore(),
@@ -51,8 +56,28 @@ export function Shell({ children }: { children: React.ReactNode }) {
         setReset(true);
       }
     };
+    // Another tab (e.g. the client approval page) saved changes: reload them,
+    // so the team view updates without a refresh.
+    const sync = (e: StorageEvent) => {
+      if (e.key !== useTravelStore.persist.getOptions().name || !e.newValue)
+        return;
+      try {
+        const saved = JSON.parse(e.newValue) as { state?: Partial<DemoData> };
+        if (!saved.state) return;
+        persistGate.paused = true;
+        useTravelStore.setState(saved.state);
+      } catch {
+        // Ignore unreadable data from another tab.
+      } finally {
+        persistGate.paused = false;
+      }
+    };
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("keydown", handler);
+      window.removeEventListener("storage", sync);
+    };
   }, []);
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -60,6 +85,42 @@ export function Shell({ children }: { children: React.ReactNode }) {
     });
     return () => cancelAnimationFrame(frame);
   }, [path, s.settings.agencyName, s.hydrated]);
+  const me = s.agents.find((a) => a.id === s.currentAgentId) ?? s.agents[0],
+    can = permissions(me?.role);
+  const links = can.canSeeSalary
+    ? [...nav, ["/salary", "Salary"] as const]
+    : nav;
+  if (path.startsWith("/approve"))
+    return (
+      <div className="client-shell">
+        <header className="client-bar no-print">
+          <div className="client-bar-in">
+            <AgencyLogo compact />
+            <span className="demo">
+              DEMO <span>— no real payment</span>
+            </span>
+          </div>
+        </header>
+        <main className="client-main">
+          {s.hydrated ? (
+            children
+          ) : (
+            <div className="section-stack" aria-label="Loading quotation">
+              <Skeleton className="h-16 w-64" />
+              <Skeleton className="h-80 w-full" />
+            </div>
+          )}
+        </main>
+        <footer className="client-foot">
+          <span>
+            <b>{s.settings.agencyName}</b> · reservations@meptravel.com ·
+            mepsabiotravel.com
+          </span>
+          <span>Demo page. No real booking or payment is made.</span>
+        </footer>
+        <Toaster position="bottom-center" />
+      </div>
+    );
   const q = search.toLowerCase().trim();
   const results = q
     ? [
@@ -106,7 +167,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <AgencyLogo compact />
           </Link>
           <nav className="topnav" aria-label="Main">
-            {nav.map(([href, label]) => (
+            {links.map(([href, label]) => (
               <Link
                 key={href}
                 href={href}
@@ -148,10 +209,35 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 aria-expanded={menu}
                 onClick={() => setMenu(!menu)}
               >
-                IS
+                {me?.initials ?? "?"}
               </button>
               {menu && (
                 <div className="account-dropdown">
+                  <p className="switch-label">Signed in as (demo)</p>
+                  <div role="radiogroup" aria-label="Switch staff member">
+                    {s.agents.map((a) => (
+                      <button
+                        key={a.id}
+                        role="radio"
+                        aria-checked={a.id === me?.id}
+                        className="switch-staff"
+                        onClick={() => {
+                          notify(
+                            () => s.setCurrentAgent(a.id),
+                            `Now using the portal as ${a.name} (${a.role})`,
+                          );
+                          setMenu(false);
+                        }}
+                      >
+                        <span className="mini-av">{a.initials}</span>
+                        <span>
+                          {a.name}
+                          <small>{a.role}</small>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <hr />
                   <Link href="/settings" onClick={() => setMenu(false)}>
                     Settings
                   </Link>

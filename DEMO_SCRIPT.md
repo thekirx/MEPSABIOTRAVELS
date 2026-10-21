@@ -1,5 +1,18 @@
 # Seven-minute presenter script
 
+## Pitch story (5 minutes, for agency owners)
+
+Reset first (Settings → Reset demo data). Use two browser windows in the same browser: the staff portal, and a narrow window or phone-size view for the client.
+
+1. **Quote:** open Andrea's quote (Quotes → HTT-Q-2026-0142). Show the flights box with the screenshot, travel insurance already included, and the ₱3,500-per-person markup giving ₱220,000.
+2. **Send:** click **Email Andrea for approval** and point out the approval link in the message. Then click **Preview client page ↗**.
+3. **Client approves:** in the client window, tap **Approve & pay**, pick GCash or Maya, tick the box and pay. The screen shows "You're booked, Andrea!" with the booking reference and receipt.
+4. **Team sees it:** back in the staff window, Andrea's quote job has disappeared from Home without a refresh.
+5. **Ticketing:** account menu → **Luis Tan (Ticketing)**. Home shows only "Issue Andrea's plane ticket" (due 5 PM tomorrow). Open any quote: costs and profit are hidden.
+6. **Owner:** switch to **Isabel Santos (Owner)** → **Salary**. Katrina's payslip already includes commission from Andrea's booking. Click **Approve payday**.
+
+Close with the roadmap: this demo runs in one browser; the real portal adds logins, a shared database, real email and real payments.
+
 ## Before the meeting
 
 Use Chromium at 1440×900 and 100% zoom. Open `/dashboard`, then avatar → Settings → Reset demo data → Reset demo. Reset restores **MEP Sabio Travel** branding and dates relative to today. All people, prices, payments and references are synthetic demo records. Source “Facebook Messenger” is entered manually; there is no Facebook integration.

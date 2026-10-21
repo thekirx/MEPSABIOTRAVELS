@@ -15,8 +15,10 @@ import { QuoteTripSection, QuoteServicesSection } from "./quotation-sections";
 import { QuotationDocument } from "./quotation-document";
 import { QuoteFlightsSection } from "./quote-flights";
 import { MarkupPicker } from "./markup-picker";
+import { useMe } from "@/store/use-me";
 export function QuotationDetails() {
   const s = useTravelStore(),
+    { canPrice, canSeeMargins } = useMe(),
     params = useSearchParams();
   const q = s.quotations.find((q) => q.id === params.get("id"));
   if (!q) return <EmptyState text="Quotation not found." />;
@@ -91,19 +93,21 @@ export function QuotationDetails() {
           <Sheet id="price" title="Price">
             <div className="form-grid">
               <div className="section-stack">
-                <Field label="Markup per person">
-                  <MarkupPicker
-                    q={q}
-                    locked={locked}
-                    onChange={(v) => update({ markupPerPaxCentavos: v })}
-                  />
-                </Field>
+                {canSeeMargins && (
+                  <Field label="Markup per person">
+                    <MarkupPicker
+                      q={q}
+                      locked={locked || !canPrice}
+                      onChange={(v) => update({ markupPerPaxCentavos: v })}
+                    />
+                  </Field>
+                )}
                 <Field label="Discount (PHP)">
                   <Input
                     type="number"
                     min="0"
                     value={q.discountCentavos / 100}
-                    disabled={locked}
+                    disabled={locked || !canPrice}
                     onChange={(e) =>
                       update({
                         discountCentavos: Math.round(
@@ -123,11 +127,15 @@ export function QuotationDetails() {
               <div className="quote-price-summary">
                 <KeyValues
                   items={[
-                    { label: "Our cost", value: money(t.netCost) },
-                    {
-                      label: `Markup (${money(markupPerPax(q))} × ${q.paxCount})`,
-                      value: money(t.markup),
-                    },
+                    ...(canSeeMargins
+                      ? [
+                          { label: "Our cost", value: money(t.netCost) },
+                          {
+                            label: `Markup (${money(markupPerPax(q))} × ${q.paxCount})`,
+                            value: money(t.markup),
+                          },
+                        ]
+                      : []),
                     { label: "Discount", value: money(q.discountCentavos) },
                     { label: "Customer pays", value: money(t.selling) },
                     { label: "Per person", value: money(t.perPax) },
@@ -137,9 +145,11 @@ export function QuotationDetails() {
                     },
                   ]}
                 />
-                <p className="staff-only positive-text">
-                  Our profit: {money(t.grossProfit)}
-                </p>
+                {canSeeMargins && (
+                  <p className="staff-only positive-text">
+                    Our profit: {money(t.grossProfit)}
+                  </p>
+                )}
               </div>
             </div>
           </Sheet>

@@ -12,6 +12,18 @@ export const checklistItems = [
   "Travel itinerary",
   "Proof of accommodation",
 ];
+/** Illustrative monthly pay and commission rules for the demo staff. */
+export const demoPayRules: Record<
+  string,
+  { monthlyBaseCentavos: number; commissionPct: number }
+> = {
+  a2: { monthlyBaseCentavos: 2200000, commissionPct: 5 },
+  a3: { monthlyBaseCentavos: 2000000, commissionPct: 5 },
+  a4: { monthlyBaseCentavos: 2000000, commissionPct: 0 },
+  a5: { monthlyBaseCentavos: 1800000, commissionPct: 0 },
+};
+const demoPay = (list: DemoData["agents"]) =>
+  list.map((a) => ({ ...a, ...demoPayRules[a.id] }));
 export function buildSeed(today = new Date()): DemoData {
   const day = startOfDay(today);
   const date = (offset: number) => format(addDays(day, offset), "yyyy-MM-dd");
@@ -43,10 +55,12 @@ export function buildSeed(today = new Date()): DemoData {
   ];
   const agents: DemoData["agents"] = [
     { id: "a1", name: "Isabel Santos", initials: "IS", role: "Owner" },
-    { id: "a2", name: "Katrina Ramos", initials: "KR", role: "Sales" },
-    { id: "a3", name: "Nico Flores", initials: "NF", role: "Sales" },
-    { id: "a4", name: "Luis Tan", initials: "LT", role: "Ticketing" },
-    { id: "a5", name: "Mara Cruz", initials: "MC", role: "Visa" },
+    ...demoPay([
+      { id: "a2", name: "Katrina Ramos", initials: "KR", role: "Sales" },
+      { id: "a3", name: "Nico Flores", initials: "NF", role: "Sales" },
+      { id: "a4", name: "Luis Tan", initials: "LT", role: "Ticketing" },
+      { id: "a5", name: "Mara Cruz", initials: "MC", role: "Visa" },
+    ]),
   ];
   const destinations = [
     "Japan",
@@ -294,6 +308,17 @@ export function buildSeed(today = new Date()): DemoData {
   return {
     schemaVersion,
     settings: { agencyName: "MEP Sabio Travel", logoText: "MEP" },
+    currentAgentId: "a1",
+    cashAdvances: [
+      {
+        id: "adv1",
+        agentId: "a2",
+        amountCentavos: 100000,
+        date: date(0),
+        note: "Cash advance (demo)",
+      },
+    ],
+    paydays: [],
     agents,
     customers,
     leads,

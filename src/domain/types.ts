@@ -48,6 +48,7 @@ export const sources = [
 export const methods = [
   "Bank Transfer",
   "GCash",
+  "Maya",
   "Cash",
   "Card (manual)",
 ] as const;
@@ -65,6 +66,39 @@ export type Agent = {
   name: string;
   initials: string;
   role: "Sales" | "Ticketing" | "Visa" | "Owner";
+  /** Monthly base pay in centavos (demo payroll). */
+  monthlyBaseCentavos?: number;
+  /** Commission as a percent of profit on bookings this person closed. */
+  commissionPct?: number;
+};
+export type CashAdvance = {
+  id: string;
+  agentId: string;
+  amountCentavos: number;
+  date: string;
+  note: string;
+};
+/** An approved payday, keyed like "2026-10-2" (second half of October). */
+export type PayslipRecord = {
+  agentId: string;
+  base: number;
+  commission: number;
+  commissionBookings: { id: string; ref: string; profit: number }[];
+  gross: number;
+  sss: number;
+  philhealth: number;
+  pagibig: number;
+  tax: number;
+  advances: number;
+  deductions: number;
+  net: number;
+};
+export type Payday = {
+  period: string;
+  approvedAt: string;
+  approvedBy: string;
+  /** Payslips frozen at approval, so later pay changes don't rewrite them. */
+  slips: PayslipRecord[];
 };
 export type Customer = {
   id: string;
@@ -130,6 +164,8 @@ export type Quotation = {
   flightDetails?: string;
   /** Screenshots of the flight details (compressed image data URLs). */
   flightScreenshots?: string[];
+  /** Set when the client approved through their approval link. */
+  clientApprovedAt?: string;
   discountCentavos: number;
   validUntil: string;
   status: (typeof quoteStatuses)[number];
@@ -198,7 +234,11 @@ export type VisaCase = {
 export type DemoData = {
   schemaVersion: number;
   settings: { agencyName: string; logoText: string; logoDataUrl?: string };
+  /** Who is using the portal right now (demo staff switcher). */
+  currentAgentId: string;
   agents: Agent[];
+  cashAdvances: CashAdvance[];
+  paydays: Payday[];
   customers: Customer[];
   leads: Lead[];
   packages: Package[];

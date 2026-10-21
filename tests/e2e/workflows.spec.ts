@@ -541,3 +541,59 @@ test("quote flow: flight screenshot on the customer copy, insurance and email fo
     /^mailto:andrea\.reyes@example\.com\?subject=/,
   );
 });
+
+test("pitch: client approves and pays, Ticketing gets the job, owner sees commission", async ({
+  page,
+}) => {
+  await page.goto("/approve?id=q1");
+  await expect(page.getByTestId("client-total")).toHaveText("₱220,000.00");
+  await page
+    .getByRole("button", { name: "Approve & pay ₱66,000.00 deposit" })
+    .click();
+  await page.getByRole("button", { name: "Pay ₱66,000.00 (demo)" }).click();
+  await expect(
+    page.getByText("Please confirm you've read the trip details."),
+  ).toBeVisible();
+  await page.getByLabel("Maya").check();
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Pay ₱66,000.00 (demo)" }).click();
+  await expect(
+    page.getByRole("heading", { name: "You're booked, Andrea!" }),
+  ).toBeVisible();
+  await expect(page.getByText("₱66,000.00 · Maya")).toBeVisible();
+
+  await page.goto("/bookings/view?id=b8");
+  await expect(page.getByTestId("booking-balance")).toHaveText("₱154,000.00");
+
+  await page.goto("/dashboard");
+  await page.getByRole("button", { name: "Account menu" }).click();
+  await page.getByRole("radio", { name: /Luis Tan/ }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: /Good (morning|afternoon|evening), Luis/,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Issue Andrea's plane ticket")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Salary" })).toHaveCount(0);
+  await page.goto("/quotations/view?id=q2");
+  await expect(page.getByText("Price set by Sales")).toBeVisible();
+  await expect(page.getByText("We earn")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Account menu" }).click();
+  await page.getByRole("radio", { name: /Isabel Santos/ }).click();
+  await page.getByRole("link", { name: "Salary" }).click();
+  await expect(page.getByTestId("payroll-row")).toHaveCount(4);
+  await page
+    .getByRole("button", { name: "View Katrina Ramos's payslip" })
+    .click();
+  await expect(page.getByTestId("payslip")).toContainText("HTT-B-2026-0088");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Approve payday" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Approve payday" })
+    .click();
+  await expect(
+    page.getByText("Payday approved", { exact: true }),
+  ).toBeVisible();
+});

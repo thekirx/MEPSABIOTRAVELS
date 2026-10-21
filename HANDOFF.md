@@ -2,7 +2,7 @@
 
 > **Reviewing AI: start here.** This file is the current source of truth. Read it fully, then the code. Some older docs are partly out of date (see "Outdated docs" below).
 >
-> State as of commit `1b94eba` on `main` (GitHub: `thekirx/MEPSABIOTRAVELS`, public), 22 Oct 2026.
+> State as of the "pitch demo" commit after `a378a08` on `main` (GitHub: `thekirx/MEPSABIOTRAVELS`, public), 22 Oct 2026.
 
 ## 1. What we need from you
 
@@ -71,6 +71,13 @@ All 25 commits are on `main`; `git log --oneline` lists them.
    - A fictional flight screenshot, `public/demo/flight-options-q1.png`, is attached to the demo quote `q1`.
    - The new tests are in `tests/unit/quote-flow.test.ts`, plus one browser test at the end of `tests/e2e/workflows.spec.ts`.
 
+5. **Pitch demo** (after `a378a08`), see DECISIONS.md "Pitch demo":
+   - **Client approval page** `/approve?id=`: the client reviews the trip and pays the deposit (simulated GCash, Maya, card or bank). The booking is created, the deposit is recorded, and the airfare goes on hold for Ticketing. It is saved as one write.
+   - **Staff switcher** in the account menu, with role-based Home jobs. Costs and profit are hidden from Ticketing and Visa.
+   - **Salary tab** `/salary` (owner only): semi-monthly payroll, commission from closed bookings, SSS, PhilHealth, Pag-IBIG and tax, payslips, and approval that freezes payslips.
+   - Live updates between tabs via `storage` events. Schema version 3.
+   - The 5-minute pitch script is at the top of `DEMO_SCRIPT.md`.
+
 The branch history matters if you compare against older docs. The redesign was built on `redesign/mep`. On 21 Oct that branch was **renamed to `main`**, which replaced the original pre-redesign `main` (`5260908`, not pushed), and `main` was pushed to GitHub.
 
 ## 5. Tech stack and code map
@@ -89,7 +96,7 @@ src/
   app/         thin route pages + globals.css (main stylesheet); styles/print.css (A4 print)
 ```
 
-Routes: `/dashboard` (Home), `/inquiries` (People asking), `/customers/view?id=`, `/quotations`, `/quotations/view?id=`, `/quotations/edit?id=`, `/bookings`, `/bookings/view?id=`, `/bookings/details?id=`, `/payments`, `/visas`, `/settings`.
+Routes: `/approve?id=` (client page, no staff navigation), `/salary` (owner only), `/dashboard` (Home), `/inquiries` (People asking), `/customers/view?id=`, `/quotations`, `/quotations/view?id=`, `/quotations/edit?id=`, `/bookings`, `/bookings/view?id=`, `/bookings/details?id=`, `/payments`, `/visas`, `/settings`.
 Detail pages take IDs in the query string so that records created at runtime work on a static host.
 
 ## 6. Rules the data must follow
@@ -110,10 +117,10 @@ Detail pages take IDs in the query string so that records created at runtime wor
 cd /Users/kiro/Desktop/MEPTRVL   # or a fresh clone
 npm ci
 npm run format:check && npm run lint && npm run typecheck
-npm test                # Vitest. Last known: 27 passed
+npm test                # Vitest. Last known: 36 passed
 npm run build           # writes out/
 npx playwright install chromium
-npm run e2e             # Playwright on out/ at :4173. Last known: 21 passed
+npm run e2e             # Playwright on out/ at :4173. Last known: 22 passed
 ```
 
 Notes:
@@ -136,6 +143,14 @@ Start from a fresh reset in your own browser context (Settings → Reset demo da
 - [ ] Create a new inquiry (default source Email) → new quote: it starts with an airfare line, insurance and ₱1,000 per person markup.
 - [ ] Moving old saved data: put a schema-1 save (with `markupPct`) in LocalStorage, reload, and check that open-quote totals are unchanged and accepted bookings are untouched.
 
+**Pitch demo (also high priority)**
+
+- [ ] Follow the pitch story in `DEMO_SCRIPT.md` end to end. Use two windows to check live updates and that the deposit is never lost.
+- [ ] Client page: the agreement box is required; expired, declined or invalid links; phone bottom bar; paying twice; refreshing during "Processing payment…".
+- [ ] Switch to each staff member: Home jobs by role; Ticketing and Visa never see costs, markup or profit anywhere (quote summary, editor, services table, booking price breakdown, print); Salary is owner only (nav and URL).
+- [ ] Payroll: check a payslip by hand (contributions, tax bracket, commission bookings in the period, cash advance). Approve a payday, then change pay settings: the approved payslips must not change.
+- [ ] Move saved v2 data to v3: records kept, owner selected.
+
 **Rest of the app.** Re-run the journeys in `QA_HANDOFF.md` §"Required browser acceptance journey", using the updated numbers below instead of the old ones:
 
 - Accept `q1` → booking `b8` with 4 travelers, **5 services** (insurance added), deposit ₱66,000 and balance ₱154,000.
@@ -152,10 +167,11 @@ Start from a fresh reset in your own browser context (Settings → Reset demo da
 5. **The 30% deposit is hard-coded** in several places (`actions.ts`, `seed`, `quotation-document.tsx`, `quotation-details.tsx`, `email-approval.tsx`, `selectors.ts`).
 6. **Insurance cost is a placeholder** (₱1,500 per person, supplier "Travel insurer"). There are no real rates or insurer.
 7. **Flight details are free text**, not structured segments (flight number, airports, times, baggage), so they can't be checked, searched or turned into a ticket template.
-8. **The signed-in user is fake**: Home always greets the Owner, the avatar always shows "IS", and the greeting always says "Good morning".
+8. **The staff switcher is not a login**: anyone can switch to the Owner. Roles only change what is shown. The client approval link only works in the same browser.
 9. Edit history records what changed but **not who changed it** (there are no users).
 10. Quote IDs come from the record count (`q${length+1}`). That's fine with no deletion, but it will collide once delete exists or several people create quotes at once.
 11. There is no Google Sheets import or export, and no CSV export of quotes.
+12. **Payroll is an estimate**: fixed 2025 rates, no 13th-month pay, overtime, leave or holiday pay; commission is credited to the booking's assigned agent on the booking date; the owner is not on payroll.
 
 ## 10. Improvement backlog (starting point; please challenge it)
 

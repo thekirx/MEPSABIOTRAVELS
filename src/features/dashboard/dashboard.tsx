@@ -15,6 +15,7 @@ import { ServiceReferenceDialog } from "@/features/bookings/service-reference-di
 import { Modal } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { PaymentDialog } from "@/features/payments/payment-dialog";
+import { greeting, jobTypesFor } from "@/domain/roles";
 function Job({
   job,
   onTicket,
@@ -97,7 +98,8 @@ function Job({
 }
 export function Dashboard() {
   const s = useTravelStore(),
-    jobs = homeJobs(s);
+    me = s.agents.find((a) => a.id === s.currentAgentId) ?? s.agents[0],
+    jobs = homeJobs(s).filter((j) => jobTypesFor[me.role].includes(j.type));
   const [ticket, setTicket] = useState<HomeJob | null>(null),
     [payment, setPayment] = useState<HomeJob | null>(null),
     [all, setAll] = useState(false),
@@ -107,14 +109,15 @@ export function Dashboard() {
       <section className="hello">
         <div>
           <h1>
-            Good morning,{" "}
-            {s.agents.find((a) => a.role === "Owner")?.name.split(" ")[0] ??
-              "there"}
+            {greeting()}, {me.name.split(" ")[0]}
           </h1>
           <p>
             {jobs.length
-              ? `You have ${jobs.length} jobs today.`
-              : "All done for today. Nice work."}
+              ? `You have ${jobs.length} ${jobs.length === 1 ? "job" : "jobs"} today.`
+              : "All done for today. Nice work."}{" "}
+            {me.role !== "Owner" && (
+              <span className="role-note">Showing {me.role} jobs.</span>
+            )}
           </p>
         </div>
         <Link className="btn lime" href="/inquiries?new=1">

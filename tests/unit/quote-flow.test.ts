@@ -54,7 +54,7 @@ describe("saved data from the percentage version", () => {
     }
     const before = old.quotations.map((q) => quoteTotals(q).selling);
     const next = migrateSaved(old)!;
-    expect(next.schemaVersion).toBe(2);
+    expect(next.schemaVersion).toBe(3);
     next.quotations!.forEach((q, i) => {
       if (q.status === "Accepted") {
         // Locked prices keep their original percentage exactly.

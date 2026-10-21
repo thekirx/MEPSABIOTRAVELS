@@ -4,11 +4,12 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { buildSeed } from "@/seed";
 import { createActions, type TravelStore } from "./actions";
 import { migrateSaved } from "./migrate";
+import { gatedLocalStorage } from "./persist-gate";
 export const useTravelStore = create<TravelStore>()(
   persist((...args) => ({ ...buildSeed(), ...createActions(...args) }), {
     name: "travelos-demo-v1",
     version: 1,
-    storage: createJSONStorage(() => localStorage),
+    storage: createJSONStorage(() => gatedLocalStorage),
     skipHydration: true,
     migrate: () => buildSeed(),
     merge: (persisted, current) => {
@@ -23,7 +24,10 @@ export const useTravelStore = create<TravelStore>()(
       const {
         schemaVersion,
         settings,
+        currentAgentId,
         agents,
+        cashAdvances,
+        paydays,
         customers,
         leads,
         packages,
@@ -36,7 +40,10 @@ export const useTravelStore = create<TravelStore>()(
       return {
         schemaVersion,
         settings,
+        currentAgentId,
         agents,
+        cashAdvances,
+        paydays,
         customers,
         leads,
         packages,

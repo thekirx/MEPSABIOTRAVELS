@@ -7,6 +7,7 @@ import type {
   Traveler,
   BookingService,
   Payment,
+  PayslipRecord,
   VisaCase,
   Customer,
   Booking,
@@ -15,6 +16,7 @@ import { buildSeed, checklistItems } from "@/seed";
 import { quoteTotals, insuranceLine } from "@/domain/quote";
 import { bookingFinancials } from "@/domain/payments";
 import { addDays, format, isMatch } from "date-fns";
+import { persistGate } from "./persist-gate";
 const date = (offset = 0) => format(addDays(new Date(), offset), "yyyy-MM-dd");
 export type Actions = {
   hydrated: boolean;
@@ -67,6 +69,23 @@ export type Actions = {
   ) => void;
   addVisaNote: (id: string, note: string) => void;
   updateSettings: (settings: DemoData["settings"]) => void;
+  setCurrentAgent: (id: string) => void;
+  /** Client approves on their link and pays the deposit (simulated). */
+  approveOnline: (
+    quoteId: string,
+    method: Payment["method"],
+  ) => { bookingId: string; receiptNo: string };
+  updatePay: (
+    agentId: string,
+    monthlyBaseCentavos: number,
+    commissionPct: number,
+  ) => void;
+  addCashAdvance: (
+    agentId: string,
+    amountCentavos: number,
+    note: string,
+  ) => void;
+  approvePayday: (period: string, slips: PayslipRecord[]) => void;
 };
 export type TravelStore = DemoData & Actions;
 const clone = <T>(v: T): T => structuredClone(v);
@@ -452,6 +471,127 @@ export const createActions: StateCreator<TravelStore, [], [], Actions> = (
         v.id === id ? { ...v, notes: [...v.notes, note] } : v,
       ),
     }));
+  },
+  setCurrentAgent: (id) => {
+    if (!get().agents.some((a) => a.id === id))
+      throw new Error("Choose a staff member.");
+    set({ currentAgentId: id });
+  },
+  approveOnline: (quoteId, method) => {
+    const q = get().quotations.find((x) => x.id === quoteId);
+    if (!q) throw new Error("This quotation link is not valid.");
+    if (q.status !== "Draft" && q.status !== "Sent")
+      throw new Error("This quotation can no longer be approved.");
+    if (q.validUntil < date())
+      throw new Error("This quotation has expired. Ask us for a new one.");
+    // Save booking, payment and approval together as one change.
+    persistGate.paused = true;
+    const before = get();
+    let bookingId: string;
+    try {
+      bookingId = get().acceptQuotation(quoteId);
+      const deposit = get().installments.find(
+        (i) => i.bookingId === bookingId && i.label === "30% deposit",
+      )!;
+      get().recordPayment(
+        bookingId,
+        deposit.amountCentavos,
+        method,
+        `Deposit paid online by the client via ${method} (simulated).`,
+      );
+      const at = new Date().toISOString();
+      set((s) => ({
+        quotations: s.quotations.map((x) =>
+          x.id === quoteId ? { ...x, clientApprovedAt: at } : x,
+        ),
+        bookings: s.bookings.map((b) =>
+          b.id === bookingId
+            ? {
+                ...b,
+                quotationSnapshot: {
+                  ...b.quotationSnapshot,
+                  clientApprovedAt: at,
+                },
+                // Deposit is in: hold the fare and give Ticketing a deadline.
+                services: b.services.map((x) =>
+                  x.category === "Airfare" && x.status === "Requested"
+                    ? {
+                        ...x,
+                        status: "On Hold" as const,
+                        deadline: `${date(1)}T17:00:00`,
+                      }
+                    : x,
+                ),
+                notes: [
+                  ...b.notes,
+                  `${date()}: Client approved the quote online and paid the deposit (simulated).`,
+                ],
+              }
+            : b,
+        ),
+      }));
+    } catch (e) {
+      set(before, true); // undo the half-finished booking
+      throw e;
+    } finally {
+      persistGate.paused = false;
+    }
+    // One write with the final state.
+    set((s) => ({ ...s }));
+    return {
+      bookingId,
+      receiptNo: get().payments[get().payments.length - 1].receiptNo,
+    };
+  },
+  updatePay: (agentId, monthlyBaseCentavos, commissionPct) => {
+    if (
+      !Number.isSafeInteger(monthlyBaseCentavos) ||
+      monthlyBaseCentavos < 0 ||
+      !Number.isFinite(commissionPct) ||
+      commissionPct < 0 ||
+      commissionPct > 50
+    )
+      throw new Error(
+        "Enter a base pay of ₱0 or more and a commission of 0–50%.",
+      );
+    set((s) => ({
+      agents: s.agents.map((a) =>
+        a.id === agentId ? { ...a, monthlyBaseCentavos, commissionPct } : a,
+      ),
+    }));
+  },
+  addCashAdvance: (agentId, amountCentavos, note) => {
+    if (!Number.isSafeInteger(amountCentavos) || amountCentavos <= 0)
+      throw new Error("Enter an amount above ₱0.");
+    set((s) => ({
+      cashAdvances: [
+        ...s.cashAdvances,
+        {
+          id: `adv${s.cashAdvances.length + 1}`,
+          agentId,
+          amountCentavos,
+          date: date(),
+          note: note.trim() || "Cash advance",
+        },
+      ],
+    }));
+  },
+  approvePayday: (period, slips) => {
+    const s = get();
+    if (s.agents.find((a) => a.id === s.currentAgentId)?.role !== "Owner")
+      throw new Error("Only the owner can approve payday.");
+    if (s.paydays.some((p) => p.period === period)) return;
+    set({
+      paydays: [
+        ...s.paydays,
+        {
+          period,
+          approvedAt: new Date().toISOString(),
+          approvedBy: s.currentAgentId,
+          slips,
+        },
+      ],
+    });
   },
   updateSettings: (settings) => {
     if (!settings.agencyName.trim() || !settings.logoText.trim())

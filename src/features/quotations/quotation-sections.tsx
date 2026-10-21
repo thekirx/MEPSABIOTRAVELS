@@ -7,6 +7,7 @@ import { Sheet } from "@/components/blocks";
 import { Field } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useMe } from "@/store/use-me";
 type Props = {
   q: Quotation;
   locked: boolean;
@@ -124,7 +125,8 @@ export function QuoteTripSection({ q, locked, update }: Props) {
   );
 }
 export function QuoteServicesSection({ q, locked, update }: Props) {
-  const t = quoteTotals(q);
+  const t = quoteTotals(q),
+    { canPrice, canSeeMargins } = useMe();
   const line = (id: string, patch: Partial<QuoteLine>) =>
     update({
       lines: q.lines.map((l) => (l.id === id ? { ...l, ...patch } : l)),
@@ -133,7 +135,11 @@ export function QuoteServicesSection({ q, locked, update }: Props) {
     <Sheet
       id="services"
       title="Services"
-      note="Costs and suppliers are staff only"
+      note={
+        canSeeMargins
+          ? "Costs and suppliers are staff only"
+          : "Costs are visible to Sales and the owner"
+      }
       action={
         <Button
           variant="outline"
@@ -165,9 +171,9 @@ export function QuoteServicesSection({ q, locked, update }: Props) {
               <th>Type</th>
               <th>What</th>
               <th>Supplier</th>
-              <th>Cost (PHP)</th>
+              {canSeeMargins && <th>Cost (PHP)</th>}
               <th>Charged</th>
-              <th>Total</th>
+              {canSeeMargins && <th>Total</th>}
               <th />
             </tr>
           </thead>
@@ -210,21 +216,25 @@ export function QuoteServicesSection({ q, locked, update }: Props) {
                     }
                   />
                 </td>
-                <td>
-                  <Input
-                    aria-label={`Line ${i + 1} cost`}
-                    type="number"
-                    min="0"
-                    step=".01"
-                    disabled={locked}
-                    value={l.costCentavos / 100}
-                    onChange={(e) =>
-                      line(l.id, {
-                        costCentavos: Math.round(Number(e.target.value) * 100),
-                      })
-                    }
-                  />
-                </td>
+                {canSeeMargins && (
+                  <td>
+                    <Input
+                      aria-label={`Line ${i + 1} cost`}
+                      type="number"
+                      min="0"
+                      step=".01"
+                      disabled={locked || !canPrice}
+                      value={l.costCentavos / 100}
+                      onChange={(e) =>
+                        line(l.id, {
+                          costCentavos: Math.round(
+                            Number(e.target.value) * 100,
+                          ),
+                        })
+                      }
+                    />
+                  </td>
+                )}
                 <td>
                   <select
                     aria-label={`Line ${i + 1} basis`}
@@ -240,11 +250,13 @@ export function QuoteServicesSection({ q, locked, update }: Props) {
                     <option value="per_group">Once</option>
                   </select>
                 </td>
-                <td>
-                  {money(
-                    l.costCentavos * (l.basis === "per_pax" ? q.paxCount : 1),
-                  )}
-                </td>
+                {canSeeMargins && (
+                  <td>
+                    {money(
+                      l.costCentavos * (l.basis === "per_pax" ? q.paxCount : 1),
+                    )}
+                  </td>
+                )}
                 <td>
                   <Button
                     aria-label={`Remove line ${i + 1}`}
@@ -262,13 +274,15 @@ export function QuoteServicesSection({ q, locked, update }: Props) {
               </tr>
             ))}
           </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={5}>Our cost</td>
-              <td>{money(t.netCost)}</td>
-              <td />
-            </tr>
-          </tfoot>
+          {canSeeMargins && (
+            <tfoot>
+              <tr>
+                <td colSpan={5}>Our cost</td>
+                <td>{money(t.netCost)}</td>
+                <td />
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
     </Sheet>

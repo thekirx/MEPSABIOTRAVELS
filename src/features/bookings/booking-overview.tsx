@@ -8,7 +8,9 @@ import { bookingLabel } from "@/domain/labels";
 import { bookingStatuses, type Booking } from "@/domain/types";
 import { Sheet, KeyValues, StatusChip } from "@/components/blocks";
 import { notify } from "@/components/shared";
+import { useMe } from "@/store/use-me";
 export function BookingOverview({ booking: b }: { booking: Booking }) {
+  const { canSeeMargins } = useMe();
   const s = useTravelStore(),
     q = b.quotationSnapshot,
     t = quoteTotals(q);
@@ -88,59 +90,62 @@ export function BookingOverview({ booking: b }: { booking: Booking }) {
           </select>
         </label>
       </div>
-      <div className="staff-only new-section">
-        <h3>
-          Price breakdown <small>Locked when the quote was accepted</small>
-        </h3>
-        <div className="table-wrap">
-          <table className="t">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Supplier</th>
-                <th>Cost</th>
-                <th>Charged</th>
-                <th>Line total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {q.lines.map((l) => (
-                <tr key={l.id}>
-                  <td>{l.description}</td>
-                  <td>{l.supplierName}</td>
-                  <td>{money(l.costCentavos)}</td>
-                  <td>
-                    {l.basis === "per_pax"
-                      ? `Per person × ${q.paxCount}`
-                      : "Once per group"}
-                  </td>
-                  <td>
-                    {money(
-                      l.costCentavos * (l.basis === "per_pax" ? q.paxCount : 1),
-                    )}
-                  </td>
+      {canSeeMargins && (
+        <div className="staff-only new-section">
+          <h3>
+            Price breakdown <small>Locked when the quote was accepted</small>
+          </h3>
+          <div className="table-wrap">
+            <table className="t">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Supplier</th>
+                  <th>Cost</th>
+                  <th>Charged</th>
+                  <th>Line total</th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan={4}>Our cost</td>
-                <td>{money(t.netCost)}</td>
-              </tr>
-              <tr>
-                <td colSpan={4}>
-                  Customer pays · {money(t.perPax)} per person
-                </td>
-                <td>{money(t.selling)}</td>
-              </tr>
-            </tfoot>
-          </table>
+              </thead>
+              <tbody>
+                {q.lines.map((l) => (
+                  <tr key={l.id}>
+                    <td>{l.description}</td>
+                    <td>{l.supplierName}</td>
+                    <td>{money(l.costCentavos)}</td>
+                    <td>
+                      {l.basis === "per_pax"
+                        ? `Per person × ${q.paxCount}`
+                        : "Once per group"}
+                    </td>
+                    <td>
+                      {money(
+                        l.costCentavos *
+                          (l.basis === "per_pax" ? q.paxCount : 1),
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan={4}>Our cost</td>
+                  <td>{money(t.netCost)}</td>
+                </tr>
+                <tr>
+                  <td colSpan={4}>
+                    Customer pays · {money(t.perPax)} per person
+                  </td>
+                  <td>{money(t.selling)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p>
+            Markup {money(t.markup)} · Discount {money(q.discountCentavos)} ·
+            Profit {money(t.grossProfit)}
+          </p>
         </div>
-        <p>
-          Markup {money(t.markup)} · Discount {money(q.discountCentavos)} ·
-          Profit {money(t.grossProfit)}
-        </p>
-      </div>
+      )}
     </Sheet>
   );
 }

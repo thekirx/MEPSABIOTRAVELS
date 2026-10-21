@@ -20,8 +20,10 @@ import { Button } from "@/components/ui/button";
 import { QuotationDocument } from "./quotation-document";
 import { MarkupPicker } from "./markup-picker";
 import { EmailApprovalDialog } from "./email-approval";
+import { useMe } from "@/store/use-me";
 export function QuotationBuilder() {
   const s = useTravelStore(),
+    { canPrice, canSeeMargins } = useMe(),
     params = useSearchParams(),
     router = useRouter();
   const [confirm, setConfirm] = useState(false),
@@ -75,22 +77,40 @@ export function QuotationBuilder() {
       </nav>
       <div className="quote-front">
         <div className="section-stack no-print">
-          <Block
-            variant="white"
-            className="ask staff-only"
-            title="How much do we add on top?"
-          >
-            <p>
-              {locked
-                ? "This quote was accepted, so the price is locked."
-                : `The trip costs us ${money(t.netCost)}. Add a fixed amount per person. ${first} never sees this.`}
-            </p>
-            <MarkupPicker q={q} locked={locked} onChange={setMarkup} />
-            <p className="muted">
-              Markup {money(t.markup)} in total for {q.paxCount}{" "}
-              {q.paxCount === 1 ? "person" : "people"}.
-            </p>
-          </Block>
+          {canSeeMargins ? (
+            <Block
+              variant="white"
+              className="ask staff-only"
+              title="How much do we add on top?"
+            >
+              <p>
+                {locked
+                  ? "This quote was accepted, so the price is locked."
+                  : !canPrice
+                    ? "Only Sales and the owner can change the price."
+                    : `The trip costs us ${money(t.netCost)}. Add a fixed amount per person. ${first} never sees this.`}
+              </p>
+              <MarkupPicker
+                q={q}
+                locked={locked || !canPrice}
+                onChange={setMarkup}
+              />
+              <p className="muted">
+                Markup {money(t.markup)} in total for {q.paxCount}{" "}
+                {q.paxCount === 1 ? "person" : "people"}.
+              </p>
+            </Block>
+          ) : (
+            <Block
+              variant="white"
+              className="staff-only"
+              title="Price set by Sales"
+            >
+              <p>
+                Only Sales and the owner can see costs and change the price.
+              </p>
+            </Block>
+          )}
           {!locked && !hasInsurance(q) && (
             <Block
               variant="red"
@@ -99,6 +119,7 @@ export function QuotationBuilder() {
               action={
                 <Button
                   variant="outline"
+                  disabled={!canPrice}
                   onClick={() =>
                     notify(
                       () =>
@@ -133,9 +154,11 @@ export function QuotationBuilder() {
               <span>
                 Each person<b>{money(t.perPax)}</b>
               </span>
-              <span>
-                We earn<b>{money(t.grossProfit)}</b>
-              </span>
+              {canSeeMargins && (
+                <span>
+                  We earn<b>{money(t.grossProfit)}</b>
+                </span>
+              )}
             </div>
           </Block>
           <Block
@@ -186,6 +209,16 @@ export function QuotationBuilder() {
             <Button variant="outline" onClick={() => window.print()}>
               Print / Save as PDF
             </Button>
+            {!locked && (
+              <Link
+                className="btn ghost"
+                href={`/approve?id=${q.id}`}
+                target="_blank"
+                rel="noopener"
+              >
+                Preview client page ↗
+              </Link>
+            )}
           </div>
         </div>
         <aside className="quote-copy">
@@ -201,7 +234,7 @@ export function QuotationBuilder() {
             </label>
           </div>
           <QuotationDocument quote={q} />
-          {!customerView && (
+          {!customerView && canSeeMargins && (
             <p className="staff-only margin-panel">
               Staff net cost {money(t.netCost)} · Profit {money(t.grossProfit)}
             </p>
