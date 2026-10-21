@@ -1,0 +1,11 @@
+'use client';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {z} from 'zod';
+import {Modal,Field} from '@/components/shared';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+export type FormField={name:string;label:string;type?:string;value?:string;placeholder?:string;options?:readonly string[];optional?:boolean;validate?:(value:string)=>string|undefined};
+type Props={open:boolean;onOpenChange:(open:boolean)=>void;title:string;description?:string;submit?:string;fields:FormField[];onSubmit:(values:Record<string,string>)=>void;children?:React.ReactNode};
+function FieldsForm({fields,onSubmit,onOpenChange,submit,children}:Props){const schema=z.record(z.string(),z.string()).superRefine((values,ctx)=>{for(const f of fields){const value=values[f.name]??'';const error=!value.trim()&&!f.optional?'Fill in this field.':f.validate?.(value);if(error)ctx.addIssue({code:'custom',message:error,path:[f.name]})}});const {register,handleSubmit,setError,formState:{errors}}=useForm<Record<string,string>>({resolver:zodResolver(schema),defaultValues:Object.fromEntries(fields.map(f=>[f.name,f.value??'']))});return <form className="section-stack" noValidate onSubmit={handleSubmit(values=>{try{onSubmit(values);onOpenChange(false)}catch(error){setError('root',{message:error instanceof Error?error.message:'Unable to save changes.'})}})}>{children}{fields.map(f=><Field label={f.label} key={f.name}>{f.options?<select aria-label={f.label} {...register(f.name)} aria-invalid={!!errors[f.name]}>{f.options.map(o=><option key={o}>{o}</option>)}</select>:<Input aria-label={f.label} type={f.type??'text'} placeholder={f.placeholder} {...register(f.name)} aria-invalid={!!errors[f.name]}/ >}{errors[f.name]&&<span role="alert" className="form-error">{String(errors[f.name]?.message)}</span>}</Field>)}{errors.root&&<p role="alert" className="form-error">{errors.root.message}</p>}<div className="dialog-actions"><Button type="button" variant="outline" onClick={()=>onOpenChange(false)}>Cancel</Button><Button type="submit">{submit??'Save'}</Button></div></form>}
+export function FormDialog(props:Props){return <Modal open={props.open} onOpenChange={props.onOpenChange} title={props.title} description={props.description}>{props.open&&<FieldsForm {...props}/>}</Modal>}

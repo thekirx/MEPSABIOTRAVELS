@@ -33,7 +33,7 @@ Approved spec: REDESIGN_HANDOFF.md. Plan: REDESIGN_PLAN.md. Active branch: redes
 
 - Phase 0 — Baseline: npm ci, lint (0 errors, 1 pre-existing unused mock-script variable warning), typecheck, 8 unit tests, static build, 10 Chromium tests PASS. Mock references captured outside the repo at /tmp/mep-mock-*.png. Approved desktop references inspected with view_image; all mock pages loaded. Browser plugin absent, regular Playwright used. Existing mock server on port 4300 verified against repository contents.
 - Phase 1 — Complete. MEP assets/default settings, Barlow fonts, charcoal top bar, active navigation, search/account/reset, cream/lime/red tokens and print nav isolation. Full gate PASS: lint 0 warnings, typecheck, 8 unit, build, 10 e2e. /tmp/mep-app-*-{1440,1024,390}.png; no console errors or overflow on dashboard, quote, booking and settings. Mock flow exercised through Ready to fly and reset. Mock-only JS excluded from app lint.
-- Phase 2 — Shared blocks/labels/places/forms: pending.
+- Phase 2 — Complete. Shared blocks, status chips, luggage tags, stage blocks, section navigation, detail sheets, validated FormDialog and payment form. Labels/places unit tests added RED→GREEN. Gate PASS: lint/typecheck, 10 unit tests, build, 10 e2e; blocks gallery at 1440/1024/390 has no console errors/overflow. Temporary gallery removed in Phase 8.
 - Phase 3 — Home: pending.
 - Phase 4 — People asking/customer: pending.
 - Phase 5 — Quote/front/details/print: pending.
