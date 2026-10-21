@@ -1,1 +1,2 @@
-export default function Page(){return <main>Optrizo TravelOS</main>}
+import {redirect} from 'next/navigation';
+export default function Page(){redirect('/dashboard')}
