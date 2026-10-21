@@ -1,9 +1,114 @@
-'use client';
-import Link from 'next/link';
-import {useState} from 'react';
-import {useSearchParams} from 'next/navigation';
-import {ArrowUpRight,CalendarDays} from 'lucide-react';
-import {useTravelStore} from '@/store';
-import {destination,financials} from '@/store/selectors';
-import {PageHeader,MoneyCell,StatusBadge,EmptyState} from '@/components/shared';
-export function BookingList(){const s=useTravelStore(),params=useSearchParams();const [filter,setFilter]=useState(params.get('filter')??'All');let rows=s.bookings;if(filter==='Upcoming')rows=rows.filter(b=>b.quotationSnapshot.departDate>=new Date().toISOString().slice(0,10));else if(filter==='This month')rows=rows.filter(b=>b.createdAt.slice(0,7)===new Date().toISOString().slice(0,7));else if(filter!=='All')rows=rows.filter(b=>b.status===filter);return <><PageHeader title="Bookings" description="Every journey, every detail. All in one place."/><div className="toolbar"><div className="toolbar-left">{['All','This month','Upcoming','Confirmed','Pending Confirmation'].map(x=><button className={`chip ${filter===x?'active':''}`} key={x} onClick={()=>setFilter(x)}>{x}</button>)}</div><span className="subtle-note">{rows.length} bookings</span></div><div className="panel table-wrap"><table><thead><tr><th>Booking</th><th>Customer</th><th>Destination / dates</th><th>Travelers</th><th>Balance</th><th>Status</th><th/></tr></thead><tbody>{rows.map(b=><tr key={b.id}><td><Link href={`/bookings/view?id=${b.id}`}><strong>{b.ref}</strong></Link><p className="subtle-note">{s.agents.find(a=>a.id===b.assignedAgentId)?.name}</p></td><td>{s.customers.find(c=>c.id===b.customerId)?.name}</td><td><strong>{destination(s,b.quotationSnapshot)}</strong><p className="subtle-note">{b.quotationSnapshot.departDate}</p></td><td>{b.quotationSnapshot.paxCount} pax</td><td><MoneyCell value={financials(s,b).balance}/></td><td><StatusBadge status={b.status}/></td><td><Link className="text-link" aria-label={`Open ${b.ref}`} href={`/bookings/view?id=${b.id}`}><ArrowUpRight size={15}/></Link></td></tr>)}</tbody></table>{!rows.length&&<EmptyState/>}</div><div className="list-footnote"><CalendarDays size={14}/>Services and ticket references are recorded manually in this demo.</div></>}
+"use client";
+import Link from "next/link";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { ArrowUpRight, CalendarDays } from "lucide-react";
+import { useTravelStore } from "@/store";
+import { destination, financials } from "@/store/selectors";
+import {
+  PageHeader,
+  MoneyCell,
+  StatusBadge,
+  EmptyState,
+} from "@/components/shared";
+export function BookingList() {
+  const s = useTravelStore(),
+    params = useSearchParams();
+  const [filter, setFilter] = useState(params.get("filter") ?? "All");
+  let rows = s.bookings;
+  if (filter === "Upcoming")
+    rows = rows.filter(
+      (b) =>
+        b.quotationSnapshot.departDate >= new Date().toISOString().slice(0, 10),
+    );
+  else if (filter === "This month")
+    rows = rows.filter(
+      (b) => b.createdAt.slice(0, 7) === new Date().toISOString().slice(0, 7),
+    );
+  else if (filter !== "All") rows = rows.filter((b) => b.status === filter);
+  return (
+    <>
+      <PageHeader
+        title="Bookings"
+        description="Every journey, every detail. All in one place."
+      />
+      <div className="toolbar">
+        <div className="toolbar-left">
+          {[
+            "All",
+            "This month",
+            "Upcoming",
+            "Confirmed",
+            "Pending Confirmation",
+          ].map((x) => (
+            <button
+              className={`chip ${filter === x ? "active" : ""}`}
+              key={x}
+              onClick={() => setFilter(x)}
+            >
+              {x}
+            </button>
+          ))}
+        </div>
+        <span className="subtle-note">{rows.length} bookings</span>
+      </div>
+      <div className="panel table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Booking</th>
+              <th>Customer</th>
+              <th>Destination / dates</th>
+              <th>Travelers</th>
+              <th>Balance</th>
+              <th>Status</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((b) => (
+              <tr key={b.id}>
+                <td>
+                  <Link href={`/bookings/view?id=${b.id}`}>
+                    <strong>{b.ref}</strong>
+                  </Link>
+                  <p className="subtle-note">
+                    {s.agents.find((a) => a.id === b.assignedAgentId)?.name}
+                  </p>
+                </td>
+                <td>{s.customers.find((c) => c.id === b.customerId)?.name}</td>
+                <td>
+                  <strong>{destination(s, b.quotationSnapshot)}</strong>
+                  <p className="subtle-note">
+                    {b.quotationSnapshot.departDate}
+                  </p>
+                </td>
+                <td>{b.travelers.length} pax</td>
+                <td>
+                  <MoneyCell value={financials(s, b).balance} />
+                </td>
+                <td>
+                  <StatusBadge status={b.status} />
+                </td>
+                <td>
+                  <Link
+                    className="text-link"
+                    aria-label={`Open ${b.ref}`}
+                    href={`/bookings/view?id=${b.id}`}
+                  >
+                    <ArrowUpRight size={15} />
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!rows.length && <EmptyState />}
+      </div>
+      <div className="list-footnote">
+        <CalendarDays size={14} />
+        Services and ticket references are recorded manually in this demo.
+      </div>
+    </>
+  );
+}

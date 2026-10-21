@@ -1,15 +1,153 @@
-import type {DemoData,Booking} from '@/domain/types';
-import {leadStages,visaStages} from '@/domain/types';
-import {bookingFinancials} from '@/domain/payments';
-import {quoteTotals} from '@/domain/quote';
-import {format,addDays,subMonths,startOfMonth,differenceInHours} from 'date-fns';
-export const financials=(s:DemoData,b:Booking)=>bookingFinancials(b,s.payments,s.installments);
-export const customerBalance=(s:DemoData,id:string)=>s.bookings.filter(b=>b.customerId===id&&b.status!=='Cancelled').reduce((sum,b)=>sum+financials(s,b).balance,0);
-export const pipelineCounts=(s:DemoData)=>Object.fromEntries(leadStages.map(stage=>[stage,s.leads.filter(l=>l.stage===stage).length]));
-export const visaCounts=(s:DemoData)=>Object.fromEntries(visaStages.map(stage=>[stage,s.visas.filter(v=>v.stage===stage).length]));
-export const destination=(s:DemoData,q:{packageId?:string;leadId:string})=>s.packages.find(p=>p.id===q.packageId)?.destination??s.leads.find(l=>l.id===q.leadId)?.destination??'Custom trip';
-export const upcoming=(s:DemoData)=>s.bookings.filter(b=>b.status!=='Cancelled'&&b.quotationSnapshot.departDate>=format(new Date(),'yyyy-MM-dd')).sort((a,b)=>a.quotationSnapshot.departDate.localeCompare(b.quotationSnapshot.departDate));
-export function kpis(s:DemoData){const month=format(new Date(),'yyyy-MM');return {openInquiries:s.leads.filter(l=>!['Won','Lost'].includes(l.stage)).length,awaitingQuotes:s.quotations.filter(q=>q.status==='Sent').length,bookingsMonth:s.bookings.filter(b=>b.createdAt.startsWith(month)&&b.status!=='Cancelled').length,receivables:s.bookings.filter(b=>b.status!=='Cancelled').reduce((sum,b)=>sum+financials(s,b).balance,0),departures:upcoming(s).filter(b=>b.quotationSnapshot.departDate<=format(addDays(new Date(),30),'yyyy-MM-dd')).length}}
-export function monthlyBookings(s:DemoData){return Array.from({length:6},(_,i)=>{const d=subMonths(startOfMonth(new Date()),5-i),key=format(d,'yyyy-MM');return {month:format(d,'MMM'),value:s.bookings.filter(b=>b.createdAt.startsWith(key)&&b.status!=='Cancelled').reduce((sum,b)=>sum+quoteTotals(b.quotationSnapshot).selling,0)/100}})}
-export type Attention={id:string;title:string;detail:string;href:string;kind:'warning'|'danger'|'info';tag:string};
-export function attention(s:DemoData){const rows:Attention[]=[];for(const b of s.bookings.filter(b=>b.status!=='Cancelled')){const name=s.customers.find(c=>c.id===b.customerId)?.name??'';for(const svc of b.services){if(svc.deadline&&!['Issued','Cancelled'].includes(svc.status)&&differenceInHours(new Date(svc.deadline),new Date())<=72)rows.push({id:svc.id,title:`${svc.category} deadline`,detail:`${b.ref} · ${name}`,href:`/bookings/view?id=${b.id}`,kind:'warning',tag:format(new Date(svc.deadline),'MMM d, h:mm a')})}if(financials(s,b).status==='Overdue')rows.push({id:b.id,title:'Overdue balance',detail:`${name} · ${b.ref}`,href:`/bookings/view?id=${b.id}`,kind:'danger',tag:'Payment overdue'})}for(const v of s.visas.filter(v=>v.stage==='Collecting Requirements'&&v.checklist.some(c=>!c.done)))rows.push({id:v.id,title:'Visa documents required',detail:`${v.country} · ${s.bookings.find(b=>b.id===v.bookingId)?.travelers.find(t=>t.id===v.travelerId)?.fullName}`,href:`/visas?case=${v.id}`,kind:'info',tag:`${v.checklist.filter(c=>!c.done).length} missing`});for(const q of s.quotations.filter(q=>q.status==='Sent'&&q.validUntil<=format(addDays(new Date(),3),'yyyy-MM-dd')))rows.push({id:q.id,title:'Quotation expiring soon',detail:`${q.ref} · ${s.customers.find(c=>c.id===q.customerId)?.name}`,href:`/quotations/view?id=${q.id}`,kind:'warning',tag:format(new Date(q.validUntil+'T12:00:00'),'MMM d')});return rows}
+import type { DemoData, Booking } from "@/domain/types";
+import { leadStages, visaStages } from "@/domain/types";
+import { bookingFinancials } from "@/domain/payments";
+import { quoteTotals } from "@/domain/quote";
+import {
+  format,
+  addDays,
+  subMonths,
+  startOfMonth,
+  differenceInHours,
+  isMatch,
+} from "date-fns";
+export const financials = (s: DemoData, b: Booking) =>
+  bookingFinancials(b, s.payments, s.installments);
+export const customerBalance = (s: DemoData, id: string) =>
+  s.bookings
+    .filter((b) => b.customerId === id && b.status !== "Cancelled")
+    .reduce((sum, b) => sum + financials(s, b).balance, 0);
+export const pipelineCounts = (s: DemoData) =>
+  Object.fromEntries(
+    leadStages.map((stage) => [
+      stage,
+      s.leads.filter((l) => l.stage === stage).length,
+    ]),
+  );
+export const visaCounts = (s: DemoData) =>
+  Object.fromEntries(
+    visaStages.map((stage) => [
+      stage,
+      s.visas.filter((v) => v.stage === stage).length,
+    ]),
+  );
+export const destination = (
+  s: DemoData,
+  q: { packageId?: string; leadId: string },
+) =>
+  s.packages.find((p) => p.id === q.packageId)?.destination ??
+  s.leads.find((l) => l.id === q.leadId)?.destination ??
+  "Custom trip";
+export const upcoming = (s: DemoData) =>
+  s.bookings
+    .filter(
+      (b) =>
+        b.status !== "Cancelled" &&
+        b.quotationSnapshot.departDate >= format(new Date(), "yyyy-MM-dd"),
+    )
+    .sort((a, b) =>
+      a.quotationSnapshot.departDate.localeCompare(
+        b.quotationSnapshot.departDate,
+      ),
+    );
+export function kpis(s: DemoData) {
+  const month = format(new Date(), "yyyy-MM");
+  return {
+    openInquiries: s.leads.filter((l) => !["Won", "Lost"].includes(l.stage))
+      .length,
+    awaitingQuotes: s.quotations.filter((q) => q.status === "Sent").length,
+    bookingsMonth: s.bookings.filter(
+      (b) => b.createdAt.startsWith(month) && b.status !== "Cancelled",
+    ).length,
+    receivables: s.bookings
+      .filter((b) => b.status !== "Cancelled")
+      .reduce((sum, b) => sum + financials(s, b).balance, 0),
+    departures: upcoming(s).filter(
+      (b) =>
+        b.quotationSnapshot.departDate <=
+        format(addDays(new Date(), 30), "yyyy-MM-dd"),
+    ).length,
+  };
+}
+export function monthlyBookings(s: DemoData) {
+  return Array.from({ length: 6 }, (_, i) => {
+    const d = subMonths(startOfMonth(new Date()), 5 - i),
+      key = format(d, "yyyy-MM");
+    return {
+      month: format(d, "MMM"),
+      value:
+        s.bookings
+          .filter(
+            (b) => b.createdAt.startsWith(key) && b.status !== "Cancelled",
+          )
+          .reduce(
+            (sum, b) => sum + quoteTotals(b.quotationSnapshot).selling,
+            0,
+          ) / 100,
+    };
+  });
+}
+export type Attention = {
+  id: string;
+  title: string;
+  detail: string;
+  href: string;
+  kind: "warning" | "danger" | "info";
+  tag: string;
+};
+export function attention(s: DemoData) {
+  const rows: Attention[] = [];
+  for (const b of s.bookings.filter((b) => b.status !== "Cancelled")) {
+    const name = s.customers.find((c) => c.id === b.customerId)?.name ?? "";
+    for (const svc of b.services) {
+      if (
+        svc.deadline &&
+        !["Issued", "Cancelled"].includes(svc.status) &&
+        differenceInHours(new Date(svc.deadline), new Date()) <= 72
+      )
+        rows.push({
+          id: svc.id,
+          title: `${svc.category} deadline`,
+          detail: `${b.ref} · ${name}`,
+          href: `/bookings/view?id=${b.id}`,
+          kind: "warning",
+          tag: format(new Date(svc.deadline), "MMM d, h:mm a"),
+        });
+    }
+    if (financials(s, b).status === "Overdue")
+      rows.push({
+        id: b.id,
+        title: "Overdue balance",
+        detail: `${name} · ${b.ref}`,
+        href: `/bookings/view?id=${b.id}`,
+        kind: "danger",
+        tag: "Payment overdue",
+      });
+  }
+  for (const v of s.visas.filter(
+    (v) =>
+      v.stage === "Collecting Requirements" && v.checklist.some((c) => !c.done),
+  ))
+    rows.push({
+      id: v.id,
+      title: "Visa documents required",
+      detail: `${v.country} · ${s.bookings.find((b) => b.id === v.bookingId)?.travelers.find((t) => t.id === v.travelerId)?.fullName}`,
+      href: `/visas?case=${v.id}`,
+      kind: "info",
+      tag: `${v.checklist.filter((c) => !c.done).length} missing`,
+    });
+  for (const q of s.quotations.filter(
+    (q) =>
+      q.status === "Sent" &&
+      isMatch(q.validUntil, "yyyy-MM-dd") &&
+      q.validUntil <= format(addDays(new Date(), 3), "yyyy-MM-dd"),
+  ))
+    rows.push({
+      id: q.id,
+      title: "Quotation expiring soon",
+      detail: `${q.ref} · ${s.customers.find((c) => c.id === q.customerId)?.name}`,
+      href: `/quotations/view?id=${q.id}`,
+      kind: "warning",
+      tag: format(new Date(q.validUntil + "T12:00:00"), "MMM d"),
+    });
+  return rows;
+}

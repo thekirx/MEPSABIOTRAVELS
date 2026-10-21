@@ -1,11 +1,305 @@
-'use client';
-import Link from 'next/link';
-import {format,parseISO} from 'date-fns';
-import {MessagesSquare,FileText,CalendarDays,WalletCards,Plane,Plus,ArrowUpRight,AlertTriangle,AlertCircle,BookUser,Clock3,ArrowRight} from 'lucide-react';
-import {ResponsiveContainer,BarChart,Bar,CartesianGrid,XAxis,YAxis,Tooltip} from 'recharts';
-import {useTravelStore} from '@/store';
-import {kpis,attention,monthlyBookings,upcoming,destination,financials} from '@/store/selectors';
-import {money} from '@/domain/money';
-import {PageHeader,KpiCard,StatusBadge,EmptyState} from '@/components/shared';
-import {Button} from '@/components/ui/button';
-export function Dashboard(){const s=useTravelStore(),k=kpis(s),needs=attention(s),departures=upcoming(s).slice(0,5),monthly=monthlyBookings(s);const chartTotal=monthly.reduce((sum,m)=>sum+m.value,0);return <><PageHeader title="Good morning, Isabel" description={`${format(new Date(),'EEEE, d MMMM yyyy')} · Here's where your journeys stand today.`} action={<Link href="/inquiries?new=1"><Button><Plus/>New inquiry</Button></Link>}/><div className="kpi-grid"><KpiCard label="Open inquiries" value={k.openInquiries} href="/inquiries" icon={MessagesSquare} hint="Your active conversations"/><KpiCard label="Quotes awaiting reply" value={k.awaitingQuotes} href="/quotations?status=Sent" icon={FileText} hint="Ready for a follow-up"/><KpiCard label="Bookings this month" value={<span data-testid="kpi-bookings">{k.bookingsMonth}</span>} href="/bookings?filter=This%20month" icon={CalendarDays} hint="Journeys taking shape"/><KpiCard label="Receivables outstanding" value={<span data-testid="kpi-receivables" data-centavos={k.receivables}>{money(k.receivables)}</span>} href="/payments" icon={WalletCards} hint="Across active bookings"/><KpiCard label="Departures next 30 days" value={k.departures} href="/bookings?filter=Upcoming" icon={Plane} hint="Getting ready to take off"/></div><div className="dashboard-middle"><section className="panel attention-panel"><div className="panel-header"><h2>Needs attention today <span className="attention-count">{needs.length}</span></h2><Link href="/payments?status=Overdue">Receivables <ArrowUpRight size={13}/></Link></div><div className="panel-body attention-items">{needs.map(row=>{const Icon=row.title==='Overdue balance'?AlertCircle:row.title.includes('Visa')?BookUser:row.title.includes('Quotation')?Clock3:AlertTriangle;return <Link key={row.id} className="attention-row" href={row.href}><span className={`attention-icon ${row.kind}`}><Icon size={17}/></span><div className="attention-text"><strong>{row.title}</strong><p>{row.detail}</p></div><span className={`status ${row.kind==='danger'?'danger':row.kind==='info'?'neutral':'warning'}`}>{row.tag}</span></Link>})}{!needs.length&&<EmptyState text="All caught up. Your journeys are in good shape."/>}</div></section><section className="panel chart-panel"><div className="panel-header"><div><h2>Booking value</h2><p className="subtle-note">Last 6 months · PHP</p></div><span className="chart-legend"><i/>Booked value</span></div><div className="chart-total"><strong>{money(Math.round(chartTotal*100))}</strong><span>Total across the period</span></div><div className="booking-chart" role="img" aria-label="Booking value by month for the last six months"><ResponsiveContainer width="100%" height={205} minWidth={0}><BarChart data={monthly} margin={{top:18,right:7,left:-16,bottom:0}}><CartesianGrid strokeDasharray="3 4" vertical={false} stroke="#edf1f5"/><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:'#95a2b5',fontSize:10}} dy={8}/><YAxis axisLine={false} tickLine={false} tick={{fill:'#a2adbd',fontSize:9}} tickFormatter={v=>`${Number(v)/1000}k`}/><Tooltip cursor={{fill:'#f4f8f9'}} formatter={v=>money(Number(v)*100)} contentStyle={{borderRadius:8,border:'1px solid #e5ebf1',fontSize:11}}/><Bar dataKey="value" fill="#159d91" radius={[4,4,0,0]} maxBarSize={34}/></BarChart></ResponsiveContainer></div><div className="chart-footnote"><span>Based on accepted quotation snapshots</span><Link href="/bookings">Explore bookings <ArrowRight size={12}/></Link></div></section></div><section className="panel"><div className="panel-header"><div><h2>Upcoming departures</h2><p className="subtle-note">The next journeys on the horizon</p></div><Link href="/bookings?filter=Upcoming">View all bookings <ArrowUpRight size={13}/></Link></div><div className="table-wrap"><table><thead><tr><th>Departure</th><th>Customer / group</th><th>Destination</th><th>Travelers</th><th>Booking status</th><th>Payment</th><th/></tr></thead><tbody>{departures.map(b=>{const c=s.customers.find(c=>c.id===b.customerId)!;return <tr key={b.id}><td><strong>{format(parseISO(b.quotationSnapshot.departDate),'dd MMM')}</strong><p className="subtle-note">{format(parseISO(b.quotationSnapshot.departDate),'yyyy')}</p></td><td><Link className="customer-cell" href={`/bookings/view?id=${b.id}`}><span className="avatar">{c.name.split(' ').map(n=>n[0]).slice(0,2).join('')}</span><div><strong>{c.name}</strong><small>{b.ref}</small></div></Link></td><td>{destination(s,b.quotationSnapshot)}</td><td>{b.travelers.length} pax</td><td><StatusBadge status={b.status}/></td><td><StatusBadge status={financials(s,b).status}/></td><td><Link aria-label={`View ${b.ref}`} href={`/bookings/view?id=${b.id}`} className="text-link"><ArrowUpRight size={16}/></Link></td></tr>})}</tbody></table>{!departures.length&&<EmptyState text="No upcoming departures."/>}</div></section></>}
+"use client";
+import Link from "next/link";
+import { format, parseISO } from "date-fns";
+import {
+  MessagesSquare,
+  FileText,
+  CalendarDays,
+  WalletCards,
+  Plane,
+  Plus,
+  ArrowUpRight,
+  AlertTriangle,
+  AlertCircle,
+  BookUser,
+  Clock3,
+  ArrowRight,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import { useTravelStore } from "@/store";
+import {
+  kpis,
+  attention,
+  monthlyBookings,
+  upcoming,
+  destination,
+  financials,
+} from "@/store/selectors";
+import { money } from "@/domain/money";
+import {
+  PageHeader,
+  KpiCard,
+  StatusBadge,
+  EmptyState,
+} from "@/components/shared";
+import { Button } from "@/components/ui/button";
+export function Dashboard() {
+  const s = useTravelStore(),
+    k = kpis(s),
+    needs = attention(s),
+    departures = upcoming(s).slice(0, 5),
+    monthly = monthlyBookings(s);
+  const chartTotal = monthly.reduce((sum, m) => sum + m.value, 0);
+  return (
+    <div className="dashboard-screen">
+      <PageHeader
+        title="Good morning, Isabel"
+        description={`${format(new Date(), "EEEE, d MMMM yyyy")} · Here's where your journeys stand today.`}
+        action={
+          <Link href="/inquiries?new=1">
+            <Button>
+              <Plus />
+              New inquiry
+            </Button>
+          </Link>
+        }
+      />
+      <div className="kpi-grid">
+        <KpiCard
+          label="Open inquiries"
+          value={k.openInquiries}
+          href="/inquiries"
+          icon={MessagesSquare}
+          hint="Your active conversations"
+        />
+        <KpiCard
+          label="Quotes awaiting reply"
+          value={k.awaitingQuotes}
+          href="/quotations?status=Sent"
+          icon={FileText}
+          hint="Ready for a follow-up"
+        />
+        <KpiCard
+          label="Bookings this month"
+          value={<span data-testid="kpi-bookings">{k.bookingsMonth}</span>}
+          href="/bookings?filter=This%20month"
+          icon={CalendarDays}
+          hint="Journeys taking shape"
+        />
+        <KpiCard
+          label="Receivables outstanding"
+          value={
+            <span data-testid="kpi-receivables" data-centavos={k.receivables}>
+              {money(k.receivables)}
+            </span>
+          }
+          href="/payments"
+          icon={WalletCards}
+          hint="Across active bookings"
+        />
+        <KpiCard
+          label="Departures next 30 days"
+          value={k.departures}
+          href="/bookings?filter=Upcoming"
+          icon={Plane}
+          hint="Getting ready to take off"
+        />
+      </div>
+      <div className="dashboard-middle">
+        <section className="panel attention-panel">
+          <div className="panel-header">
+            <h2>
+              Needs attention today{" "}
+              <span className="attention-count">{needs.length}</span>
+            </h2>
+            <Link href="/payments?status=Overdue">
+              Receivables <ArrowUpRight size={13} />
+            </Link>
+          </div>
+          <div className="panel-body attention-items">
+            {needs.map((row) => {
+              const Icon =
+                row.title === "Overdue balance"
+                  ? AlertCircle
+                  : row.title.includes("Visa")
+                    ? BookUser
+                    : row.title.includes("Quotation")
+                      ? Clock3
+                      : AlertTriangle;
+              return (
+                <Link key={row.id} className="attention-row" href={row.href}>
+                  <span className={`attention-icon ${row.kind}`}>
+                    <Icon size={17} />
+                  </span>
+                  <div className="attention-text">
+                    <strong>{row.title}</strong>
+                    <p>{row.detail}</p>
+                  </div>
+                  <span
+                    className={`status ${row.kind === "danger" ? "danger" : row.kind === "info" ? "neutral" : "warning"}`}
+                  >
+                    {row.tag}
+                  </span>
+                </Link>
+              );
+            })}
+            {!needs.length && (
+              <EmptyState text="All caught up. Your journeys are in good shape." />
+            )}
+          </div>
+        </section>
+        <section className="panel chart-panel">
+          <div className="panel-header">
+            <div>
+              <h2>Booking value</h2>
+              <p className="subtle-note">Last 6 months · PHP</p>
+            </div>
+            <span className="chart-legend">
+              <i />
+              Booked value
+            </span>
+          </div>
+          <div className="chart-total">
+            <strong>{money(Math.round(chartTotal * 100))}</strong>
+            <span>Total across the period</span>
+          </div>
+          <div
+            className="booking-chart"
+            role="img"
+            aria-label="Booking value by month for the last six months"
+          >
+            <ResponsiveContainer width="100%" height={160} minWidth={0}>
+              <BarChart
+                data={monthly}
+                margin={{ top: 18, right: 7, left: -16, bottom: 0 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 4"
+                  vertical={false}
+                  stroke="#edf1f5"
+                />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#95a2b5", fontSize: 10 }}
+                  dy={8}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#a2adbd", fontSize: 9 }}
+                  tickFormatter={(v) => `${Number(v) / 1000}k`}
+                />
+                <Tooltip
+                  cursor={{ fill: "#f4f8f9" }}
+                  formatter={(v) => money(Number(v) * 100)}
+                  contentStyle={{
+                    borderRadius: 8,
+                    border: "1px solid #e5ebf1",
+                    fontSize: 11,
+                  }}
+                />
+                <Bar
+                  dataKey="value"
+                  fill="#159d91"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={34}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="chart-footnote">
+            <span>Based on accepted quotation snapshots</span>
+            <Link href="/bookings">
+              Explore bookings <ArrowRight size={12} />
+            </Link>
+          </div>
+        </section>
+      </div>
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h2>Upcoming departures</h2>
+            <p className="subtle-note">The next journeys on the horizon</p>
+          </div>
+          <Link href="/bookings?filter=Upcoming">
+            View all bookings <ArrowUpRight size={13} />
+          </Link>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Departure</th>
+                <th>Customer / group</th>
+                <th>Destination</th>
+                <th>Travelers</th>
+                <th>Booking status</th>
+                <th>Payment</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {departures.map((b) => {
+                const c = s.customers.find((c) => c.id === b.customerId)!;
+                return (
+                  <tr key={b.id}>
+                    <td>
+                      <strong>
+                        {format(
+                          parseISO(b.quotationSnapshot.departDate),
+                          "dd MMM",
+                        )}
+                      </strong>
+                      <p className="subtle-note">
+                        {format(
+                          parseISO(b.quotationSnapshot.departDate),
+                          "yyyy",
+                        )}
+                      </p>
+                    </td>
+                    <td>
+                      <Link
+                        className="customer-cell"
+                        href={`/bookings/view?id=${b.id}`}
+                      >
+                        <span className="avatar">
+                          {c.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .slice(0, 2)
+                            .join("")}
+                        </span>
+                        <div>
+                          <strong>{c.name}</strong>
+                          <small>{b.ref}</small>
+                        </div>
+                      </Link>
+                    </td>
+                    <td>{destination(s, b.quotationSnapshot)}</td>
+                    <td>{b.travelers.length} pax</td>
+                    <td>
+                      <StatusBadge status={b.status} />
+                    </td>
+                    <td>
+                      <StatusBadge status={financials(s, b).status} />
+                    </td>
+                    <td>
+                      <Link
+                        aria-label={`View ${b.ref}`}
+                        href={`/bookings/view?id=${b.id}`}
+                        className="text-link"
+                      >
+                        <ArrowUpRight size={16} />
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {!departures.length && <EmptyState text="No upcoming departures." />}
+        </div>
+      </section>
+    </div>
+  );
+}

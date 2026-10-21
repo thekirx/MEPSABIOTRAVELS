@@ -1,2 +1,9 @@
-import {Suspense} from 'react';import {QuotationBuilder} from '@/features/quotations/quotation-builder';
-export default function Page(){return <Suspense><QuotationBuilder/></Suspense>}
+import { Suspense } from "react";
+import { QuotationBuilder } from "@/features/quotations/quotation-builder";
+export default function Page() {
+  return (
+    <Suspense>
+      <QuotationBuilder />
+    </Suspense>
+  );
+}
