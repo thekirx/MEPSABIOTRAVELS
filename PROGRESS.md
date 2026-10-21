@@ -6,6 +6,8 @@
 >
 > **Remaining:** finish All trips, Payments, Visas, Quotes list and Settings; correct the visa seed; remove the temporary component gallery; update documentation; perform final QA and review. Resume at **Phase 7 in REDESIGN_PLAN.md**, using REDESIGN_HANDOFF.md as the specification. Do not restart completed phases or treat this task as complete. Documentation updates after the pause did not resume implementation.
 >
+> **Required review fixes before and during Phase 7:** a review of Phases 0–6 added fixes **R1–R4** to REDESIGN_PLAN.md (section "Review fixes R1–R4"). **Phase 7 must start with R1, the formatting-only commit.** See "Review of Phases 0–6" below.
+>
 > The phase-by-phase work and commits for this paused task are recorded below under **MEP redesign execution** and **Work log — 21 October 2026**. The earlier **Plan / gates** section records the completed original demo, not completion of the redesign.
 
 Goal: reliable 7-minute Philippine agency demo with one source of truth for money.
@@ -51,6 +53,30 @@ Approved spec: REDESIGN_HANDOFF.md. Plan: REDESIGN_PLAN.md. Active branch: redes
 
 Preflight rulings: use approved HTML mocks instead of generating a new image concept; user has already approved this design and asked to execute the supplied plan. Preserve original test assertions while moving their navigation targets where the two-layer design requires it. The historical QA default Horizon branding is superseded by the explicit MEP default in the redesign handoff.
 
+## Review of Phases 0–6 — 21 October 2026
+
+An independent review of commit `e1a4b03` on `redesign/mep` was requested by the user.
+
+### Verified by re-running everything
+
+- **Gate:** lint clean, typecheck clean, **14/14 unit**, static build, **12/12 Chromium e2e**. These match the counts claimed above.
+- **Pages:** all 12 routes at 1440 px and 390 px have no console errors, the DEMO label, and no page-level horizontal scroll.
+- **Visual match:** Home, People asking and Quote closely match `design/mocks/`. The Trip front matches its layout.
+- **Money:** ₱220,000 at 10%, ₱230,000 at 15%; deposit ₱60,000 then ₱6,000 leaves ₱154,000.
+- **Scope:** spec files and mocks are unchanged since `3c73c7a`. No new dependencies, nothing pushed.
+- **Content kept:** feature code size per area is about the same as before the redesign (bookings 16.2 KB → 18.5 KB, quotations 18.4 KB → 16.3 KB, inquiries + customer 16.5 KB → 12.6 KB). No functionality appears to have been dropped.
+
+### Required fixes, now in REDESIGN_PLAN.md as R1–R4
+
+| ID | Severity | Finding | Where it's fixed |
+|---|---|---|---|
+| R1 | **Major** | Source compressed onto huge lines (up to 8,051 characters in `booking-details.tsx`, 12,639 in `globals.css`; components on 12–19 lines). It runs, but it's unreviewable and unmaintainable, and no formatter is installed. | First commit of Phase 7: add Prettier (user-approved devDependency), format only, same gate counts, then `format:check` joins the gate. |
+| R2 | Moderate | `/bookings/view?id=b1`: Home marks Miguel's airfare as due tomorrow 5 PM, but the Trip page's next step is "Confirm flight, hotel, tours and car", and its checklist says "Issue the plane tickets — By Thu 5 Nov". The urgent deadline is missing where staff act on it. | Phase 7: services due within 72 hours become "Do this next", with the same reference dialog as Home, plus unit and e2e tests. |
+| R3 | Minor | Copy and dates: "Talked 1 days ago"; Home quote tag "BY OCT 24" with no weekday; `attention()` uses "Oct 22, 5:00 PM" while Home says "Tomorrow, 5 PM"; raw ISO dates on unrestyled pages. | Phase 7: `lastContactLabel` and `dueLabel` helpers with unit tests, used everywhere. |
+| R4 | Minor (coverage) | The rewritten e2e test 5 dropped the browser check of the Trip details page's "Enter a simulated ticket / confirmation number first." guard. The store guard is still unit-tested. | Phase 7: new e2e test on `/bookings/details?id=b1`, keeping the Home test too. |
+
+Already scheduled and not new: the visa seed bug (El Nido still shows "Waiting on visa papers" for a domestic trip, Phase 8), and All trips, Payments, Visas, Quotes and Settings still in the old layout (Phase 7).
+
 ## Paused at the user’s request
 
 Paused after completing Phase 6. Resume at **Phase 7** in REDESIGN_PLAN.md. Do not restart the completed phases. Branch: redesign/mep. All Phase 6 changes are committed as `redesign: phase 6 — trip checklist and full details`. The user-owned untracked .claude/ directory remains untouched.
@@ -59,7 +85,7 @@ Remaining work:
 - Phase 7: restyle All trips, Payments, Visas, Quotes list and Settings to the approved mocks/system. Preserve exact financial assertions; when adding received-payment tables, scope ledger assertions to the receivables table to avoid matching the same customer at a different grain.
 - Phase 8: fix seed visa eligibility/countries (six cases across b1, b6, b7; same stage mix); remove temporary /dev/blocks gallery; update README/DEMO_SCRIPT/DECISIONS/QA_HANDOFF for the new UI; final responsive, keyboard, print and console QA; independent review and final gate.
 - Existing screenshots and mock references are in /tmp/mep-mock-*.png and /tmp/mep-app-*.png. MEP quote print inspected at /tmp/mep-quote-print.png; one A4 page confirmed.
-- Existing source has been kept functionally gated; run formatting in the final polish pass. No new npm dependencies were added.
+- Existing source has been kept functionally gated. *(Superseded by review: formatting is now required fix R1, the first commit of Phase 7, not a final polish step.)* No new npm dependencies were added.
 - Latest passing counts: **14 unit / 12 e2e**. Current export includes the temporary blocks gallery (remove in Phase 8).
 - Browser plugin absent: Playwright Chromium is the recorded browser fallback. Existing local mock server on 4300 and static server on 4173 were reused after checking their contents.
 - Preserve the user’s current browser LocalStorage; QA uses isolated Playwright contexts. Existing persisted branding is preserved until the user chooses Reset demo.
@@ -111,7 +137,7 @@ Latest full gate before pausing, against the Phase 6 implementation:
 
 ### Resume point and limits
 
-Resume with **Phase 7 of REDESIGN_PLAN.md**. Remaining screens: All trips, Payments, Visas, Quotes list and Settings. Phase 8 still includes correcting seeded visa eligibility/countries, removing the component gallery, formatting, updating the user/QA documents, final responsive/keyboard/print checks, independent review and the final combined gate.
+Resume with **Phase 7 of REDESIGN_PLAN.md**, starting with **review fix R1** (formatting-only commit), then R2–R4. Formatting has moved from Phase 8 to R1. Remaining screens: All trips, Payments, Visas, Quotes list and Settings. Phase 8 still includes correcting seeded visa eligibility/countries, removing the component gallery, re-verifying R1–R4, updating the user/QA documents, final responsive/keyboard/print checks, independent review and the final combined gate.
 
 The full redesign is **not yet complete**. The original README, demo script and QA documents still describe parts of the prior interface until Phase 8 updates them. The visa seed issue described in the redesign handoff has not yet been corrected. Existing persisted branding is intentionally retained until Reset demo is chosen.
 

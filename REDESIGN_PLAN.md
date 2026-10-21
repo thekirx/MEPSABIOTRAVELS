@@ -5,7 +5,7 @@ Read `REDESIGN_HANDOFF.md` first. It holds the why, the specs and the rules. Thi
 ## Working rules
 
 - Work on a branch: `git switch -c redesign/mep`. Make **one commit per phase**, with message `redesign: phase N — <name>`.
-- Run the **gate** after every phase. Don't start the next phase until the gate is green.
+- Run the **gate** after every phase. Don't start the next phase until the gate is green. After review fix R1 lands, the gate starts with `npm run format:check`.
 - **Gate** = `npm run lint && npm run typecheck && npm test && npm run build && npm run e2e`. Plus a visual check of the phase's screens at **1440 × 900**, **1024 × 768** and **390 × 844** against the mock in `design/mocks/` (view the mocks with `npx http-server design/mocks -p 4300 -c-1`).
 - Don't change domain maths (`src/domain/`) except where a phase says so. Add selectors instead of storing derived values.
 - If an e2e test breaks because a label moved, either keep the accessible name (preferred) or update the test with an **equally strong** assertion, and note it in `PROGRESS.md`.
@@ -101,16 +101,89 @@ Files: `src/features/bookings/booking-detail.tsx` (split it), `src/app/bookings/
 
 **Done when:** the demo journeys 2–5 in `QA_HANDOFF.md` pass on the new UI, and the gate is green.
 
+## Review fixes R1–R4 (required, added 21 Oct 2026)
+
+A review of Phases 0–6 (commit `e1a4b03`) confirmed the gate and visuals, but found the issues below. They're **required**. R1 must be the **first commit of Phase 7**. R2–R4 go into Phase 7 or 8 as marked. Each needs a red-then-green test where it says so.
+
+### R1 · Code formatting (first commit of Phase 7, formatting only)
+
+**Problem:** the Phase 1–6 source is compressed onto huge lines, so it can't be reviewed or maintained:
+
+- Whole components sit on 12–19 lines.
+- Single lines reach 8,051 characters (`src/features/bookings/booking-details.tsx`), 8,281 (`quotation-details.tsx`) and 12,639 (`src/app/globals.css`).
+
+The project has no formatter installed.
+
+**Fix:**
+
+1. Add `prettier` as an exact-version **devDependency**. The user requested this fix on 21 Oct 2026, so this is an allowed exception to "Ask before adding a dependency".
+2. Add `"format": "prettier --write ."` and `"format:check": "prettier --check ."`. Add `.prettierignore` covering `out/`, `.next/`, `node_modules/`, `test-results/`, `playwright-report/`, `design/mocks/` and `*.png`. Use Prettier defaults (match the formatting the pre-redesign code already used).
+3. Run `npm run format` once and commit it **alone**: `redesign: phase 7 — R1 format source (no behaviour change)`. The gate must pass with the **same counts** before and after (14 unit / 12 e2e at review time).
+4. From then on, **Gate** = `npm run format:check && npm run lint && …` (update the Working rules line above).
+5. Don't hand-write compressed code again. Write readable components, and split files over ~300 lines.
+
+**Done when:** `format:check` passes, and no line under `src/` or `tests/` is longer than 160 characters except long strings or URLs. Check with `awk 'length > 160' $(git ls-files 'src/*' 'tests/*')`.
+
+### R2 · Trip page must show the urgent service deadline (Phase 7)
+
+**Problem:** Home flags Miguel's airfare (HTT-B-2026-0081, On Hold, deadline tomorrow 5 PM) as the most urgent job. His Trip page (`/bookings/view?id=b1`) instead says "Confirm flight, hotel, tours and car" as the next step and "Issue the plane tickets — By Thu 5 Nov". The real deadline is missing exactly where staff act on it.
+
+**Fix:**
+
+1. Extend `tripSteps` (or add `tripNext(s, booking)`) so that an open service (not Issued or Cancelled) whose `deadline` is within 72 hours, the same rule as `attention()`, **becomes the "Do this next" item**, ahead of the normal order.
+2. **Airfare:** title "Issue {first name}'s plane ticket", red due tag "Tomorrow, 5 PM", button **Record ticket**. Use the same reference dialog and validation as Home.
+3. **Other categories:** "Confirm the {category}" with **Add reference**.
+4. The matching checklist row shows the same red due label instead of the generic date.
+
+**Tests:**
+
+- Unit (red then green): seeded b1 → next item is the airfare with the deadline label. After issuing with a reference → next item falls back to the normal order.
+- e2e: `/bookings/view?id=b1` shows "Issue Miguel's plane ticket" and "Tomorrow, 5 PM". Recording `SIM-TKT-7788` there clears it, and the Home job disappears too.
+
+### R3 · Copy and date formatting (Phase 7)
+
+**Problems:**
+
+- People asking shows "Talked **1 days** ago". The source is a template string in `src/features/inquiries/inquiries.tsx`.
+- Home's quote job shows "BY OCT 24" without a weekday, against handoff §9 ("By Sat 24 Oct").
+- `attention()` tags use `"MMM d, h:mm a"` ("Oct 22, 5:00 PM") while Home shows "Tomorrow, 5 PM", so the two formats are inconsistent.
+
+**Fix:**
+
+1. Add pure helpers in `src/domain/` and use them everywhere instead of ad-hoc strings:
+   - `lastContactLabel(days)`: "Talked today" / "Talked yesterday" / "Talked N days ago".
+   - `dueLabel(date, now)`: "Today, 5 PM" / "Tomorrow, 5 PM" / "Sat 24 Oct", with an optional "By " prefix.
+2. Find every remaining hard-coded format with `grep -rn "MMM d\|days ago\|yyyy-MM-dd" src/features src/components` and replace display uses. Storage formats stay `yyyy-MM-dd`.
+3. Don't show raw ISO dates (for example `2026-11-05`) anywhere in the UI.
+
+**Tests (unit, red then green):** both helpers, including 0, 1 and 2 days, today, tomorrow and a later weekday.
+
+### R4 · Restore browser coverage of the Trip details reference guard (Phase 7)
+
+**Problem:** the original e2e test 5 checked that the **Trip details** page refuses `Issued` without a reference. The rewritten test 5 only covers the Home button. The store guard is still unit-tested, but the details-page UI path that shows "Enter a simulated ticket / confirmation number first." has no browser test.
+
+**Fix:** add an e2e test on a fresh reset:
+
+1. Open `/bookings/details?id=b1`, find the airfare row, and select **Service status = Issued** with a blank **Supplier reference**.
+2. Expect "Enter a simulated ticket / confirmation number first." to be visible and the status to stay unchanged.
+3. Fill `SIM-TKT-7788`, then select Issued. Expect the row to show Issued.
+4. Open `/dashboard` and expect Miguel's ticket job to be gone.
+
+Keep the existing Home test 5 as well.
+
+**Done when (R1–R4):** each fix is in the phase named, its tests passed red first and then green, and `PROGRESS.md` records it.
+
 ## Phase 7 — All trips, Payments, Visas, Quotes list, Settings
 
 Files: `src/features/bookings/booking-list.tsx`, `src/features/payments/payments-ledger.tsx`, `src/features/visas/visas.tsx`, `src/features/quotations/quotation-list.tsx`, `src/app/settings/page.tsx`.
 
+0. **First:** R1 formatting commit (above). Then R2, R3 and R4, either alongside the screens below or as their own commits.
 1. **All trips** per `trips.html`: stat blocks, filters with counts, search, table with next-step chips from `tripSteps`.
 2. **Payments** per `payments.html`: four blocks, "Who owes what" sorted by urgency with a Record button per row, payments received, statement printing.
 3. **Visas** per `visas.html`: missing-case callout, stage filters, cases table, selected case panel (`?case=`), checklist, "Visa stage" select, "All requirements complete".
 4. **Quotes list** and **Settings:** restyle in the same system. Keep "Agency name", "Reset demo data" and "Reset demo".
 
-**Done when:** each page matches its mock (or the system, for pages without a mock), and the gate is green.
+**Done when:** each page matches its mock (or the system, for pages without a mock), R1–R4 are done, and the gate (now including `format:check`) is green.
 
 ## Phase 8 — Seed fix, docs and final QA
 
@@ -124,6 +197,11 @@ Files: `src/features/bookings/booking-list.tsx`, `src/features/payments/payments
    - No page-level horizontal scroll.
    - Keyboard-only pass through each front screen's dialogs.
 6. Check the §2 "Never do" list against every screen.
+7. **Re-verify R1–R4:**
+   - `format:check` passes, and the 160-character line check is clean.
+   - Miguel's Trip page shows the deadline.
+   - No "1 days", no raw ISO dates, and weekday due labels throughout.
+   - The details-page reference-guard e2e test passes.
 
 **Done when:** the full gate is green, `PROGRESS.md` holds final counts and screenshots paths, and the demo can be presented end to end.
 
@@ -140,7 +218,7 @@ Files: `src/features/bookings/booking-list.tsx`, `src/features/payments/payments
 | 4 People asking + Customer | M |
 | 5 Quote + Quote details + print | L |
 | 6 Trip + Trip details + `tripSteps` | L |
-| 7 Trips, Payments, Visas, Quotes, Settings | L |
+| 7 R1–R4 review fixes, then Trips, Payments, Visas, Quotes, Settings | L+ |
 | 8 Seed fix, docs, QA | M |
 
 ## Ask the user before you
