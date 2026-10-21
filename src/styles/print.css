@@ -10,9 +10,8 @@
     color: #1f2937 !important;
   }
   .no-print,
-  .sidebar,
-  .topbar,
-  .app-footer,
+  .appbar,
+  .footer,
   [data-sonner-toaster] {
     display: none !important;
   }

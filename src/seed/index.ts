@@ -272,7 +272,7 @@ export function buildSeed(today = new Date()): DemoData {
   });
   return {
     schemaVersion: 1,
-    settings: { agencyName: "Horizon Travel & Tours", logoText: "H" },
+    settings: { agencyName: "MEP Sabio Travel", logoText: "MEP" },
     agents,
     customers,
     leads,

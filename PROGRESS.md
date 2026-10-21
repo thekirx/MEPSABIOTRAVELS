@@ -32,7 +32,7 @@ Review focus: repeat acceptance must not duplicate a booking; overpayment and in
 Approved spec: REDESIGN_HANDOFF.md. Plan: REDESIGN_PLAN.md. Active branch: redesign/mep. Existing untracked .claude/ is user-owned and left untouched. Native execution on the user-selected branch; no additional worktree or dependencies.
 
 - Phase 0 — Baseline: npm ci, lint (0 errors, 1 pre-existing unused mock-script variable warning), typecheck, 8 unit tests, static build, 10 Chromium tests PASS. Mock references captured outside the repo at /tmp/mep-mock-*.png. Approved desktop references inspected with view_image; all mock pages loaded. Browser plugin absent, regular Playwright used. Existing mock server on port 4300 verified against repository contents.
-- Phase 1 — Brand/tokens/fonts/top bar: pending.
+- Phase 1 — Complete. MEP assets/default settings, Barlow fonts, charcoal top bar, active navigation, search/account/reset, cream/lime/red tokens and print nav isolation. Full gate PASS: lint 0 warnings, typecheck, 8 unit, build, 10 e2e. /tmp/mep-app-*-{1440,1024,390}.png; no console errors or overflow on dashboard, quote, booking and settings. Mock flow exercised through Ready to fly and reset. Mock-only JS excluded from app lint.
 - Phase 2 — Shared blocks/labels/places/forms: pending.
 - Phase 3 — Home: pending.
 - Phase 4 — People asking/customer: pending.

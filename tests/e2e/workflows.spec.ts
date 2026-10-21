@@ -43,7 +43,7 @@ test("1: Andrea lead → quote, live math and print isolation", async ({
   await page.emulateMedia({ media: "print" });
   await expect(page.locator(".print-document")).toBeVisible();
   await expect(page.locator(".staff-only")).toBeHidden();
-  await expect(page.locator(".sidebar")).toBeHidden();
+  await expect(page.locator(".appbar")).toBeHidden();
 });
 test("2: conversion creates consistent booking and increments KPI", async ({
   page,
@@ -148,6 +148,7 @@ test("global search updates customer drawer within the current inquiries route",
   page,
 }) => {
   await page.goto("/inquiries");
+  await page.getByRole("button",{name:"Search",exact:true}).click();
   await page.getByLabel("Global search").fill("Andrea");
   await page
     .getByRole("link")
@@ -170,7 +171,7 @@ test("storage schema mismatches reseed safely", async ({ page }) => {
   );
   await page.reload();
   await expect(page.getByLabel("Agency name")).toHaveValue(
-    "Horizon Travel & Tours",
+    "MEP Sabio Travel",
   );
 });
 test("corrupt storage recovers to a usable seed", async ({ page }) => {
@@ -179,7 +180,7 @@ test("corrupt storage recovers to a usable seed", async ({ page }) => {
   );
   await page.reload();
   await expect(page.getByLabel("Agency name")).toHaveValue(
-    "Horizon Travel & Tours",
+    "MEP Sabio Travel",
   );
 });
 test("adding a traveler is reflected consistently in booking list", async ({
