@@ -1,5 +1,13 @@
 # Optrizo TravelOS — execution plan and progress
 
+> **Paused task: MEP Sabio Travel redesign**
+>
+> Paused at the user's explicit request: “pause and continue later”. Implementation stopped after Phase 6, commit `fdd7f58`, on branch `redesign/mep`. Phases 0–6 are complete; Phases 7–8 remain unfinished. The last full gate passed 14 unit tests and 12 Chromium tests, plus lint, typecheck and static build.
+>
+> **Remaining:** finish All trips, Payments, Visas, Quotes list and Settings; correct the visa seed; remove the temporary component gallery; update documentation; perform final QA and review. Resume at **Phase 7 in REDESIGN_PLAN.md**, using REDESIGN_HANDOFF.md as the specification. Do not restart completed phases or treat this task as complete. Documentation updates after the pause did not resume implementation.
+>
+> The phase-by-phase work and commits for this paused task are recorded below under **MEP redesign execution** and **Work log — 21 October 2026**. The earlier **Plan / gates** section records the completed original demo, not completion of the redesign.
+
 Goal: reliable 7-minute Philippine agency demo with one source of truth for money.
 Architecture: Next App Router static export, client Zustand persisted state; pure domain math; feature components; shadcn primitives. Native execution in this empty repository.
 Spec: user-supplied Optrizo TravelOS brief. No extra planning documents per its deliverables constraint.
