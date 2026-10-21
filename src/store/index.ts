@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { buildSeed } from "@/seed";
 import { createActions, type TravelStore } from "./actions";
+import { migrateSaved } from "./migrate";
 export const useTravelStore = create<TravelStore>()(
   persist((...args) => ({ ...buildSeed(), ...createActions(...args) }), {
     name: "travelos-demo-v1",
@@ -11,10 +12,10 @@ export const useTravelStore = create<TravelStore>()(
     skipHydration: true,
     migrate: () => buildSeed(),
     merge: (persisted, current) => {
-      const saved = persisted as Partial<TravelStore> | undefined;
+      const saved = migrateSaved(persisted as Partial<TravelStore> | undefined);
       return {
         ...current,
-        ...(saved?.schemaVersion === 1 ? saved : buildSeed()),
+        ...(saved ?? buildSeed()),
         hydrated: false,
       };
     },

@@ -1,7 +1,8 @@
 import { addDays, addMonths, format, startOfDay } from "date-fns";
 import type { DemoData, Quotation, Booking } from "@/domain/types";
 import { leadStages, sources } from "@/domain/types";
-import { quoteTotals } from "@/domain/quote";
+import { schemaVersion } from "@/store/migrate";
+import { quoteTotals, insuranceLine } from "@/domain/quote";
 export const checklistItems = [
   "Passport (valid at least 6 months)",
   "Completed application form",
@@ -75,6 +76,7 @@ export function buildSeed(today = new Date()): DemoData {
       "Twin-sharing hotel accommodation",
       "Daily breakfast",
       "Scheduled tours and airport transfers",
+      "Travel insurance",
     ],
     exclusions: [
       "Personal expenses",
@@ -104,7 +106,7 @@ export function buildSeed(today = new Date()): DemoData {
     phone: `0900 000 ${String(i + 1).padStart(4, "0")}`,
     email: `${name.toLowerCase().replaceAll(" ", ".")}@example.com`,
     city: ["Quezon City", "Makati", "Pasig", "Cebu City"][i % 4],
-    source: sources[i % 5],
+    source: sources[i % sources.length],
     createdAt: date(-60 + i),
   }));
   const leads = names.slice(0, 18).map((_, i) => ({
@@ -170,14 +172,24 @@ export function buildSeed(today = new Date()): DemoData {
         costCentavos: i === 0 ? 3000000 : 1000000,
         basis: "per_group",
       },
+      insuranceLine(`ql${i}-5`),
     ],
-    markupPct: 10,
+    // Fixed peso markup per traveler. Andrea's quote stays at ₱220,000.
+    markupPerPaxCentavos: i === 0 ? 350000 : 150000 + (i % 3) * 50000,
     discountCentavos: 0,
     validUntil: date(i === 0 ? 3 : 2 + i),
     status: i === 0 ? "Sent" : "Accepted",
     version: 1,
     createdAt: date(-12 - i),
     itineraryDays: packages[i % 6].itineraryDays,
+    ...(i === 0 && {
+      flightDetails: [
+        "Skyline Wings (fictional) · 4 adults · economy · 20 kg checked bag each",
+        `Going · ${format(addDays(day, 45), "EEE d MMM")} · SW 412 Manila 08:05 → Tokyo Narita 13:30 · direct`,
+        `Return · ${format(addDays(day, 50), "EEE d MMM")} · SW 921 Osaka Kansai 15:10 → Taipei 17:20, connecting SW 205 Taipei 18:40 → Manila 21:00`,
+      ].join("\n"),
+      flightScreenshots: ["/demo/flight-options-q1.png"],
+    }),
   }));
   const bookings: Booking[] = quotations.slice(1).map((q, i) => ({
     id: `b${i + 1}`,
@@ -280,7 +292,7 @@ export function buildSeed(today = new Date()): DemoData {
     },
   );
   return {
-    schemaVersion: 1,
+    schemaVersion,
     settings: { agencyName: "MEP Sabio Travel", logoText: "MEP" },
     agents,
     customers,

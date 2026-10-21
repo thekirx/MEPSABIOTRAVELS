@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useTravelStore } from "@/store";
-import { quoteTotals } from "@/domain/quote";
+import { quoteTotals, markupPerPax } from "@/domain/quote";
 import { money } from "@/domain/money";
 import { type Quotation } from "@/domain/types";
 import { HeadBlock, DetailLayout, Sheet, KeyValues } from "@/components/blocks";
@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QuoteTripSection, QuoteServicesSection } from "./quotation-sections";
 import { QuotationDocument } from "./quotation-document";
+import { QuoteFlightsSection } from "./quote-flights";
+import { MarkupPicker } from "./markup-picker";
 export function QuotationDetails() {
   const s = useTravelStore(),
     params = useSearchParams();
@@ -66,6 +68,11 @@ export function QuotationDetails() {
         <DetailLayout
           sections={[
             { id: "trip", label: "Trip" },
+            {
+              id: "flights",
+              label: "Flights",
+              count: q.flightScreenshots?.length,
+            },
             { id: "services", label: "Services", count: q.lines.length },
             { id: "price", label: "Price" },
             {
@@ -79,33 +86,18 @@ export function QuotationDetails() {
           ]}
         >
           <QuoteTripSection q={q} locked={locked} update={update} />
+          <QuoteFlightsSection q={q} locked={locked} update={update} />
           <QuoteServicesSection q={q} locked={locked} update={update} />
           <Sheet id="price" title="Price">
             <div className="form-grid">
               <div className="section-stack">
-                <Field label="Markup (%)">
-                  <Input
-                    type="number"
-                    min="0"
-                    value={q.markupPct}
-                    disabled={locked}
-                    onChange={(e) =>
-                      update({ markupPct: Number(e.target.value) })
-                    }
+                <Field label="Markup per person">
+                  <MarkupPicker
+                    q={q}
+                    locked={locked}
+                    onChange={(v) => update({ markupPerPaxCentavos: v })}
                   />
                 </Field>
-                <div className="filters">
-                  {[8, 10, 12, 15].map((v) => (
-                    <button
-                      key={v}
-                      className="chip wait"
-                      disabled={locked}
-                      onClick={() => update({ markupPct: v })}
-                    >
-                      {v}%
-                    </button>
-                  ))}
-                </div>
                 <Field label="Discount (PHP)">
                   <Input
                     type="number"
@@ -133,8 +125,8 @@ export function QuotationDetails() {
                   items={[
                     { label: "Our cost", value: money(t.netCost) },
                     {
-                      label: `Markup ${q.markupPct}%`,
-                      value: money(t.selling + q.discountCentavos - t.netCost),
+                      label: `Markup (${money(markupPerPax(q))} × ${q.paxCount})`,
+                      value: money(t.markup),
                     },
                     { label: "Discount", value: money(q.discountCentavos) },
                     { label: "Customer pays", value: money(t.selling) },

@@ -1,6 +1,6 @@
 "use client";
 import { useTravelStore } from "@/store";
-import { quoteTotals } from "@/domain/quote";
+import { quoteTotals, insuranceLine } from "@/domain/quote";
 import { money } from "@/domain/money";
 import { categories, type Quotation, type QuoteLine } from "@/domain/types";
 import { Sheet } from "@/components/blocks";
@@ -28,11 +28,17 @@ export function QuoteTripSection({ q, locked, update }: Props) {
             disabled={locked}
             onChange={(e) => {
               const p = s.packages.find((p) => p.id === e.target.value);
+              // Insurance stays on every trip, whatever the package.
+              const insurance = q.lines.filter(
+                (l) => l.category === "Insurance",
+              );
+              if (!insurance.length)
+                insurance.push(insuranceLine(`${q.id}-ins-${q.version}`));
               if (!p) {
                 update({
                   packageId: undefined,
                   itineraryDays: [],
-                  lines: [],
+                  lines: insurance,
                 });
                 return;
               }
@@ -50,6 +56,7 @@ export function QuoteTripSection({ q, locked, update }: Props) {
                     costCentavos: Math.round(p.basePricePerPaxCentavos / 1.1),
                     basis: "per_pax",
                   },
+                  ...insurance,
                 ],
               });
             }}

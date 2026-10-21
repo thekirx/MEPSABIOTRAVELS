@@ -26,6 +26,20 @@ export function QuotationDocument({ quote: q }: { quote: Quotation }) {
           {format(parseISO(q.departDate), "d MMM")}–
           {format(parseISO(q.returnDate), "d MMM yyyy")}
         </p>
+        {(q.flightDetails?.trim() || !!q.flightScreenshots?.length) && (
+          <section className="doc-flights">
+            <h3>
+              Your flights <small>Not yet ticketed · fares may change</small>
+            </h3>
+            {q.flightDetails?.trim() && (
+              <p className="doc-flight-text">{q.flightDetails.trim()}</p>
+            )}
+            {q.flightScreenshots?.map((src, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={i} src={src} alt={`Flight details ${i + 1}`} />
+            ))}
+          </section>
+        )}
         <ul className="doc-services">
           {q.lines.map((l) => (
             <li key={l.id}>{l.description}</li>

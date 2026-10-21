@@ -7,19 +7,25 @@ import { format, parseISO } from "date-fns";
 import { useTravelStore } from "@/store";
 import { destination } from "@/store/selectors";
 import { destinationCity } from "@/domain/places";
-import { quoteTotals } from "@/domain/quote";
+import {
+  quoteTotals,
+  hasInsurance,
+  insuranceLine,
+  defaultInsuranceCentavos,
+} from "@/domain/quote";
 import { money } from "@/domain/money";
 import { Block, BigNumber } from "@/components/blocks";
-import { Modal, Field, EmptyState, notify } from "@/components/shared";
-import { Input } from "@/components/ui/input";
+import { Modal, EmptyState, notify } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { QuotationDocument } from "./quotation-document";
+import { MarkupPicker } from "./markup-picker";
+import { EmailApprovalDialog } from "./email-approval";
 export function QuotationBuilder() {
   const s = useTravelStore(),
     params = useSearchParams(),
     router = useRouter();
   const [confirm, setConfirm] = useState(false),
-    [other, setOther] = useState(false),
+    [email, setEmail] = useState(false),
     [customerView, setCustomerView] = useState(true);
   const q = s.quotations.find((q) => q.id === params.get("id"));
   if (!q) return <EmptyState text="Quotation not found." />;
@@ -30,9 +36,10 @@ export function QuotationBuilder() {
     booking = s.bookings.find((b) => b.quotationId === q.id);
   const setMarkup = (v: number) =>
     notify(
-      () => s.updateQuotation(q.id, { markupPct: v }),
+      () => s.updateQuotation(q.id, { markupPerPaxCentavos: v }),
       "Price updated locally",
     );
+  const hasFlights = !!(q.flightDetails?.trim() || q.flightScreenshots?.length);
   return (
     <>
       <Link className="back no-print" href="/inquiries">
@@ -52,10 +59,13 @@ export function QuotationBuilder() {
       </section>
       <nav className="quote-steps no-print" aria-label="Quote steps">
         <Link href={`/quotations/edit?id=${q.id}#trip`}>✓ 1 · The trip</Link>
-        <Link href={`/quotations/edit?id=${q.id}#included`}>
-          ✓ 2 · What&apos;s included
+        <Link href={`/quotations/edit?id=${q.id}#flights`}>
+          {hasFlights ? "✓ 2 · Flights" : "2 · Add flights"}
         </Link>
-        <span aria-current="step">3 · The price</span>
+        <Link href={`/quotations/edit?id=${q.id}#services`}>
+          {hasInsurance(q) ? "✓" : ""} 3 · Services &amp; insurance
+        </Link>
+        <span aria-current="step">4 · Price &amp; send</span>
         <Link
           className="edit-every-detail"
           href={`/quotations/edit?id=${q.id}`}
@@ -73,53 +83,46 @@ export function QuotationBuilder() {
             <p>
               {locked
                 ? "This quote was accepted, so the price is locked."
-                : `The trip costs us ${money(t.netCost)}. ${first} never sees this.`}
+                : `The trip costs us ${money(t.netCost)}. Add a fixed amount per person. ${first} never sees this.`}
             </p>
-            <div
-              className="markup-options"
-              role="radiogroup"
-              aria-label="Markup"
-            >
-              {[8, 10, 12, 15].map((v) => (
-                <button
-                  key={v}
-                  role="radio"
-                  aria-checked={q.markupPct === v}
-                  disabled={locked}
-                  onClick={() => setMarkup(v)}
-                >
-                  {v}%
-                </button>
-              ))}
-            </div>
-            <div className="custom-markup">
-              <button
-                className="linkish"
-                disabled={locked}
-                onClick={() => setOther(!other)}
-              >
-                Other…
-              </button>
-              {other && (
-                <Field label="Markup (%)">
-                  <Input
-                    aria-label="Markup (%)"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={q.markupPct}
-                    disabled={locked}
-                    onChange={(e) => setMarkup(Number(e.target.value))}
-                  />
-                </Field>
-              )}
-            </div>
-            {other && (
-              <p className="muted">
-                Use the markup field for any positive percentage.
-              </p>
-            )}
+            <MarkupPicker q={q} locked={locked} onChange={setMarkup} />
+            <p className="muted">
+              Markup {money(t.markup)} in total for {q.paxCount}{" "}
+              {q.paxCount === 1 ? "person" : "people"}.
+            </p>
           </Block>
+          {!locked && !hasInsurance(q) && (
+            <Block
+              variant="red"
+              className="staff-only"
+              title="No travel insurance yet"
+              action={
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    notify(
+                      () =>
+                        s.updateQuotation(q.id, {
+                          lines: [
+                            ...q.lines,
+                            insuranceLine(`${q.id}-ins-${q.version}`),
+                          ],
+                        }),
+                      "Travel insurance added",
+                    )
+                  }
+                >
+                  Add travel insurance
+                </Button>
+              }
+            >
+              <p>
+                Every trip should include insurance. Adds{" "}
+                {money(defaultInsuranceCentavos)} per person to our cost; edit
+                it under Services.
+              </p>
+            </Block>
+          )}
           <Block
             variant="lime"
             className="pays staff-only"
@@ -175,16 +178,10 @@ export function QuotationBuilder() {
               Save
             </Button>
             <Button
-              variant="outline"
-              disabled={locked}
-              onClick={() =>
-                notify(
-                  () => s.markQuotationSent(q.id),
-                  "Quote marked as sent (demo)",
-                )
-              }
+              disabled={locked || t.selling <= 0}
+              onClick={() => setEmail(true)}
             >
-              Mark as Sent
+              Email {first} for approval
             </Button>
             <Button variant="outline" onClick={() => window.print()}>
               Print / Save as PDF
@@ -211,6 +208,9 @@ export function QuotationBuilder() {
           )}
         </aside>
       </div>
+      {email && (
+        <EmailApprovalDialog q={q} open={email} onOpenChange={setEmail} />
+      )}
       <Modal
         open={confirm}
         onOpenChange={setConfirm}

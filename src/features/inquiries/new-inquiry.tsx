@@ -48,7 +48,7 @@ export function NewInquiry({
           name: "source",
           label: "Source",
           options: sources,
-          value: "Facebook Messenger",
+          value: "Email",
         },
         {
           name: "agent",

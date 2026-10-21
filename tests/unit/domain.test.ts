@@ -27,10 +27,13 @@ describe("deterministic seed and quotation math", () => {
       { ...q.lines[0], costCentavos: 12345, basis: "per_pax" },
       { ...q.lines[1], costCentavos: 10001, basis: "per_group" },
     ];
+    // Quotes saved before peso markup still price with their old percentage.
+    q.markupPerPaxCentavos = undefined;
     q.markupPct = 12.5;
     q.discountCentavos = 100;
     expect(quoteTotals(q)).toEqual({
       netCost: 59381,
+      markup: 7423,
       selling: 66704,
       grossProfit: 7323,
       perPax: 16676,
@@ -115,7 +118,9 @@ describe("store hero workflow", () => {
       2,
     );
     expect(state.leads[0].stage).toBe("Won");
-    expect(() => state.updateQuotation("q1", { markupPct: 50 })).toThrow();
+    expect(() =>
+      state.updateQuotation("q1", { markupPerPaxCentavos: 50000 }),
+    ).toThrow();
     state.recordPayment(id, 6000000, "Bank Transfer", "Deposit");
     state = useTravelStore.getState();
     expect(

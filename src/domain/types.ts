@@ -38,6 +38,7 @@ export const visaStages = [
   "Released",
 ] as const;
 export const sources = [
+  "Email",
   "Facebook Messenger",
   "Walk-in",
   "Viber",
@@ -121,7 +122,14 @@ export type Quotation = {
   returnDate: string;
   paxCount: number;
   lines: QuoteLine[];
-  markupPct: number;
+  /** Fixed peso markup added for each traveler, in centavos. */
+  markupPerPaxCentavos?: number;
+  /** Old percentage markup. Only kept on quotes saved before peso markup. */
+  markupPct?: number;
+  /** Flight options as the agent found them: airline, flight numbers, times, connections. */
+  flightDetails?: string;
+  /** Screenshots of the flight details (compressed image data URLs). */
+  flightScreenshots?: string[];
   discountCentavos: number;
   validUntil: string;
   status: (typeof quoteStatuses)[number];

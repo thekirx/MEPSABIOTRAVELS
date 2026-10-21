@@ -40,10 +40,11 @@ test("1: Andrea lead → quote, live math and print isolation", async ({
     .click();
   await page.getByRole("link", { name: "HTT-Q-2026-0142" }).click();
   await expect(page.getByTestId("preview-total")).toHaveText("₱220,000.00");
-  await page.getByRole("button", { name: "Other…", exact: true }).click();
-  await page.getByLabel("Markup (%)").fill("15");
-  await expect(page.getByTestId("preview-total")).toHaveText("₱230,000.00");
-  await page.getByLabel("Markup (%)").fill("10");
+  // ₱3,500 is not a quick pick, so the custom amount field is already open.
+  await page.getByLabel("Markup per person (PHP)").fill("5000");
+  await expect(page.getByTestId("preview-total")).toHaveText("₱226,000.00");
+  await page.getByLabel("Markup per person (PHP)").fill("3500");
+  await expect(page.getByTestId("preview-total")).toHaveText("₱220,000.00");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.emulateMedia({ media: "print" });
   await expect(page.locator(".print-document")).toBeVisible();
@@ -61,7 +62,7 @@ test("2: conversion creates consistent booking and increments KPI", async ({
     .getByRole("link", { name: "See full trip details →", exact: true })
     .click();
   await expect(page.getByTestId("traveler-row")).toHaveCount(4);
-  await expect(page.getByTestId("service-row")).toHaveCount(4);
+  await expect(page.getByTestId("service-row")).toHaveCount(5);
   await expect(page.getByTestId("installment-row")).toHaveCount(2);
   await page.goto("/inquiries?view=table");
   await expect(
@@ -513,4 +514,30 @@ test("short-notice trip uses the same installment allocation on front, details a
   await expect(
     page.getByText("Due in 7 days", { exact: true }).locator(".."),
   ).toContainText("₱66,000.00");
+});
+test("quote flow: flight screenshot on the customer copy, insurance and email for approval", async ({
+  page,
+}) => {
+  await page.goto("/quotations/edit?id=q1#flights");
+  await page
+    .getByLabel("Upload flight screenshot")
+    .setInputFiles("public/demo/flight-options-q1.png");
+  await expect(page.getByAltText("Flight screenshot 2")).toBeVisible();
+  await page.goto("/quotations/view?id=q1");
+  await expect(page.locator(".doc-flights img")).toHaveCount(2);
+  await expect(page.locator(".doc-services")).toContainText("Travel insurance");
+  await page
+    .getByRole("button", { name: "Email Andrea for approval", exact: true })
+    .click();
+  const message = page.getByLabel("Email message");
+  await expect(message).toHaveValue(/₱220,000\.00/);
+  await expect(message).toHaveValue(/travel insurance included/);
+  await expect(message).toHaveValue(/SW 412 Manila/);
+  await expect(page.getByLabel("Email to")).toHaveValue(
+    "andrea.reyes@example.com",
+  );
+  await expect(page.getByRole("link", { name: "Open email" })).toHaveAttribute(
+    "href",
+    /^mailto:andrea\.reyes@example\.com\?subject=/,
+  );
 });

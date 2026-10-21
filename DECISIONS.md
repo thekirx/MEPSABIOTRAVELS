@@ -67,3 +67,15 @@ Original-build verification: lint/typecheck/build passed; 8 unit tests and 10 Ch
 - Current verification results and review disposition are in the latest PROGRESS.md entry. These replace the original-build counts above. No backend, auth, production integration, push or deployment was added.
 
 The independent final review found a short-notice installment-allocation inconsistency and raw history date prefixes. Both were repaired and re-reviewed. All payment surfaces now use one chronological allocation, including deposit completion, while quotation math and cumulative overdue rules remain unchanged. Generated history prefixes are formatted at rendering. Final verification: format/lint/typecheck/build, 21 unit and 20 Chromium browser tests passed; 39 route/viewport checks passed and default quotation/statement each rendered as one A4 page.
+
+## Agency quote flow (client email → flights → mock ticket → approval)
+
+Matches MEP's current process: client emails → quote → find flights (incl. connections) → screenshot flight details → mock ticket with markup → email client for approval. Insurance is included on every trip.
+
+- Markup is a fixed peso amount per traveler (`markupPerPaxCentavos`), not a percentage. Quick picks ₱500/₱1,000/₱1,500/₱2,000 plus any custom amount. New quotes default to ₱1,000 per person.
+- Saved data moves to schema version 2 on load. Open quotes switch to the peso amount that gives the same price (to the centavo per person). Accepted quotes and booking snapshots keep their old `markupPct` so locked prices and payment plans never move.
+- Travel insurance (default ₱1,500 per person, editable under Services) is on every seeded and new quote and survives package changes. A quote without insurance shows a red "No travel insurance yet" block with a one-click add. Packages list "Travel insurance" as included.
+- Each quote has a Flights section: free-text flight details plus up to four screenshots (paste, drop or upload). Screenshots are shrunk to JPEG in the browser and kept in LocalStorage, so no upload service. The customer copy shows them as "Your flights · not yet ticketed" — the mock ticket.
+- "Email [client] for approval" opens a pre-filled email (to, subject, message with flights, total, per-person, deposit, validity and insurance). Staff save the quote as PDF and attach it; the app cannot attach files to a mailto email. Opening or copying the email marks the quote Sent. Approval is still recorded with "Yes, book it".
+- "Email" is the first inquiry source and the default for new inquiries. Seeded customers now cycle through all six sources.
+- Andrea's demo quote keeps its ₱220,000 total: insurance is added and her markup is ₱3,500 per person. Other seeded quote totals change slightly. Demo airline and screenshot are fictional.

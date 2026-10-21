@@ -12,7 +12,7 @@ import type {
   Booking,
 } from "@/domain/types";
 import { buildSeed, checklistItems } from "@/seed";
-import { quoteTotals } from "@/domain/quote";
+import { quoteTotals, insuranceLine } from "@/domain/quote";
 import { bookingFinancials } from "@/domain/payments";
 import { addDays, format, isMatch } from "date-fns";
 const date = (offset = 0) => format(addDays(new Date(), offset), "yyyy-MM-dd");
@@ -140,8 +140,18 @@ export const createActions: StateCreator<TravelStore, [], [], Actions> = (
       departDate: date(45),
       returnDate: date(50),
       paxCount: l.paxCount,
-      lines: [],
-      markupPct: 10,
+      lines: [
+        {
+          id: `${id}-air`,
+          category: "Airfare",
+          description: "Round-trip economy airfare",
+          supplierName: "Airline",
+          costCentavos: 0,
+          basis: "per_pax",
+        },
+        insuranceLine(`${id}-ins`),
+      ],
+      markupPerPaxCentavos: 100000,
       discountCentavos: 0,
       validUntil: date(7),
       status: "Draft",
@@ -159,6 +169,7 @@ export const createActions: StateCreator<TravelStore, [], [], Actions> = (
     const next = {
       ...q,
       ...patch,
+      ...("markupPerPaxCentavos" in patch && { markupPct: undefined }),
       id: q.id,
       status: q.status,
       version: q.version + 1,
@@ -178,8 +189,12 @@ export const createActions: StateCreator<TravelStore, [], [], Actions> = (
       !Number.isInteger(next.paxCount) ||
       next.paxCount < 1 ||
       next.paxCount > 100 ||
-      !Number.isFinite(next.markupPct) ||
-      next.markupPct < 0 ||
+      (next.markupPerPaxCentavos !== undefined &&
+        (!Number.isSafeInteger(next.markupPerPaxCentavos) ||
+          next.markupPerPaxCentavos < 0)) ||
+      (next.markupPct !== undefined &&
+        (!Number.isFinite(next.markupPct) || next.markupPct < 0)) ||
+      (next.flightScreenshots?.length ?? 0) > 4 ||
       !Number.isSafeInteger(next.discountCentavos) ||
       next.discountCentavos < 0 ||
       next.lines.some(
