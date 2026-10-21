@@ -33,7 +33,7 @@ Approved spec: REDESIGN_HANDOFF.md. Plan: REDESIGN_PLAN.md. Active branch: redes
 
 - Phase 0 — Baseline: npm ci, lint (0 errors, 1 pre-existing unused mock-script variable warning), typecheck, 8 unit tests, static build, 10 Chromium tests PASS. Mock references captured outside the repo at /tmp/mep-mock-*.png. Approved desktop references inspected with view_image; all mock pages loaded. Browser plugin absent, regular Playwright used. Existing mock server on port 4300 verified against repository contents.
 - Phase 1 — Complete. MEP assets/default settings, Barlow fonts, charcoal top bar, active navigation, search/account/reset, cream/lime/red tokens and print nav isolation. Full gate PASS: lint 0 warnings, typecheck, 8 unit, build, 10 e2e. /tmp/mep-app-*-{1440,1024,390}.png; no console errors or overflow on dashboard, quote, booking and settings. Mock flow exercised through Ready to fly and reset. Mock-only JS excluded from app lint.
-- Phase 2 — Complete. Shared blocks, status chips, luggage tags, stage blocks, section navigation, detail sheets, validated FormDialog and payment form. Labels/places unit tests added RED→GREEN. Gate PASS: lint/typecheck, 10 unit tests, build, 10 e2e; blocks gallery at 1440/1024/390 has no console errors/overflow. Temporary gallery removed in Phase 8.
+- Phase 2 — Complete. Shared blocks, status chips, luggage tags, stage blocks, section navigation, detail sheets, validated FormDialog and payment form. Labels/places unit tests added RED→GREEN. Gate PASS: lint/typecheck, 10 unit tests, build, 10 e2e; blocks gallery at 1440/1024/390 has no console errors/overflow. Temporary gallery is scheduled for removal in Phase 8.
 - Phase 3 — Complete. Home uses urgency-sorted derived jobs, direct ticket/reference and payment dialogs, session-only completion feedback and four luggage tags. KPI assertions moved to Trips/Payments with identical exact-count/value checks because the approved Home removes KPI strips. Home ticket test rejects blank ref, records reference, removes job and verifies reload. Gate PASS: 11 unit, 10 e2e, lint/typecheck/build; all three viewports no errors/overflow. Desktop render compared with home mock; priority order and real counts intentionally replace mock literals.
 - Phase 4 — Complete. URL stage blocks, plain-language person cards/actions, finished/reopen view, validated new inquiry, table and More stage select. Customer page replaces drawer; old customer query redirects and global search links directly. Exact balance assertions retained on new customer route. Added stage-action/reload e2e RED→GREEN. Gate PASS: 11 unit, 11 e2e, lint/typecheck/build; both screens at 1440/1024/390 no app errors or overflow.
 - Phase 5 — Complete. Simple quote pricing/presets, Other markup, locked state, explicit booking confirmation and full editor route. Terms, inclusions/exclusions, agent and bounded edit history extend quotation records only; centavo math unchanged. Customization/agent snapshot test RED→GREEN. Gate PASS: 12 unit, 11 e2e, lint/typecheck/build; both screens clean at all three viewports. MEP quotation PDF one A4 page, rendered and visually inspected at /tmp/mep-quote-print.png; every staff-only panel asserted hidden. Payment plan remains the specified fixed 30%/balance schedule.
@@ -55,3 +55,56 @@ Remaining work:
 - Latest passing counts: **14 unit / 12 e2e**. Current export includes the temporary blocks gallery (remove in Phase 8).
 - Browser plugin absent: Playwright Chromium is the recorded browser fallback. Existing local mock server on 4300 and static server on 4173 were reused after checking their contents.
 - Preserve the user’s current browser LocalStorage; QA uses isolated Playwright contexts. Existing persisted branding is preserved until the user chooses Reset demo.
+
+## Work log — 21 October 2026 (Asia/Manila)
+
+This log records the redesign work completed before the user requested a pause. The redesign remains paused; this documentation update does not resume implementation.
+
+| Phase | Commit | Work completed |
+|---|---|---|
+| 0 · Baseline | `c9f95bd` | Read the handoff/plan and approved HTML references; installed from the existing lockfile; ran baseline checks; captured mock screenshots; exercised the mock pricing/conversion/checklist journey through Ready to fly and reset. |
+| 1 · Brand and top bar | `2afae61` | Copied MEP logo assets into public/brand; changed fresh/reset seed branding to MEP; replaced Geist with Barlow and Barlow Condensed; replaced the sidebar with the charcoal top bar, search dialog and account/reset menu; applied cream/lime/red tokens; updated print navigation isolation. |
+| 2 · Shared components | `c6c9d10` | Added flat blocks, large monetary figures, luggage tags, stage blocks, status chips, detail sheets, key-value grids, section navigation and progress meters; added validated FormDialog and refactored payment entry; added plain-language labels and destination codes with tests. |
+| 3 · Home | `fe72063` | Replaced the KPI/chart/table front with three urgency-sorted jobs and four departure tags; wired direct ticket-reference and payment actions; added session completion feedback and all-jobs access. Kept financial metrics on Trips/Payments and preserved exact assertions there. |
+| 4 · People and customers | `2b345f3` | Built stage-based People asking cards, next-step actions, finished/reopen view, new-inquiry validation and a table alternative; created the customer detail page with contact, requests, quotes, trips, payments and notes; redirected legacy customer queries and updated global search. |
+| 5 · Quotations | `fe21ee1` | Split simple quote pricing from the full editor; added markup choices and explicit booking confirmation; retained locked accepted quotes; added editable inclusions/exclusions, terms, agent and bounded edit history; built the MEP customer document and verified one-page A4 output. |
+| 6 · Trips | `fdd7f58` | Added the derived trip checklist and next action; payment prefill for the remaining deposit/balance; supplier and ticket reference dialogs; traveler dialogs; a simple trip front and full detail route for services, travelers, payments, itinerary, visas and activity. |
+
+### Routes added
+
+- `/customers/view?id=...` — customer profile, replacing the drawer.
+- `/quotations/edit?id=...` — full quotation editor behind the simple quote front.
+- `/bookings/details?id=...` — full trip details behind the checklist front.
+- `/dev/blocks` — temporary component gallery; still present and must be removed in Phase 8.
+
+### Financial and persistence behavior preserved
+
+- Money remains integer centavos; quotation and payment arithmetic were not replaced.
+- Accepted quotation snapshots remain immutable and acceptance remains idempotent.
+- Balances, statuses, counts, attention jobs and checklist completion are derived from records.
+- Manual payment and ticket-reference guards remain active.
+- LocalStorage persistence, schema/corruption recovery, hydration gate and reset remain in place.
+- No backend, external integration, deployment, push or new npm dependency was added.
+- The user's browser records and untracked `.claude/` directory were left untouched.
+
+### Validation actually completed
+
+Latest full gate before pausing, against the Phase 6 implementation:
+
+- `npm run lint` — passed, zero errors/warnings.
+- `npm run typecheck` — passed.
+- `npm test` — **14 passing unit tests**.
+- `npm run build` — passed, static export produced.
+- `npm run e2e` — **12 passing Chromium tests** against the static export.
+- Screens changed in each phase checked at **1440×900**, **1024×768** and **390×844**; no application errors or page-level horizontal overflow observed in those checks.
+- Default quotation generated as **one A4 page**, rendered and visually inspected; staff information and app navigation hidden.
+- Exact money checks preserved: 10% markup gives **₱220,000**, 15% gives **₱230,000**; a **₱60,000** payment leaves **₱160,000**; another **₱6,000** completes the deposit, leaves **₱154,000**, and advances the next step to supplier confirmations.
+- Regression coverage includes search/customer navigation, inquiry stage persistence, storage recovery, traveler counts, reference validation and acceptance snapshots.
+
+### Resume point and limits
+
+Resume with **Phase 7 of REDESIGN_PLAN.md**. Remaining screens: All trips, Payments, Visas, Quotes list and Settings. Phase 8 still includes correcting seeded visa eligibility/countries, removing the component gallery, formatting, updating the user/QA documents, final responsive/keyboard/print checks, independent review and the final combined gate.
+
+The full redesign is **not yet complete**. The original README, demo script and QA documents still describe parts of the prior interface until Phase 8 updates them. The visa seed issue described in the redesign handoff has not yet been corrected. Existing persisted branding is intentionally retained until Reset demo is chosen.
+
+Evidence paths under `/tmp` are temporary and may not survive cleanup; the committed code, tests and this log are the durable record.
