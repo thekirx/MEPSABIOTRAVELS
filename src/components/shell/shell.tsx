@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { Modal, notify, Field } from "@/components/shared";
 import { permissions } from "@/domain/roles";
+import { Tour, TourButton } from "@/features/tour/tour";
 import { persistGate } from "@/store/persist-gate";
 import type { DemoData } from "@/domain/types";
 const nav = [
@@ -119,6 +120,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <span>Demo page. No real booking or payment is made.</span>
         </footer>
         <Toaster position="bottom-center" />
+        <Tour />
       </div>
     );
   const q = search.toLowerCase().trim();
@@ -191,6 +193,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
           <div className="appbar-right">
+            <TourButton />
             <Button
               variant="ghost"
               size="icon"
@@ -276,6 +279,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <span>DEMO — simulated data. No real customers or payments.</span>
       </footer>
       <Toaster position="bottom-right" />
+      <Tour />
       <Modal
         open={searchOpen}
         onOpenChange={setSearchOpen}

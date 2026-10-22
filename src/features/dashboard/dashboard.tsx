@@ -16,6 +16,7 @@ import { Modal } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { PaymentDialog } from "@/features/payments/payment-dialog";
 import { greeting, jobTypesFor } from "@/domain/roles";
+import { TourInvite } from "@/features/tour/tour-invite";
 function Job({
   job,
   onTicket,
@@ -124,6 +125,7 @@ export function Dashboard() {
           + New inquiry
         </Link>
       </section>
+      <TourInvite />
       <section
         className="g3 home-jobs"
         aria-label="Today's jobs"

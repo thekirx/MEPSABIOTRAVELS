@@ -77,6 +77,7 @@ All 25 commits are on `main`; `git log --oneline` lists them.
    - **Salary tab** `/salary` (owner only): semi-monthly payroll, commission from closed bookings, SSS, PhilHealth, Pag-IBIG and tax, payslips, and approval that freezes payslips.
    - Live updates between tabs via `storage` events. Schema version 3.
    - The 5-minute pitch script is at the top of `DEMO_SCRIPT.md`.
+6. **Guided tour** (`src/features/tour/`): a "Take the tour" button in the top bar (and a dismissible invite on Home) runs 15 plain-language steps. Each step opens a page, highlights one area and places the card beside it (a bottom sheet on phones). Keyboard: arrows and Escape. It is read-only; tour state is not saved.
 
 The branch history matters if you compare against older docs. The redesign was built on `redesign/mep`. On 21 Oct that branch was **renamed to `main`**, which replaced the original pre-redesign `main` (`5260908`, not pushed), and `main` was pushed to GitHub.
 

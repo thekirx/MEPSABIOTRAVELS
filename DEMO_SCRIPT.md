@@ -11,6 +11,8 @@ Reset first (Settings → Reset demo data). Use two browser windows in the same 
 5. **Ticketing:** account menu → **Luis Tan (Ticketing)**. Home shows only "Issue Andrea's plane ticket" (due 5 PM tomorrow). Open any quote: costs and profit are hidden.
 6. **Owner:** switch to **Isabel Santos (Owner)** → **Salary**. Katrina's payslip already includes commission from Andrea's booking. Click **Approve payday**.
 
+**Let them explore on their own:** the **Take the tour** button in the top bar (or the invite on Home) walks through 15 steps in about 3 minutes, opening each page and highlighting what to look at. It never changes demo data, and Escape closes it.
+
 Close with the roadmap: this demo runs in one browser; the real portal adds logins, a shared database, real email and real payments.
 
 ## Before the meeting

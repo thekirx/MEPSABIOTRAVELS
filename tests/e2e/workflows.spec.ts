@@ -597,3 +597,38 @@ test("pitch: client approves and pays, Ticketing gets the job, owner sees commis
     page.getByText("Payday approved", { exact: true }),
   ).toBeVisible();
 });
+
+test("guided tour walks through the portal without changing data", async ({
+  page,
+}) => {
+  await page.goto("/dashboard");
+  const before = await page.evaluate(() =>
+    localStorage.getItem("travelos-demo-v1"),
+  );
+  await page.getByRole("button", { name: "Take the tour" }).first().click();
+  const card = page.getByRole("dialog", { name: "Welcome to TravelOS" });
+  await expect(card).toBeVisible();
+  await page.getByRole("button", { name: "Start" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Home: today's jobs" }),
+  ).toBeVisible();
+  await expect(page.locator(".tour-spot")).toBeVisible();
+  for (let i = 0; i < 2; i++)
+    await page.getByRole("button", { name: "Next" }).click();
+  await expect(page).toHaveURL(/quotations\/view\/?\?id=q1/);
+  await expect(
+    page.getByRole("dialog", { name: "The quote your client receives" }),
+  ).toBeVisible();
+  await page.keyboard.press("ArrowLeft");
+  await expect(page).toHaveURL(/inquiries/);
+  for (let i = 0; i < 12; i++) await page.keyboard.press("ArrowRight");
+  await expect(
+    page.getByRole("dialog", { name: "That's TravelOS" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Finish", exact: true }).click();
+  await expect(page).toHaveURL(/dashboard/);
+  await expect(page.locator(".tour-card")).toHaveCount(0);
+  expect(
+    await page.evaluate(() => localStorage.getItem("travelos-demo-v1")),
+  ).toBe(before);
+});
